@@ -1,34 +1,18 @@
-✅ Docker Setup
-
-
+**✅ Docker Setup**
 
 * Each service has a Dockerfile
 * docker-compose.yml for local development
 
-&nbsp;	docker-compose up --build
+docker-compose up --build
 
-
-
-
-
-✅ Terraform (AWS)
-
-
+**✅ Terraform (AWS)**
 
 Deploys:
-
 * EKS cluster
-* RDS (PostgreSQL)
-* S3 buckets
-* IAM roles \& secrets
-
-
+* RDS PostgreSQL
+* S3, IAM, Secrets
+* Load balancer
 
 cd devops/terraform
-
 terraform init
-
 terraform apply
-
-
-

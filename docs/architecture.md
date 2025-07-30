@@ -12,15 +12,12 @@
 ###### **Microservice Layout**
 
 API Gateway →
-
-&nbsp;├── auth-service
-
-&nbsp;├── patient-service
-
-&nbsp;├── billing-service
-
-&nbsp;├── inventory-service
-
-&nbsp;└── ai-triage-service
-
+ ├── auth-service
+ ├── patient-service
+ ├── doctor-service
+ ├── appointment-service
+ ├── billing-service
+ ├── inventory-service
+ ├── notification-service
+ └── ai-triage-service
 
