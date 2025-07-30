@@ -11,7 +11,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.hms.patientservice.config.PatientDTO;
+import com.hms.patientservice.dto.PatientDTO;
 import com.hms.patientservice.model.Patient;
 import com.hms.patientservice.service.PatientService;
 

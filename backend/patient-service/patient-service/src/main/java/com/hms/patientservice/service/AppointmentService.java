@@ -6,7 +6,7 @@ import java.util.stream.Collectors;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import com.hms.patientservice.config.AppointmentDTO;
+import com.hms.patientservice.dto.AppointmentDTO;
 import com.hms.patientservice.model.Appointment;
 import com.hms.patientservice.model.Patient;
 import com.hms.patientservice.repository.AppointmentRepository;

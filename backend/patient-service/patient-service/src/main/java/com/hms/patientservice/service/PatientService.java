@@ -5,7 +5,7 @@ import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import com.hms.patientservice.config.PatientDTO;
+import com.hms.patientservice.dto.PatientDTO;
 import com.hms.patientservice.model.Patient;
 import com.hms.patientservice.model.User;
 import com.hms.patientservice.repository.PatientRepository;

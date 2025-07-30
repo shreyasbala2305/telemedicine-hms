@@ -1,4 +1,4 @@
-package com.hms.billingservice.config;
+package com.hms.billingservice.dto;
 
 import lombok.Data;
 
