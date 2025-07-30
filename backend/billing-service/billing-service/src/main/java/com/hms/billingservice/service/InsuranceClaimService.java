@@ -5,7 +5,7 @@ import java.time.LocalDateTime;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import com.hms.billingservice.config.InsuranceClaimDTO;
+import com.hms.billingservice.dto.InsuranceClaimDTO;
 import com.hms.billingservice.model.InsuranceClaim;
 import com.hms.billingservice.model.Invoice;
 import com.hms.billingservice.repository.InsuranceClaimRepository;

@@ -1,4 +1,4 @@
-package com.hms.patientservice.config;
+package com.hms.patientservice.dto;
 
 import lombok.Data;
 

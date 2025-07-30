@@ -6,7 +6,7 @@ import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import com.hms.billingservice.config.InvoiceDTO;
+import com.hms.billingservice.dto.InvoiceDTO;
 import com.hms.billingservice.model.Invoice;
 import com.hms.billingservice.repository.InvoiceRepository;
 

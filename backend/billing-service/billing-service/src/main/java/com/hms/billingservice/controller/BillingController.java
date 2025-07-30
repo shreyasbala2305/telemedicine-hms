@@ -12,7 +12,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.hms.billingservice.config.InvoiceDTO;
+import com.hms.billingservice.dto.InvoiceDTO;
 import com.hms.billingservice.model.Invoice;
 import com.hms.billingservice.service.BillingService;
 

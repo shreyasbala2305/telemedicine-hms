@@ -39,6 +39,7 @@
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-data-jpa</artifactId>
 		</dependency>
+		<!-- JWT support -->
 		<dependency>
 		    <groupId>io.jsonwebtoken</groupId>
 		    <artifactId>jjwt</artifactId>
@@ -68,10 +69,52 @@
 			<artifactId>postgresql</artifactId>
 			<scope>runtime</scope>
 		</dependency>
+		<!-- OpenAPI -->
 		<dependency>
 		    <groupId>org.springdoc</groupId>
 		    <artifactId>springdoc-openapi-starter-webmvc-ui</artifactId>
 		    <version>2.5.0</version>
+		</dependency>
+		
+		<!-- Drools Rules Engine 
+		<dependency>
+		  <groupId>org.kie</groupId>
+		  <artifactId>kie-api</artifactId>
+		  <version>7.74.0.Final</version>
+		</dependency>
+		<dependency>
+		  <groupId>org.kie</groupId>
+		  <artifactId>kie-spring</artifactId>
+		  <version>7.74.0.Final</version>
+		</dependency> -->
+		<dependency>
+		  <groupId>org.kie</groupId>
+		  <artifactId>kie-api</artifactId>
+		  <version>7.74.0.Final</version>
+		</dependency>
+		<dependency>
+		  <groupId>org.kie</groupId>
+		  <artifactId>kie-spring</artifactId>
+		  <version>7.74.0.Final</version>
+		</dependency>
+		<dependency>
+		  <groupId>org.drools</groupId>
+		  <artifactId>drools-compiler</artifactId>
+		  <version>7.74.0.Final</version>
+		</dependency>
+
+		<!-- PDFBox for Invoice generation -->
+		<dependency>
+		  <groupId>org.apache.pdfbox</groupId>
+		  <artifactId>pdfbox</artifactId>
+		  <version>2.0.29</version>
+		</dependency>
+		
+		<!-- PayPal Checkout SDK -->
+		<dependency>
+		    <groupId>com.paypal.sdk</groupId>
+		    <artifactId>checkout-sdk</artifactId>
+		    <version>1.0.3</version>
 		</dependency>
 		<dependency>
 			<groupId>org.projectlombok</groupId>

@@ -8,7 +8,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.hms.billingservice.config.InsuranceClaimDTO;
+import com.hms.billingservice.dto.InsuranceClaimDTO;
 import com.hms.billingservice.model.InsuranceClaim;
 import com.hms.billingservice.service.InsuranceClaimService;
 
