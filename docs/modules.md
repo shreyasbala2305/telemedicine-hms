@@ -1,54 +1,35 @@
 ###### **🔹 patient-service**
+* Patient profile
+* EHR file management
+* Patient lookup APIs
 
+###### **🔹 doctor-service**
+* Doctor registration and profiles
+* Specialty search
+* Availability updates
 
-
-* Appointments (CRUD + schedule validation)
-* EHR File management (S3 upload/download)
-* WebSocket real-time availability
-
-
-
-
+###### **🔹 appointment-service**
+* Booking and time slot management
+* Patient ↔ Doctor associations
+* Real-time calendar view
 
 ###### **🔹 billing-service**
-
-
-
-* Invoice generation (PDFBox)
-* Insurance claims (HL7/FHIR)
-* Stripe/PayPal payment integration
-* Drools-based tax \& discount rules
-
-
-
-
+* Invoice & claims
+* Stripe/PayPal payments
+* PDF generation
 
 ###### **🔹 auth-service**
-
-
-
-* JWT authentication \& refresh
-* Role-based access (Patient, Admin, Doctor)
-
-
-
-
+* JWT login + role-based access
+* Token refresh and validation
 
 ###### **🔹 inventory-service**
+* MongoDB-based medical supplies
+* Low-stock alerts via SNS
 
-
-
-* MongoDB CRUD for supplies
-* AWS SNS alerts
-* Admin-level dashboards
-
-
-
-
+###### **🔹 notification-service**
+* Email/SMS/in-app messages
+* Integration with Twilio/SendGrid
 
 ###### **🔹 ai-triage-service**
-
-
-
-* Flask app with /predict endpoint
-* TensorFlow model integration
+* Symptom-to-specialist triage
+* Machine learning health predictions

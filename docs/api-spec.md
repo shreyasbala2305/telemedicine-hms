@@ -1,36 +1,39 @@
-###### **Auth Service**
+**Auth Service**
 
 POST /auth/login
-
 POST /auth/register
-
 GET  /auth/validate
 
-
-
-###### **Patient Service**
+**Patient Service**
 
 GET  /patients
-
-POST /appointments
-
-GET  /appointments/{id}
-
+POST /patients
 GET  /records/{patientId}
 
+**Doctor Service**
 
+GET  /doctors
+POST /doctors
+PUT  /doctors/{id}/availability
+GET  /doctors/specialty/{type}
 
-###### **Billing Service**
+**Appointment Service**
+
+POST /appointments
+GET  /appointments/patient/{id}
+GET  /appointments/doctor/{id}
+
+**Billing Service**
 
 POST /bills
-
+GET  /bills/{patientId}
 POST /claims
 
-GET  /bills/{patientId}
+**Notification Service**
 
+POST /notify
+POST /notify/appointment-confirmation
 
-
-###### **AI Triage Service**
+**AI Triage Service**
 
 POST /predict
-

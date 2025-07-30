@@ -1,8 +1,19 @@
-###### **Tables:**
+Tables:
 
-* users (id, name, email, role, password)
-* patients (id, user\_id, dob, gender, contact)
-* appointments (id, patient\_id, doctor\_id, date\_time, status)
-* ehr\_records (id, patient\_id, file\_url, notes, timestamp)
-* invoices (id, patient\_id, amount, status, generated\_on)
-* inventory\_items (id, name, quantity, threshold)
+users (id, name, email, role, password)
+
+doctors (id, name, specialty, contact, availability)
+
+patients (id, user_id, dob, gender, contact)
+
+appointments (id, patient_id, doctor_id, date_time, status)
+
+ehr_records (id, patient_id, file_url, notes, timestamp)
+
+invoices (id, patient_id, amount, status, generated_on)
+
+insurance_claims (id, patient_id, invoice_id, insurer, claim_status, submitted_at)
+
+inventory_items (id, name, quantity, threshold)
+
+notifications (id, recipient_id, type, message, sent_at)
