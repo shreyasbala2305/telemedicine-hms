@@ -3,10 +3,11 @@ package com.hms.patientservice.model;
 import java.time.LocalDateTime;
 
 import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
-import jakarta.persistence.JoinTable;
+import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import lombok.Data;
@@ -20,13 +21,13 @@ public class EHRRecord {
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Long id;
 	
-	@ManyToOne
-	@JoinTable(name = "patient_id")
-	private Patient patientId;
-	
 	private String fileUrl;
 	
 	private String notes;
 	
 	private LocalDateTime timeStamp;
+	
+	@ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "patient_id")
+	private Patient patient;
 }
