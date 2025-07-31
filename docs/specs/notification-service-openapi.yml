@@ -1,0 +1,58 @@
+openapi: 3.0.3
+info:
+  title: Notification Service API
+  version: 1.0.0
+  description: Sends notifications via email and SMS for appointments and other alerts.
+
+servers:
+  - url: http://localhost:8088
+
+paths:
+  /notifications/email:
+    post:
+      summary: Send email notification
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/EmailNotificationDTO'
+      responses:
+        '200':
+          description: Email sent successfully
+
+  /notifications/sms:
+    post:
+      summary: Send SMS notification
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SmsNotificationDTO'
+      responses:
+        '200':
+          description: SMS sent successfully
+
+components:
+  schemas:
+    EmailNotificationDTO:
+      type: object
+      properties:
+        recipientEmail:
+          type: string
+          format: email
+        subject:
+          type: string
+        message:
+          type: string
+      required: [recipientEmail, subject, message]
+
+    SmsNotificationDTO:
+      type: object
+      properties:
+        recipientPhone:
+          type: string
+        message:
+          type: string
+      required: [recipientPhone, message]
