@@ -1,0 +1,53 @@
+openapi: 3.0.3
+info:
+  title: AI Triage Service API
+  description: Predicts medical specialists based on patient symptoms.
+  version: 1.0.0
+
+servers:
+  - url: http://localhost:8087
+    description: Local Development Server
+
+paths:
+  /predict:
+    post:
+      summary: Predict medical specialist
+      description: Returns the most appropriate specialist based on given symptoms.
+      operationId: predictSpecialist
+      requestBody:
+        description: List of symptoms from the patient
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SymptomRequest'
+      responses:
+        '200':
+          description: Specialist successfully predicted
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SpecialistResponse'
+        '404':
+          description: No matching specialist found
+        '400':
+          description: Invalid input
+
+components:
+  schemas:
+    SymptomRequest:
+      type: object
+      properties:
+        symptoms:
+          type: array
+          items:
+            type: string
+      required:
+        - symptoms
+
+    SpecialistResponse:
+      type: object
+      properties:
+        specialist:
+          type: string
+          example: "Pulmonologist"
