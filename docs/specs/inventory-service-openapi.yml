@@ -1,0 +1,71 @@
+openapi: 3.0.3
+info:
+  title: Inventory Service API
+  version: 1.0.0
+  description: Manages hospital inventory like medical equipment and supplies.
+
+servers:
+  - url: http://localhost:8086
+
+paths:
+  /inventory:
+    post:
+      summary: Add a new inventory item
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/InventoryItemDTO'
+      responses:
+        '201':
+          description: Inventory item added
+
+    get:
+      summary: Get all inventory items
+      responses:
+        '200':
+          description: List of items
+
+  /inventory/{id}:
+    get:
+      summary: Get inventory item by ID
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Inventory item data
+        '404':
+          description: Item not found
+
+    put:
+      summary: Update inventory item quantity
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                quantity:
+                  type: integer
+      responses:
+        '200':
+          description: Quantity updated
+
+components:
+  schemas:
+    InventoryItemDTO:
+      type: object
+      properties:
+        name:
+          type: string
+        quantity:
+          type: integer
+        threshold:
+          type: integer
+      required: [name, quantity, threshold]

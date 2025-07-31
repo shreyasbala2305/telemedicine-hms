@@ -1,12 +1,82 @@
-openapi: 3.0.0
+# openapi: 3.0.0
+# info:
+#   title: Billing Service API
+#   version: 1.0.0
+
+# paths:
+#   /bills:
+#     post:
+#       summary: Generate new invoice
+#       requestBody:
+#         required: true
+#         content:
+#           application/json:
+#             schema:
+#               $ref: '#/components/schemas/InvoiceDTO'
+#       responses:
+#         '201':
+#           description: Invoice created
+
+#   /bills/{patientId}:
+#     get:
+#       summary: Get invoices by patient ID
+#       parameters:
+#         - name: patientId
+#           in: path
+#           required: true
+#           schema: { type: integer }
+#       responses:
+#         '200':
+#           description: List of invoices
+
+#   /claims:
+#     post:
+#       summary: Submit insurance claim
+#       requestBody:
+#         required: true
+#         content:
+#           application/json:
+#             schema:
+#               $ref: '#/components/schemas/InsuranceClaimDTO'
+#       responses:
+#         '201':
+#           description: Claim submitted
+
+# components:
+#   schemas:
+#     InvoiceDTO:
+#       type: object
+#       properties:
+#         patientId:
+#           type: integer
+#         amount:
+#           type: number
+#           format: double
+
+#     InsuranceClaimDTO:
+#       type: object
+#       properties:
+#         patientId:
+#           type: integer
+#         invoiceId:
+#           type: integer
+#         insurer:
+#           type: string
+
+
+openapi: 3.0.3
 info:
   title: Billing Service API
   version: 1.0.0
+  description: Handles invoices, insurance claims, and payment-related operations.
+
+servers:
+  - url: http://localhost:8085
 
 paths:
-  /bills:
+  /billing/invoice:
     post:
-      summary: Generate new invoice
+      summary: Create invoice for a patient
       requestBody:
         required: true
         content:
@@ -17,19 +87,28 @@ paths:
         '201':
           description: Invoice created
 
-  /bills/{patientId}:
     get:
-      summary: Get invoices by patient ID
-      parameters:
-        - name: patientId
-          in: path
-          required: true
-          schema: { type: integer }
+      summary: Get all invoices
       responses:
         '200':
-          description: List of invoices
+          description: List of all invoices
 
-  /claims:
+  /billing/invoice/{id}:
+    get:
+      summary: Get invoice by ID
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Invoice data
+        '404':
+          description: Not found
+
+  /billing/claim:
     post:
       summary: Submit insurance claim
       requestBody:
@@ -37,10 +116,23 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/InsuranceClaimDTO'
+              $ref: '#/components/schemas/ClaimDTO'
       responses:
         '201':
           description: Claim submitted
+
+  /billing/claim/{id}:
+    get:
+      summary: Get insurance claim status
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Claim found
 
 components:
   schemas:
@@ -52,8 +144,15 @@ components:
         amount:
           type: number
           format: double
+        status:
+          type: string
+          example: "PENDING"
+        generatedOn:
+          type: string
+          format: date
+      required: [patientId, amount]
 
-    InsuranceClaimDTO:
+    ClaimDTO:
       type: object
       properties:
         patientId:
@@ -62,3 +161,10 @@ components:
           type: integer
         insurer:
           type: string
+        claimStatus:
+          type: string
+          example: "SUBMITTED"
+        submittedAt:
+          type: string
+          format: date
+      required: [patientId, invoiceId, insurer]

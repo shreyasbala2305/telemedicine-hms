@@ -1,0 +1,86 @@
+openapi: 3.0.3
+info:
+  title: Appointment Service API
+  version: 1.0.0
+  description: Handles appointment booking and schedule management between patients and doctors.
+
+servers:
+  - url: http://localhost:8083
+
+paths:
+  /appointments:
+    post:
+      summary: Book a new appointment
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AppointmentDTO'
+      responses:
+        '201':
+          description: Appointment booked successfully
+
+    get:
+      summary: Get all appointments
+      responses:
+        '200':
+          description: List of all appointments
+
+  /appointments/{id}:
+    get:
+      summary: Get appointment by ID
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Appointment found
+        '404':
+          description: Appointment not found
+
+  /appointments/patient/{patientId}:
+    get:
+      summary: Get appointments for a patient
+      parameters:
+        - name: patientId
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Patient appointments
+
+  /appointments/doctor/{doctorId}:
+    get:
+      summary: Get appointments for a doctor
+      parameters:
+        - name: doctorId
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Doctor appointments
+
+components:
+  schemas:
+    AppointmentDTO:
+      type: object
+      properties:
+        patientId:
+          type: integer
+        doctorId:
+          type: integer
+        dateTime:
+          type: string
+          format: date-time
+        status:
+          type: string
+          example: "BOOKED"
+      required: [patientId, doctorId, dateTime]
