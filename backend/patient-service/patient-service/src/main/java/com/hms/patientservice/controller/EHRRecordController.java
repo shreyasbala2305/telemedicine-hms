@@ -37,7 +37,7 @@ public class EHRRecordController {
         String fileUrl = ehrStorageService.uploadFile(file, patientId.toString());
 
         EHRRecord record = new EHRRecord();
-        record.setPatientId(patient);
+        record.setPatient(patient);
         record.setFileUrl(fileUrl);
         record.setNotes(notes);	
         record.setTimeStamp(LocalDateTime.now());
@@ -51,3 +51,21 @@ public class EHRRecordController {
         return ResponseEntity.ok(ehrRepo.findByPatientId(id));
     }
 }
+
+//@RestController
+//@RequestMapping("/ehr")
+//public class EhrController {
+//    @Autowired
+//    private EhrRecordService service;
+//
+//    @PostMapping
+//    public EhrRecord upload(@RequestBody EhrRecordDTO dto) {
+//        return service.saveRecord(dto);
+//    }
+//
+//    @GetMapping("/patient/{id}")
+//    public List<EhrRecord> getByPatient(@PathVariable Long id) {
+//        return service.getByPatient(id);
+//    }
+//}
+

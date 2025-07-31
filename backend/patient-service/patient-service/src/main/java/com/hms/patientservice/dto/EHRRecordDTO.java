@@ -1,6 +1,10 @@
 package com.hms.patientservice.dto;
 
+import lombok.Data;
+
+@Data
 public class EHRRecordDTO {
-	public Long patientId;
-	public String notes;
+	private String fileUrl;
+    private String notes;
+    private Long patientId;
 }

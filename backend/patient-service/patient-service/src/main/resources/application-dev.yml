@@ -1,0 +1,6 @@
+aws:
+  s3:
+    region: us-east-1
+    bucket-name: ehr-storage-bucket
+  access-key: your-dev-access-key
+  secret-key: your-dev-secret-key
