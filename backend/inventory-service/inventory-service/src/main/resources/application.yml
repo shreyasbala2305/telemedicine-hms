@@ -1,0 +1,16 @@
+server:
+  port: 8085
+
+spring:
+  application:
+    name: inventory-service
+
+  data:
+    mongodb:
+      uri: mongodb://localhost:27017/inventorydb
+
+springdoc:
+  swagger-ui:
+    path: /swagger-ui.html
+  api-docs:
+    path: /v3/api-docs
