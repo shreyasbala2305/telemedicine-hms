@@ -99,31 +99,21 @@
 		    <version>2.5.0</version>
 		</dependency>
 		
-		<!-- Drools Rules Engine 
+		<!-- Drools Rules Engine -->
 		<dependency>
 		  <groupId>org.kie</groupId>
 		  <artifactId>kie-api</artifactId>
-		  <version>7.74.0.Final</version>
+		  <version>7.73.0.Final</version>
 		</dependency>
 		<dependency>
 		  <groupId>org.kie</groupId>
 		  <artifactId>kie-spring</artifactId>
-		  <version>7.74.0.Final</version>
-		</dependency> -->
-		<dependency>
-		  <groupId>org.kie</groupId>
-		  <artifactId>kie-api</artifactId>
-		  <version>7.74.0.Final</version>
-		</dependency>
-		<dependency>
-		  <groupId>org.kie</groupId>
-		  <artifactId>kie-spring</artifactId>
-		  <version>7.74.0.Final</version>
+		  <version>7.73.0.Final</version>
 		</dependency>
 		<dependency>
 		  <groupId>org.drools</groupId>
 		  <artifactId>drools-compiler</artifactId>
-		  <version>7.74.0.Final</version>
+		  <version>7.73.0.Final</version>
 		</dependency>
 
 		<!-- PDFBox for Invoice generation -->
