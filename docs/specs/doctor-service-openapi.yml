@@ -1,0 +1,95 @@
+openapi: 3.0.3
+info:
+  title: Doctor Service API
+  version: 1.0.0
+  description: Manages doctor profiles, specialties, and availability.
+
+servers:
+  - url: http://localhost:8084
+
+paths:
+  /doctors:
+    get:
+      summary: Get all doctors
+      responses:
+        '200':
+          description: List of all registered doctors
+
+    post:
+      summary: Register a new doctor
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/DoctorDTO'
+      responses:
+        '201':
+          description: Doctor registered successfully
+
+  /doctors/{id}:
+    get:
+      summary: Get doctor by ID
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Doctor data
+        '404':
+          description: Not found
+
+  /doctors/specialty/{type}:
+    get:
+      summary: Get doctors by specialty
+      parameters:
+        - name: type
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Doctors with given specialty
+
+  /doctors/{id}/availability:
+    put:
+      summary: Update doctor availability
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: array
+              items:
+                type: string
+                example: "Monday 10am-12pm"
+      responses:
+        '200':
+          description: Availability updated
+
+components:
+  schemas:
+    DoctorDTO:
+      type: object
+      properties:
+        name:
+          type: string
+        contact:
+          type: string
+        specialty:
+          type: string
+        availability:
+          type: array
+          items:
+            type: string
+      required: [name, contact, specialty]

@@ -1,43 +1,150 @@
-openapi: 3.0.0
+# openapi: 3.0.0
+# info:
+#   title: Patient Service API
+#   version: 1.0.0
+
+# paths:
+#   /users/register:
+#     post:
+#       summary: Register a new user
+#       requestBody:
+#         required: true
+#         content:
+#           application/json:
+#             schema:
+#               $ref: '#/components/schemas/UserDTO'
+#       responses:
+#         '201':
+#           description: Created
+
+#   /users/{id}:
+#     get:
+#       summary: Get user by ID
+#       parameters:
+#         - name: id
+#           in: path
+#           required: true
+#           schema: { type: integer }
+#       responses:
+#         '200':
+#           description: OK
+
+#   /patients:
+#     get:
+#       summary: Get all patients
+#       responses:
+#         '200':
+#           description: List of patients
+
+#     post:
+#       summary: Create a new patient
+#       requestBody:
+#         required: true
+#         content:
+#           application/json:
+#             schema:
+#               $ref: '#/components/schemas/PatientDTO'
+#       responses:
+#         '201':
+#           description: Created
+
+#   /appointments:
+#     post:
+#       summary: Book appointment
+#       requestBody:
+#         required: true
+#         content:
+#           application/json:
+#             schema:
+#               $ref: '#/components/schemas/AppointmentDTO'
+#       responses:
+#         '201':
+#           description: Created
+
+#   /appointments/patient/{id}:
+#     get:
+#       summary: Get appointments by patient ID
+#       parameters:
+#         - name: id
+#           in: path
+#           required: true
+#           schema: { type: integer }
+#       responses:
+#         '200':
+#           description: OK
+
+#   /records/upload:
+#     post:
+#       summary: Upload EHR Record
+#       requestBody:
+#         required: true
+#         content:
+#           multipart/form-data:
+#             schema:
+#               type: object
+#               properties:
+#                 file:
+#                   type: string
+#                   format: binary
+#                 patientId:
+#                   type: integer
+#                 notes:
+#                   type: string
+#       responses:
+#         '200':
+#           description: Upload successful
+
+#   /records/patient/{id}:
+#     get:
+#       summary: Get EHR records by patient ID
+#       parameters:
+#         - name: id
+#           in: path
+#           required: true
+#           schema: { type: integer }
+#       responses:
+#         '200':
+#           description: OK
+
+# components:
+#   schemas:
+#     UserDTO:
+#       type: object
+#       properties:
+#         name: { type: string }
+#         email: { type: string }
+#         password: { type: string }
+#         role: { type: string }
+
+#     PatientDTO:
+#       type: object
+#       properties:
+#         userId: { type: integer }
+#         dob: { type: string }
+#         gender: { type: string }
+#         contact: { type: string }
+
+#     AppointmentDTO:
+#       type: object
+#       properties:
+#         patientId: { type: integer }
+#         doctorId: { type: integer }
+#         dateTime: { type: string, format: date-time }
+
+
+openapi: 3.0.3
 info:
   title: Patient Service API
   version: 1.0.0
+  description: Manages patient profiles, EHR records, and basic patient-related endpoints.
+
+servers:
+  - url: http://localhost:8082
 
 paths:
-  /users/register:
-    post:
-      summary: Register a new user
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/UserDTO'
-      responses:
-        '201':
-          description: Created
-
-  /users/{id}:
-    get:
-      summary: Get user by ID
-      parameters:
-        - name: id
-          in: path
-          required: true
-          schema: { type: integer }
-      responses:
-        '200':
-          description: OK
-
   /patients:
-    get:
-      summary: Get all patients
-      responses:
-        '200':
-          description: List of patients
-
     post:
-      summary: Create a new patient
+      summary: Register a new patient
       requestBody:
         required: true
         content:
@@ -46,36 +153,32 @@ paths:
               $ref: '#/components/schemas/PatientDTO'
       responses:
         '201':
-          description: Created
+          description: Patient registered successfully
 
-  /appointments:
-    post:
-      summary: Book appointment
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/AppointmentDTO'
-      responses:
-        '201':
-          description: Created
-
-  /appointments/patient/{id}:
     get:
-      summary: Get appointments by patient ID
-      parameters:
-        - name: id
-          in: path
-          required: true
-          schema: { type: integer }
+      summary: Get all registered patients
       responses:
         '200':
-          description: OK
+          description: List of patients
 
-  /records/upload:
+  /patients/{id}:
+    get:
+      summary: Get patient by ID
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Patient found
+        '404':
+          description: Patient not found
+
+  /patients/{id}/ehr:
     post:
-      summary: Upload EHR Record
+      summary: Upload EHR file
       requestBody:
         required: true
         content:
@@ -86,47 +189,32 @@ paths:
                 file:
                   type: string
                   format: binary
-                patientId:
-                  type: integer
                 notes:
                   type: string
-      responses:
-        '200':
-          description: Upload successful
-
-  /records/patient/{id}:
-    get:
-      summary: Get EHR records by patient ID
       parameters:
-        - name: id
-          in: path
+        - in: path
+          name: id
           required: true
-          schema: { type: integer }
+          schema:
+            type: integer
       responses:
-        '200':
-          description: OK
+        '201':
+          description: EHR uploaded
 
 components:
   schemas:
-    UserDTO:
-      type: object
-      properties:
-        name: { type: string }
-        email: { type: string }
-        password: { type: string }
-        role: { type: string }
-
     PatientDTO:
       type: object
       properties:
-        userId: { type: integer }
-        dob: { type: string }
-        gender: { type: string }
-        contact: { type: string }
-
-    AppointmentDTO:
-      type: object
-      properties:
-        patientId: { type: integer }
-        doctorId: { type: integer }
-        dateTime: { type: string, format: date-time }
+        name:
+          type: string
+        dob:
+          type: string
+          format: date
+        gender:
+          type: string
+        contact:
+          type: string
+        userId:
+          type: integer
+      required: [name, dob, gender, contact, userId]
