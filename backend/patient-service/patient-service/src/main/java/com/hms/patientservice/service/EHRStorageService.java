@@ -14,11 +14,17 @@ import ch.qos.logback.core.util.Duration;
 @Service
 public class EHRStorageService {
 
-    @Value("${aws.s3.bucket-name}")
+	@Value("${aws.s3.bucket-name}")
     private String bucketName;
 
+    private final S3Client s3Client;
+    private final S3Presigner presigner;
+
     @Autowired
-    private S3Client s3Client;
+    public EHRStorageService(S3Client s3Client, S3Presigner presigner) {
+        this.s3Client = s3Client;
+        this.presigner = presigner;
+    }
 
     public String uploadFile(MultipartFile file, String patientId) throws IOException {
         String key = "ehr/" + patientId + "/" + file.getOriginalFilename();
@@ -26,7 +32,6 @@ public class EHRStorageService {
         PutObjectRequest putRequest = PutObjectRequest.builder()
                 .bucket(bucketName)
                 .key(key)
-                .acl("private")
                 .contentType(file.getContentType())
                 .build();
 
@@ -36,14 +41,18 @@ public class EHRStorageService {
     }
 
     public URL getPresignedUrl(String key) {
-        S3Presigner presigner = S3Presigner.create();
         GetObjectRequest getRequest = GetObjectRequest.builder()
                 .bucket(bucketName)
                 .key(key)
                 .build();
 
-        return presigner.presignGetObject(builder ->
-                builder.signatureDuration(Duration.ofMinutes(10))
-                        .getObjectRequest(getRequest)).url();
+        PresignedGetObjectRequest presignedRequest = presigner.presignGetObject(
+                builder -> builder.signatureDuration(Duration.ofMinutes(10))
+                                   .getObjectRequest(getRequest));
+
+        return presignedRequest.url();
     }
+    
 }
+
+
