@@ -1,5 +1,5 @@
 server:
-  port: 8085
+  port: 8086
 
 spring:
   application:
@@ -7,7 +7,13 @@ spring:
 
   data:
     mongodb:
-      uri: mongodb://localhost:27017/inventorydb
+      uri: mongodb://localhost:27017/hms_inventory
+      database: inventory_item
+
+eureka:
+  client:
+    service-url:
+      defaultZone: http://localhost:8761/eureka
 
 springdoc:
   swagger-ui:

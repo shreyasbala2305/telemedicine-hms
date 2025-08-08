@@ -24,6 +24,12 @@ public class InventoryController {
 	@Autowired
 	private InventoryService inventoryService;
 	
+	@PostMapping("/use/{name}/{amount}")
+    public ResponseEntity<Void> reduceItem(@PathVariable String name, @PathVariable int amount) {
+        inventoryService.reduceStock(name, amount);
+        return ResponseEntity.ok().build();
+    }
+	
 	@PostMapping
 	public ResponseEntity<InventoryItem> create(@RequestBody InventoryDTO dto){
 		return ResponseEntity.ok(inventoryService.createItem(dto));

@@ -1,15 +1,21 @@
 package com.hms.appointmentservice.service;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import org.springframework.web.client.RestTemplate;
 
 import com.hms.appointmentservice.dto.AppointmentDTO;
 import com.hms.appointmentservice.dto.DoctorDTO;
+import com.hms.appointmentservice.dto.EmailNotificationDTO;
+import com.hms.appointmentservice.dto.MessageNotificationDTO;
 import com.hms.appointmentservice.dto.NotificationDTO;
 import com.hms.appointmentservice.dto.PatientDTO;
+import com.hms.appointmentservice.exception.ResourceNotFoundException;
+import com.hms.appointmentservice.feign.DoctorClient;
+import com.hms.appointmentservice.feign.NotificationClient;
+import com.hms.appointmentservice.feign.PatientClient;
 import com.hms.appointmentservice.model.Appointment;
 import com.hms.appointmentservice.repository.AppointmentRepository;
 
@@ -20,51 +26,97 @@ public class AppointmentService {
 	private AppointmentRepository appointmentRepository;
 	
 	@Autowired
-    private RestTemplate restTemplate;
-
-    private final String PATIENT_SERVICE_BASE = "http://localhost:8082/patients/";
-    private final String DOCTOR_SERVICE_BASE = "http://localhost:8084/doctors/";
-    private final String NOTIFICATION_SERVICE_BASE = "http://localhost:8086/notify";
+	private PatientClient patientClient;
+	
+	@Autowired
+	private DoctorClient doctorClient;
+	
+	@Autowired
+	private NotificationClient notificationClient;
+	
+//	@Autowired
+//    private RestTemplate restTemplate;
+//
+//    private final String PATIENT_SERVICE_BASE = "http://localhost:8082/patients/";
+//    private final String DOCTOR_SERVICE_BASE = "http://localhost:8084/doctors/";
+//    private final String NOTIFICATION_SERVICE_BASE = "http://localhost:8086/notify";
 
 	
-	public Appointment bookAppointment(AppointmentDTO dto) {
+	public AppointmentDTO bookAppointment(AppointmentDTO dto) {
 		
-		// Validate patient exists
-        try {
-            restTemplate.getForObject(PATIENT_SERVICE_BASE + dto.patientId, PatientDTO.class);
-        } catch (Exception e) {
-            throw new RuntimeException("Patient not found");
-        }
+		Long patientId = dto.getPatientId();
+		Long doctorId = dto.getDoctorId();
+		LocalDateTime dateTime = dto.getDateTime();
+		
+		//Validate patient exists
+		PatientDTO patient = patientClient.getPatientById(patientId);
+		if(patient == null)
+//			throw new RuntimeException("Patient not found.");
+			throw new ResourceNotFoundException("Patient not found with ID: " + patient.getId());
 
-        // Validate doctor exists
-        try {
-            restTemplate.getForObject(DOCTOR_SERVICE_BASE + dto.doctorId, DoctorDTO.class);
-        } catch (Exception e) {
-            throw new RuntimeException("Doctor not found");
-        }
+		
+		//Validate doctor exists
+		DoctorDTO doctor = doctorClient.getDoctorById(doctorId);
+		if(doctor == null)
+			throw new RuntimeException("Doctor not found.");
+		
+		
+//		// Validate patient exists
+//        try {
+//            restTemplate.getForObject(PATIENT_SERVICE_BASE + dto.patientId, PatientDTO.class);
+//        } catch (Exception e) {
+//            throw new RuntimeException("Patient not found");
+//        }
+//
+//        // Validate doctor exists
+//        try {
+//            restTemplate.getForObject(DOCTOR_SERVICE_BASE + dto.doctorId, DoctorDTO.class);
+//        } catch (Exception e) {
+//            throw new RuntimeException("Doctor not found");
+//        }
 		
 		Appointment appointment = new Appointment();
-		appointment.setPatientId(dto.patientId);
-		appointment.setDoctorId(dto.doctorId);
-		appointment.setDateTime(dto.dateTime);
-		appointment.setStatus(Appointment.Status.PENDING);
+		appointment.setPatientId(patientId);
+		appointment.setDoctorId(doctorId);
+		appointment.setDateTime(dateTime);
+		appointment.setStatus(Appointment.Status.CONFIRMED); //CONFIRMED
 		Appointment saved = appointmentRepository.save(appointment);
 		
+		EmailNotificationDTO email = new EmailNotificationDTO();
+		email.setTo(patient.getEmail());
+		email.setSubject("Invoice Generated");
+		email.setBody("Your appointment with Dr. " + doctor.getName() + " is confirmed.");
+		notificationClient.sendEmail(email);
 		
+		MessageNotificationDTO message = new MessageNotificationDTO();
+		message.setPhoneNumber(patient.getContact());
+		message.setMessage("Your appointment with Dr. " + doctor.getName() + " is confirmed.");
+		notificationClient.sendMessage(message);
+		
+	
 		NotificationDTO notify = new NotificationDTO();
-	    notify.recipientId = dto.patientId;
-	    notify.message = "Your appointment has been booked for " + dto.dateTime;
+	    notify.recipientId = dto.getPatientId();
+	    notify.message = "Your appointment has been booked for " + dto.getDateTime();
 	    notify.type = "EMAIL";
 
-	    try {
-	        restTemplate.postForEntity(NOTIFICATION_SERVICE_BASE, notify, Void.class);
-	    } catch (Exception e) {
-	        System.out.println("⚠️ Failed to send notification: " + e.getMessage());
-	    }
+//	    try {
+//	        restTemplate.postForEntity(NOTIFICATION_SERVICE_BASE, notify, Void.class);
+//	    } catch (Exception e) {
+//	        System.out.println("⚠️ Failed to send notification: " + e.getMessage());
+//	    }
 
-	    return saved;
+	    return mapToDTO(saved);
 	}
 	
+	private AppointmentDTO mapToDTO(Appointment appointment) {
+		AppointmentDTO dto = new AppointmentDTO();
+	    dto.setId(appointment.getId());  
+	    dto.setPatientId(appointment.getPatientId());
+	    dto.setDoctorId(appointment.getDoctorId());
+	    dto.setStatus(appointment.getStatus());
+	    return dto;
+	}
+
 	public List<Appointment> getByPatient(Long patientId){
 		return appointmentRepository.findByPatientId(patientId);
 	}

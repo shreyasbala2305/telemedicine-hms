@@ -29,6 +29,7 @@
 	</scm>
 	<properties>
 		<java.version>17</java.version>
+		<spring-cloud.version>2025.0.0</spring-cloud.version>
 	</properties>
 	<dependencies>
 		<dependency>
@@ -77,17 +78,47 @@
 			<artifactId>lombok</artifactId>
 			<optional>true</optional>
 		</dependency>
-		<!-- <dependency>
+		
+		<!-- AWS Core SDK for credentials, regions -->
+		<dependency>
 		  <groupId>software.amazon.awssdk</groupId>
 		  <artifactId>s3</artifactId>
-		</dependency> -->
-		<!-- AWS Core SDK for credentials, regions -->
+		  <version>2.25.20</version>
+		  <exclusions>
+	        <exclusion>
+	          <groupId>software.amazon.awssdk</groupId>
+	          <artifactId>core</artifactId>
+	        </exclusion>
+	      </exclusions>
+		</dependency>
 		<dependency>
 		  <groupId>software.amazon.awssdk</groupId>
 		  <artifactId>auth</artifactId>
 		  <version>2.25.20</version>
 		</dependency>
+		<dependency>
+		  <groupId>software.amazon.awssdk</groupId>
+		  <artifactId>regions</artifactId>
+		  <version>2.25.20</version>
+		</dependency>
+		<dependency>
+		  <groupId>software.amazon.awssdk</groupId>
+		  <artifactId>netty-nio-client</artifactId>
+		  <version>2.25.20</version>
+		</dependency>
+
+		<!-- Feign suppport -->
+		<dependency>
+		  <groupId>org.springframework.cloud</groupId>
+		  <artifactId>spring-cloud-starter-openfeign</artifactId>
+		</dependency>
 		
+		<dependency>
+		  <groupId>org.springframework.cloud</groupId>
+		  <artifactId>spring-cloud-starter-loadbalancer</artifactId>
+		</dependency>
+
+
 		<dependency>
 		  <groupId>software.amazon.awssdk</groupId>
 		  <artifactId>regions</artifactId>
@@ -128,6 +159,17 @@
 			<scope>test</scope>
 		</dependency>
 	</dependencies>
+	<dependencyManagement>
+		<dependencies>
+			<dependency>
+				<groupId>org.springframework.cloud</groupId>
+				<artifactId>spring-cloud-dependencies</artifactId>
+				<version>${spring-cloud.version}</version>
+				<type>pom</type>
+				<scope>import</scope>
+			</dependency>
+		</dependencies>
+	</dependencyManagement>
 
 	<build>
 		<plugins>

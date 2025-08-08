@@ -2,6 +2,7 @@ package com.hms.patientservice.model;
 
 import java.time.LocalDate;
 
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -19,11 +20,14 @@ public class Patient {
 	
 	private String name;
 	
+	private String email;
+	
 	private LocalDate dob;
 	
 	private String gender;
 	
 	private String contact;
 	
-	private Long user;
+	@Column(name = "user_id")
+	private Long userId;
 }

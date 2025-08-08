@@ -4,11 +4,13 @@ import java.time.LocalDate;
 
 import lombok.Data;
 
+@Data
 public class PatientDTO {
-	public Long id;
-    public String name;
-    public String contact;
-    public String gender;
-    public LocalDate dob;
-    public Long userId;
+	private Long id;
+    private String name;
+    private String email;
+    private String contact;
+    private String gender;
+    private LocalDate dob;
+    private Long userId;
 }

@@ -23,7 +23,7 @@ import com.hms.patientservice.service.EHRStorageService;
 @RestController
 @RequestMapping("/records")
 public class EHRRecordController {
-    @Autowired private EHRStorageService ehrStorageService;
+    @Autowired(required = false) private EHRStorageService ehrStorageService;
     @Autowired private EHRRecordRepository ehrRepo;
     @Autowired private PatientRepository patientRepo;
 
@@ -31,8 +31,14 @@ public class EHRRecordController {
     public ResponseEntity<String> uploadEHR(@RequestParam MultipartFile file,
                                             @RequestParam Long patientId,
                                             @RequestParam(required = false) String notes) throws IOException {
+    	System.out.println("Received file: " + file.getOriginalFilename());
+        System.out.println("Patient ID: " + patientId);
         Patient patient = patientRepo.findById(patientId)
             .orElseThrow(() -> new RuntimeException("Patient not found"));
+        
+        if (ehrStorageService == null) {
+            throw new IllegalStateException("EHRStorageService is not available. Check ehr.s3.enabled property.");
+        }
 
         String fileUrl = ehrStorageService.uploadFile(file, patientId.toString());
 
@@ -48,7 +54,7 @@ public class EHRRecordController {
 
     @GetMapping("/patient/{id}")
     public ResponseEntity<List<EHRRecord>> getRecords(@PathVariable Long id) {
-        return ResponseEntity.ok(ehrRepo.findByPatientId(id));
+        return ResponseEntity.ok(ehrRepo.findByPatient_Id(id));
     }
 }
 

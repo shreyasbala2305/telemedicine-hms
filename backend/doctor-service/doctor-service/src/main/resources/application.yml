@@ -1,14 +1,14 @@
 server:
-  port: 8084
+  port: 8083
 
 spring:
   application:
     name: doctor-service
 
   datasource:
-    url: jdbc:postgresql://localhost:5432/doctordb
-    username: postgres
-    password: postgres
+    url: jdbc:postgresql://localhost:5432/hmsdb
+    username: hmsuser
+    password: HmsP@ssw0rd
     driver-class-name: org.postgresql.Driver
 
   jpa:
@@ -19,6 +19,11 @@ spring:
       hibernate:
         format_sql: true
 
+eureka:
+  client:
+    service-url:
+      defaultZone: http://localhost:8761/eureka
+      
 jwt:
   secret: "super_secure_jwt_secret_key_32char_min"
 
@@ -27,3 +32,7 @@ springdoc:
     path: /swagger-ui.html
   api-docs:
     path: /v3/api-docs
+    
+admin:
+  email: admin@hospital.com
+  phone: +911234567890

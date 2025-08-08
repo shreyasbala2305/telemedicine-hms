@@ -7,5 +7,5 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import com.hms.patientservice.model.EHRRecord;
 
 public interface EHRRecordRepository extends JpaRepository<EHRRecord, Long>{
-	List<EHRRecord> findByPatientId(Long patientId);
+	List<EHRRecord> findByPatient_Id(Long patientId);
 }

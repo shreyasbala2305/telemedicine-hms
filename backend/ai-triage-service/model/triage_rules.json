@@ -1,0 +1,22 @@
+[
+  {
+    "specialist": "Cardiologist",
+    "symptoms": ["chest pain", "shortness of breath", "palpitations"]
+  },
+  {
+    "specialist": "Dermatologist",
+    "symptoms": ["skin rash", "acne", "eczema"]
+  },
+  {
+    "specialist": "Orthopedic",
+    "symptoms": ["joint pain", "back pain", "fracture"]
+  },
+  {
+    "specialist": "General Physician",
+    "symptoms": ["fever", "cold", "cough"]
+  },
+  {
+    "specialist": "Urologist",
+    "symptoms": ["lower abdomen pain", "lowerback pain"]
+  }
+]

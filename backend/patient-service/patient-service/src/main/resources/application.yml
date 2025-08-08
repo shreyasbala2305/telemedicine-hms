@@ -4,11 +4,14 @@ server:
 spring:
   application:
     name: patient-service
+    
+  profiles:
+    active: dev
 
   datasource:
-    url: jdbc:postgresql://localhost:5432/patientdb
-    username: postgres
-    password: postgres
+    url: jdbc:postgresql://localhost:5432/hmsdb
+    username: hmsuser
+    password: HmsP@ssw0rd
     driver-class-name: org.postgresql.Driver
 
   jpa:
@@ -17,21 +20,31 @@ spring:
     show-sql: true
     properties:
       hibernate:
+        dialect: org.hibernate.dialect.PostgreSQLDialect
         format_sql: true
 
   jackson:
     serialization:
-      indent_output: true
+      INDENT_OUTPUT: true
 
 jwt:
-  secret: "super_secure_jwt_secret_key_32char_min"
+  secret: "9vi2a=A2(L!bm#=0tedk%fq1~!u^q+aF"
 
 aws:
   s3:
     bucket-name: your-hms-ehr-bucket
-    region: ap-south-1
-    access-key: ${AWS_ACCESS_KEY}
-    secret-key: ${AWS_SECRET_KEY}
+    region: us-east-1
+    access-key: dummy
+    secret-key: dummy
+    enabled: false
+   
+  sns:
+    enabled: false
+
+eureka:
+  client:
+    service-url:
+      defaultZone: http://localhost:8761/eureka
 
 # Optional Swagger Config (springdoc-openapi)
 springdoc:
@@ -39,4 +52,3 @@ springdoc:
     path: /v3/api-docs
   swagger-ui:
     path: /swagger-ui.html
-
