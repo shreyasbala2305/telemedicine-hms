@@ -1,32 +1,28 @@
-from fastapi import FastAPI, HTTPException
-from pydantic import BaseModel
-from typing import List
+from flask import Flask, request, jsonify
+from dotenv import load_dotenv
+import os
+import json
+from config import MODEL_PATH, PORT
 
-app = FastAPI()
+# Load environment variables from .env file
+load_dotenv()
 
-class SymptomInput(BaseModel):
-    symptoms: List[str]
+app = Flask(__name__)
 
-# Simple symptom-to-specialist mapping
-rules = {
-    "fever": "General Physician",
-    "cough": "Pulmonologist",
-    "rash": "Dermatologist",
-    "headache": "Neurologist",
-    "chest pain": "Cardiologist",
-    "joint pain": "Orthopedic",
-    "anxiety": "Psychiatrist"
-}
+# Load triage rules from JSON model
+with open(MODEL_PATH) as f:
+    TRIAGE_RULES = json.load(f)
 
-@app.post("/predict")
-def predict_specialist(data: SymptomInput):
-    matched = set(data.symptoms).intersection(rules.keys())
-    if not matched:
-        raise HTTPException(status_code=404, detail="No match found.")
-    
-    # Return first match (extend to confidence score later)
-    for symptom in data.symptoms:
-        if symptom in rules:
-            return {"specialist": rules[symptom]}
-    
-    return {"specialist": "General Physician"}
+@app.route('/predict', methods=['POST'])
+def predict_specialist():
+    data = request.get_json()
+    symptoms = data.get("symptoms", [])
+
+    for rule in TRIAGE_RULES:
+        if any(symptom in rule["symptoms"] for symptom in symptoms):
+            return jsonify({"specialist": rule["specialist"]})
+
+    return jsonify({"specialist": "General Physician"})
+
+if __name__ == '__main__':
+    app.run(host='0.0.0.0', port=PORT)

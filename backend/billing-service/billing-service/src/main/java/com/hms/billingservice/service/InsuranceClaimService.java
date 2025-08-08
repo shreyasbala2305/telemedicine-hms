@@ -21,6 +21,7 @@ public class InsuranceClaimService {
 	private InsuranceClaimRepository insuranceClaimRepository;
 	
 	public InsuranceClaim submitClaim(InsuranceClaimDTO dto) {
+		@SuppressWarnings("unused")
 		Invoice invoice = invoiceRepository.findById(dto.invoiceId)
 				.orElseThrow(() -> new RuntimeException("Invoice not found"));
 		

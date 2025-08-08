@@ -24,8 +24,9 @@ public class PatientController {
 	private PatientService patientService;
 	
 	@PostMapping
-	public ResponseEntity<Patient> create(@RequestBody PatientDTO dto){
-		return new ResponseEntity<>(patientService.create(dto), HttpStatus.CREATED);
+	public ResponseEntity<PatientDTO> create(@RequestBody PatientDTO dto){
+		PatientDTO created = patientService.create(dto);
+		return new ResponseEntity<>(created, HttpStatus.CREATED);
 	}
 	
 	@GetMapping

@@ -17,21 +17,29 @@ import com.hms.doctorservice.dto.DoctorDTO;
 import com.hms.doctorservice.model.Doctor;
 import com.hms.doctorservice.service.DoctorService;
 
+import jakarta.validation.Valid;
+
 @RestController
-@RequestMapping("/doctor")
+@RequestMapping("/doctors")
 public class DoctorController {
 	
 	@Autowired
 	private DoctorService doctorService;
 	
 	@PostMapping
-	public ResponseEntity<Doctor> createDoctor(DoctorDTO dto){
-		return new ResponseEntity<>(doctorService.createDoctor(dto), HttpStatus.CREATED);
+	public ResponseEntity<DoctorDTO> createDoctor(@Valid @RequestBody DoctorDTO dto){
+		DoctorDTO created = doctorService.createDoctor(dto);
+	    return new ResponseEntity<>(created, HttpStatus.CREATED);
 	}
 	
 	@GetMapping
 	public List<Doctor> getAll(){
 		return doctorService.getAll();
+	}
+	
+	@GetMapping("/{id}")
+	public Doctor getDoctorById(@PathVariable Long id){
+		return doctorService.getDoctorById(id);
 	}
 	
 	@GetMapping("/speciality/{speciality}")
@@ -43,6 +51,5 @@ public class DoctorController {
 	public ResponseEntity<Doctor> updateAvailability(@PathVariable Long id,
 			@RequestBody List<String> availability){
 		return ResponseEntity.ok(doctorService.updateAvailability(id, availability));
-		
 	}
 }

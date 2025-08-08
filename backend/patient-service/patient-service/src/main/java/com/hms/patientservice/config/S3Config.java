@@ -1,14 +1,19 @@
 package com.hms.patientservice.config;
 
-import org.hibernate.cache.spi.Region;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
+import jakarta.annotation.PostConstruct;
 import software.amazon.awssdk.auth.credentials.AwsBasicCredentials;
 import software.amazon.awssdk.auth.credentials.StaticCredentialsProvider;
+import software.amazon.awssdk.regions.Region;
+import software.amazon.awssdk.services.s3.S3Client;
+import software.amazon.awssdk.services.s3.presigner.S3Presigner;
 
 @Configuration
+@ConditionalOnProperty(name = "aws.enabled", havingValue = "true", matchIfMissing = false)
 public class S3Config {
 
     @Value("${aws.s3.region}")
@@ -21,6 +26,7 @@ public class S3Config {
     private String secretKey;
 
     @Bean
+    @PostConstruct
     S3Client s3Client() {
         AwsBasicCredentials awsCreds = AwsBasicCredentials.create(accessKey, secretKey);
         return S3Client.builder()
@@ -30,6 +36,7 @@ public class S3Config {
     }
     
     @Bean
+    @PostConstruct
     S3Presigner s3Presigner() {
         AwsBasicCredentials awsCreds = AwsBasicCredentials.create(accessKey, secretKey);
         return S3Presigner.builder()

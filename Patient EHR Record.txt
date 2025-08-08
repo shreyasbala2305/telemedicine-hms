@@ -1,0 +1,6 @@
+Patient EHR Record
+
+Date: 2025-08-03
+Test: Blood Work
+Result: Normal
+Notes: Routine check-up document.

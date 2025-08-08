@@ -1,0 +1,66 @@
+version: '3.9'
+
+services:
+  auth-service:
+    build: ./auth-service
+    ports:
+      - "8081:8081"
+    environment:
+      - SPRING_PROFILES_ACTIVE=dev
+    depends_on:
+      - eureka-server
+
+  patient-service:
+    build: ./patient-service
+    ports:
+      - "8082:8082"
+    environment:
+      - SPRING_PROFILES_ACTIVE=dev
+    depends_on:
+      - eureka-server
+      - auth-service
+
+  doctor-service:
+    build: ./doctor-service
+    ports:
+      - "8083:8083"
+    depends_on:
+      - eureka-server
+
+  appointment-service:
+    build: ./appointment-service
+    ports:
+      - "8084:8084"
+    depends_on:
+      - eureka-server
+
+  billing-service:
+    build: ./billing-service
+    ports:
+      - "8085:8085"
+    depends_on:
+      - eureka-server
+
+  inventory-service:
+    build: ./inventory-service
+    ports:
+      - "8086:8086"
+    depends_on:
+      - eureka-server
+
+  notification-service:
+    build: ./notification-service
+    ports:
+      - "8088:8088"
+    depends_on:
+      - eureka-server
+
+  ai-triage-service:
+    build: ./ai-triage-service
+    ports:
+      - "8087:5006"
+
+  eureka-server:
+    image: steeltoe/eureka-server
+    ports:
+      - "8761:8761"

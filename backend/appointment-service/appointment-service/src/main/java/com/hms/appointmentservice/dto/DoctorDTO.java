@@ -2,8 +2,11 @@ package com.hms.appointmentservice.dto;
 
 import java.util.List;
 
+import lombok.Data;
+
+@Data
 public class DoctorDTO {
-	public Long id;
-	public String name;
-	public List<String> availability;
+	private Long id;
+	private String name;
+	private List<String> availability;
 }

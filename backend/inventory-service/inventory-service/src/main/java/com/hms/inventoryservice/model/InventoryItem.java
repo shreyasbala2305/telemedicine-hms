@@ -8,7 +8,7 @@ import lombok.Data;
 
 @Entity
 @Data
-@Document(collection = "inventory-items")
+@Document(collection = "inventory_items")
 public class InventoryItem {
 
 	@Id

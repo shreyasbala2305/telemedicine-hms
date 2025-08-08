@@ -51,3 +51,38 @@ components:
         specialist:
           type: string
           example: "Pulmonologist"
+
+
+# openapi: 3.0.1
+# info:
+#   title: AI Triage Service
+#   version: 1.0.0
+#   description: Predicts the recommended specialist based on symptoms
+
+# paths:
+#   /predict:
+#     post:
+#       summary: Predict specialist
+#       requestBody:
+#         required: true
+#         content:
+#           application/json:
+#             schema:
+#               type: object
+#               properties:
+#                 symptoms:
+#                   type: array
+#                   items:
+#                     type: string
+#                   example: ["chest pain", "palpitations"]
+#       responses:
+#         '200':
+#           description: Predicted specialist
+#           content:
+#             application/json:
+#               schema:
+#                 type: object
+#                 properties:
+#                   specialist:
+#                     type: string
+#                     example: Cardiologist

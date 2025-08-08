@@ -3,11 +3,9 @@ package com.hms.patientservice.model;
 import java.time.LocalDateTime;
 
 import jakarta.persistence.Entity;
-import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
-import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import lombok.Data;
@@ -27,7 +25,7 @@ public class EHRRecord {
 	
 	private LocalDateTime timeStamp;
 	
-	@ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "patient_id")
+//	@Column(name = "patient_id")
+	@ManyToOne
 	private Patient patient;
 }

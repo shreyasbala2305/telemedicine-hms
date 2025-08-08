@@ -19,15 +19,16 @@ import com.hms.appointmentservice.model.Appointment;
 import com.hms.appointmentservice.service.AppointmentService;
 
 @RestController
-@RequestMapping("/appointmnets")
+@RequestMapping("/appointments")
 public class AppointmentController {
 
 	@Autowired
 	private AppointmentService appointmentService;
 	
 	@PostMapping
-	public ResponseEntity<Appointment> bookAppointment(@RequestBody AppointmentDTO dto){
-		return new ResponseEntity<>(appointmentService.bookAppointment(dto), HttpStatus.CREATED);
+	public ResponseEntity<AppointmentDTO> bookAppointment(@RequestBody AppointmentDTO dto){
+		AppointmentDTO bookappointment = appointmentService.bookAppointment(dto);
+	    return new ResponseEntity<>(bookappointment, HttpStatus.CREATED);
 	}
 	
 	@GetMapping("patient/{id}")
