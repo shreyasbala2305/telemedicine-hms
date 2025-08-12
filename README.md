@@ -115,7 +115,7 @@ terraform apply
 ## 👨‍💻 Contributors
 
 - **Developer**: Shreyas Balapure
-- **Tech Stack**: Java, Spring Boot, PostgreSQL, Docker
+- **Tech Stack**: Java, Spring Boot, React.js, Tailwind, PostgreSQL, Docker
 - **Contact**: shreyashbalapure@gmail.com
 
 ---
