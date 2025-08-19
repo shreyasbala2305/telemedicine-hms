@@ -36,7 +36,7 @@ twilio:
 
 # JWT config (optional if auth is applied)
 jwt:
-  secret: "super_secure_jwt_secret_key_32char_min"
+  secret: "9vi2a=A2(L!bm#=0tedk%fq1~!u^q+aF"
 
 # Swagger / OpenAPI
 springdoc:
