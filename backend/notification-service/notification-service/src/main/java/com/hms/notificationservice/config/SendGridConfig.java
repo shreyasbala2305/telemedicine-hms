@@ -9,4 +9,7 @@ public class SendGridConfig {
 	private String apiKey;
     public String getApiKey() { return apiKey; }
     public void setApiKey(String apiKey) { this.apiKey = apiKey; }
+	public String getFromEmail() {
+		return null;
+	}
 }

@@ -1,5 +1,0 @@
-Test Medical Report
----------------------
-Patient: Dummy
-Diagnosis: Sample test
-Date: 2025-08-04

@@ -6,9 +6,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
+import com.hms.inventoryservice.client.NotificationClient;
 import com.hms.inventoryservice.dto.EmailNotificationDTO;
 import com.hms.inventoryservice.dto.InventoryDTO;
-import com.hms.inventoryservice.feign.NotificationClient;
 import com.hms.inventoryservice.model.InventoryItem;
 import com.hms.inventoryservice.repository.InventoryRepository;
 

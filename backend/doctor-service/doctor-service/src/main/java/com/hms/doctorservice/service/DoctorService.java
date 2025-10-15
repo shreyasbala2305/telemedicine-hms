@@ -5,9 +5,9 @@ import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import com.hms.doctorservice.client.NotificationClient;
 import com.hms.doctorservice.dto.DoctorDTO;
 import com.hms.doctorservice.dto.EmailNotificationDTO;
-import com.hms.doctorservice.feign.NotificationClient;
 import com.hms.doctorservice.model.Doctor;
 import com.hms.doctorservice.repository.DoctorRepository;
 

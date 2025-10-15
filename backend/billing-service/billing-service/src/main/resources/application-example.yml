@@ -1,0 +1,50 @@
+# ===============================
+# 💰 BILLING SERVICE (Example Config)
+# ===============================
+
+server:
+  port: 8085
+
+spring:
+  application:
+    name: billing-service
+
+  datasource:
+    url: jdbc:postgresql://localhost:5432/hmsdb
+    username: your_db_username
+    password: your_db_password
+    driver-class-name: org.postgresql.Driver
+
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: true
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+        format_sql: true
+
+# ===============================
+# 🔗 EUREKA CLIENT
+# ===============================
+eureka:
+  client:
+    service-url:
+      defaultZone: http://localhost:8761/eureka
+    register-with-eureka: true
+    fetch-registry: true
+
+# ===============================
+# 🔐 JWT CONFIGURATION
+# ===============================
+jwt:
+  secret: "replace_with_your_secret_key"
+
+# ===============================
+# 📄 SWAGGER / OPENAPI
+# ===============================
+springdoc:
+  api-docs:
+    path: /v3/api-docs
+  swagger-ui:
+    path: /swagger-ui.html

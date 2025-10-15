@@ -3,9 +3,14 @@ package com.hms.appointmentservice.service;
 import java.time.LocalDateTime;
 import java.util.List;
 
+import javax.sound.midi.Soundbank;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import com.hms.appointmentservice.client.DoctorClient;
+import com.hms.appointmentservice.client.NotificationClient;
+import com.hms.appointmentservice.client.PatientClient;
 import com.hms.appointmentservice.dto.AppointmentDTO;
 import com.hms.appointmentservice.dto.DoctorDTO;
 import com.hms.appointmentservice.dto.EmailNotificationDTO;
@@ -13,9 +18,6 @@ import com.hms.appointmentservice.dto.MessageNotificationDTO;
 import com.hms.appointmentservice.dto.NotificationDTO;
 import com.hms.appointmentservice.dto.PatientDTO;
 import com.hms.appointmentservice.exception.ResourceNotFoundException;
-import com.hms.appointmentservice.feign.DoctorClient;
-import com.hms.appointmentservice.feign.NotificationClient;
-import com.hms.appointmentservice.feign.PatientClient;
 import com.hms.appointmentservice.model.Appointment;
 import com.hms.appointmentservice.repository.AppointmentRepository;
 
@@ -86,12 +88,20 @@ public class AppointmentService {
 		email.setTo(patient.getEmail());
 		email.setSubject("Invoice Generated");
 		email.setBody("Your appointment with Dr. " + doctor.getName() + " is confirmed.");
-		notificationClient.sendEmail(email);
+		try {
+			notificationClient.sendEmail(email);
+		}catch(Exception e) {
+			System.err.println("Failed to send notification "+ e.getMessage());
+		}
 		
 		MessageNotificationDTO message = new MessageNotificationDTO();
 		message.setPhoneNumber(patient.getContact());
 		message.setMessage("Your appointment with Dr. " + doctor.getName() + " is confirmed.");
-		notificationClient.sendMessage(message);
+		try {
+			notificationClient.sendMessage(message);
+		}catch(Exception e) {
+			System.err.println("Failed to send notification "+ e.getMessage());
+		}
 		
 	
 		NotificationDTO notify = new NotificationDTO();

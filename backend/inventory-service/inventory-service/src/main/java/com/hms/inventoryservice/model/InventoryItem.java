@@ -1,12 +1,10 @@
 package com.hms.inventoryservice.model;
 
+import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.Id;
 import lombok.Data;
 
-@Entity
 @Data
 @Document(collection = "inventory_items")
 public class InventoryItem {

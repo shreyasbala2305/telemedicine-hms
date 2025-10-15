@@ -6,12 +6,12 @@ import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import com.hms.billingservice.client.NotificationClient;
+import com.hms.billingservice.client.PatientClient;
 import com.hms.billingservice.dto.EmailNotificationDTO;
 import com.hms.billingservice.dto.InvoiceDTO;
 import com.hms.billingservice.dto.MessageNotificationDTO;
 import com.hms.billingservice.dto.PatientDTO;
-import com.hms.billingservice.feign.NotificationClient;
-import com.hms.billingservice.feign.PatientClient;
 import com.hms.billingservice.model.Invoice;
 import com.hms.billingservice.repository.InvoiceRepository;
 

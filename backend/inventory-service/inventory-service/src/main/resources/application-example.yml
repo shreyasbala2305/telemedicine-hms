@@ -1,0 +1,41 @@
+# ===============================
+# 🏬 INVENTORY SERVICE (Example Config)
+# ===============================
+
+server:
+  port: 8086
+
+spring:
+  application:
+    name: inventory-service
+
+  data:
+    mongodb:
+      uri: mongodb://localhost:27017/hms_inventory
+      database: "replace_with_your_db_name"
+
+# ===============================
+# 🔗 EUREKA CLIENT
+# ===============================
+eureka:
+  client:
+    service-url:
+      defaultZone: http://localhost:8761/eureka
+    register-with-eureka: true
+    fetch-registry: true
+
+# ===============================
+# 📜 SWAGGER / API DOCS
+# ===============================
+springdoc:
+  swagger-ui:
+    path: /swagger-ui.html
+  api-docs:
+    path: /v3/api-docs
+
+# ===============================
+# 👤 ADMIN INFO (Optional)
+# ===============================
+admin:
+  email: admin@hospital.com
+  phone: +911234567890

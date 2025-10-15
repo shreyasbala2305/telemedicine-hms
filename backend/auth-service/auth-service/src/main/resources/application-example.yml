@@ -1,0 +1,63 @@
+# ===============================
+# 📅 AUTH SERVICE (Example Config)
+# ===============================
+
+server:
+  port: 8081
+
+spring:
+  application:
+    name: auth-service
+
+  datasource:
+    url: jdbc:postgresql://localhost:5432/hmsdb
+    username: your_db_username
+    password: your_db_password
+    driver-class-name: org.postgresql.Driver
+
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: true
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+        format_sql: true
+
+  sql:
+    init:
+      mode: always
+
+# ===============================
+# 🔐 JWT CONFIGURATION
+# ===============================
+jwt:
+  secret: "replace_with_your_secret_key"
+
+# ===============================
+# 📊 LOGGING
+# ===============================
+logging:
+  level:
+    root: INFO
+    org.springframework.security: DEBUG
+    com.hms.authservice: DEBUG
+
+# ===============================
+# 🔗 EUREKA CLIENT
+# ===============================
+eureka:
+  client:
+    service-url:
+      defaultZone: http://localhost:8761/eureka
+    register-with-eureka: true
+    fetch-registry: true
+
+# ===============================
+# 🌐 MANAGEMENT / CORS (Optional)
+# ===============================
+management:
+  endpoints:
+    web:
+      exposure:
+        include: "*"

@@ -19,7 +19,6 @@ spring:
       hibernate:
         dialect: org.hibernate.dialect.PostgreSQLDialect
         format_sql: true
-
   jackson:
     serialization:
       INDENT_OUTPUT: true
@@ -47,4 +46,5 @@ springdoc:
     path: /swagger-ui.html
 
 jwt:
-  secret: "9vi2a=A2(L!bm#=0tedk%fq1~!u^q+aF"
+  #  secret: "9vi2a=A2(L!bm#=0tedk%fq1~!u^q+aF"
+  secret: "2354da8ebd54655ec06ae826cecaf1d2b7bc377f1c765f12383e95853a3b78d2"

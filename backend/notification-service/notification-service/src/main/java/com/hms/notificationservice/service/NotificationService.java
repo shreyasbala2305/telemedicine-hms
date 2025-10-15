@@ -56,7 +56,7 @@ public class NotificationService {
 	}
 	
 	private void sendEmail(String content, String toEmail) {
-        Email from = new Email("your_email@example.com");
+        Email from = new Email(sendGridConfig.getFromEmail());
         String subject = "Appointment Notification";
         Email to = new Email(toEmail);
         Content body = new Content("text/plain", content);

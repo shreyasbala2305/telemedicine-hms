@@ -47,8 +47,10 @@ public class JwtUtil {
                 .setSigningKey(key)
                 .build()
                 .parseClaimsJws(token);
+            System.out.println("JWT valid: " + token);
             return true;
         } catch (JwtException | IllegalArgumentException e) {
+            System.out.println("JWT invalid: " + e.getMessage());
             return false;
         }
     }

@@ -1,5 +1,146 @@
+# ===============================
+# 🚀 TELEMEDICINE-HMS PROJECT (.gitignore)
+# ===============================
+
+# ===============================
+# 🖥️ System / IDE Files
+# ===============================
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
+*.iml
+*.ipr
+*.iws
 /.metadata/
-"frontend/hms-frontend/tailwindcss.exe" 
-"frontend/hms-webportal/tailwindcss.exe" 
-"telemedicine-hms-backup/" 
-"telemedicine-hms-backup/" 
+
+# ===============================
+# 🧱 MAVEN BUILD OUTPUT
+# ===============================
+target/
+*.class
+*.jar
+*.war
+*.ear
+.mvn/timing.properties
+.mvn/wrapper/maven-wrapper.jar
+.mvn/wrapper/maven-wrapper.properties
+mvnw
+mvnw.cmd
+
+# ===============================
+# 🧩 LOGS
+# ===============================
+logs/
+*.log
+*.out
+spring.log
+nohup.out
+
+# ===============================
+# 🔐 CONFIG & SECRETS
+# ===============================
+
+# Secure YML files
+**/application-dev.yml
+**/application-test.yml
+**/application-prod.yml
+**/application-production.yml
+**/application-local.yml
+
+# ⚠️ application.yml may contain secrets — ignore by default
+**/application.yml
+
+# Environment files
+.env
+.env.*
+*.env
+**/.env
+
+# Secret credentials / tokens / keys
+**/secrets.yml
+**/secrets.properties
+**/credentials.json
+**/*.pem
+**/*.key
+**/*.crt
+**/*.csr
+
+# ===============================
+# 🧠 PYTHON AI SERVICE (Flask)
+# ===============================
+ai-triage-service/__pycache__/
+ai-triage-service/*.pyc
+ai-triage-service/.pytest_cache/
+ai-triage-service/venv/
+ai-triage-service/env/
+ai-triage-service/.env
+
+# ===============================
+# 🎨 FRONTEND (React + Vite + Tailwind)
+# ===============================
+frontend/**/node_modules/
+frontend/**/dist/
+frontend/**/.vite/
+frontend/**/.pnp*
+frontend/**/.parcel-cache/
+frontend/**/.eslintcache
+frontend/**/.env
+frontend/**/.env.*
+frontend/**/.env.local
+frontend/**/.env.development.local
+frontend/**/.env.production.local
+frontend/**/.env.test.local
+frontend/hms-frontend/tailwindcss.exe
+frontend/hms-webportal/tailwindcss.exe
+
+# ===============================
+# ☁️ DEVOPS / INFRA
+# ===============================
+devops/terraform/.terraform/
+devops/terraform/*.tfstate
+devops/terraform/*.tfstate.backup
+devops/terraform/.terraform.lock.hcl
+devops/terraform/terraform.tfvars
+devops/terraform/terraform.tfvars.json
+
+docker-compose.override.yml
+.env.docker
+.env.secrets
+
+# AWS / Cloud credentials
+*.pem
+*.pub
+*.key
+*.csr
+*.crt
+
+# ===============================
+# 🧪 TESTS / TEMP FILES
+# ===============================
+test-output/
+reports/
+coverage/
+*.tmp
+*.swp
+*.swo
+*.bak
+*.orig
+*.rej
+*~
+*.tmp
+*.bak
+*.orig
+
+# ===============================
+# ⚙️ OS / Tooling
+# ===============================
+*.class
+*.project
+*.classpath
+*.settings/
+
+# ===============================
+# 🗂️ BACKUPS
+# ===============================
+telemedicine-hms-backup/
