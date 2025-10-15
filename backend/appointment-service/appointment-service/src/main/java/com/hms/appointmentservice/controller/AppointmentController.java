@@ -31,12 +31,12 @@ public class AppointmentController {
 	    return new ResponseEntity<>(bookappointment, HttpStatus.CREATED);
 	}
 	
-	@GetMapping("patient/{id}")
+	@GetMapping("patient/{patientId}")
 	public List<Appointment> getByPatient(@PathVariable Long patientId){
 		return appointmentService.getByPatient(patientId);
 	}
 	
-	@GetMapping("doctor/{id}")
+	@GetMapping("doctor/{doctorId}")
 	public List<Appointment> getByDoctor(@PathVariable Long doctorId){
 		return appointmentService.getByDoctor(doctorId);
 	}

@@ -1,8 +1,11 @@
 package com.hms.appointmentservice.security;
 
 import io.jsonwebtoken.Claims;
+import io.jsonwebtoken.JwtException;
 import io.jsonwebtoken.Jwts;
+import io.jsonwebtoken.security.Keys;
 import io.jsonwebtoken.security.SignatureException;
+import jakarta.annotation.PostConstruct;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -12,12 +15,20 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 import java.io.IOException;
+import java.security.Key;
 
 @Component
 public class JwtFilter extends OncePerRequestFilter {
 
     @Value("${jwt.secret}")
     private String secretKey;
+
+    private Key key;
+
+    @PostConstruct
+    public void init() {
+        this.key = Keys.hmacShaKeyFor(secretKey.getBytes());
+    }
 
     @Override
     protected void doFilterInternal(HttpServletRequest request,
@@ -30,22 +41,23 @@ public class JwtFilter extends OncePerRequestFilter {
         if (authHeader != null && authHeader.startsWith("Bearer ")) {
             String token = authHeader.substring(7);
             try {
-                Claims claims = Jwts.parser()
-                        .setSigningKey(secretKey)
-                        .parseClaimsJws(token)
-                        .getBody();
+                Claims claims = Jwts.parserBuilder()
+                                    .setSigningKey(key)
+                                    .build()
+                                    .parseClaimsJws(token)
+                                    .getBody();
 
                 request.setAttribute("claims", claims);
 
-            } catch (SignatureException e) {
+            } catch (JwtException e) {
                 response.setStatus(HttpStatus.UNAUTHORIZED.value());
-                response.getWriter().write("Invalid JWT token");
-                return;
-            } catch (Exception e) {
-                response.setStatus(HttpStatus.UNAUTHORIZED.value());
-                response.getWriter().write("JWT parsing error");
+                response.getWriter().write("Invalid JWT: " + e.getMessage());
                 return;
             }
+        } else {
+            response.setStatus(HttpStatus.UNAUTHORIZED.value());
+            response.getWriter().write("Missing Authorization header");
+            return;
         }
 
         filterChain.doFilter(request, response);

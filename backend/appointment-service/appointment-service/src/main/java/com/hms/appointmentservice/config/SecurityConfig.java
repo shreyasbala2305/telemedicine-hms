@@ -22,16 +22,10 @@ public class SecurityConfig {
         http
             .csrf(csrf -> csrf.disable())
             .authorizeHttpRequests(auth -> auth
-                // 🔓 open endpoints
                 .requestMatchers("/actuator/**").permitAll()
                 .requestMatchers("/error").permitAll()
                 .requestMatchers("/swagger-ui/**", "/v3/api-docs/**").permitAll()
-
-                // 👇 specific public endpoints (adjust per service)
-                .requestMatchers("/doctors/register").permitAll()
-                .requestMatchers("/appointments/public/**").permitAll()
-
-                // 🔐 everything else secured
+                .requestMatchers("/appointments/**").permitAll()
                 .anyRequest().authenticated()
             )
             .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class);

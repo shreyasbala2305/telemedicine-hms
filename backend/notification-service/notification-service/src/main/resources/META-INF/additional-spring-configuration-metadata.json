@@ -1,0 +1,37 @@
+{"properties": [
+  {
+    "name": "jwt.secret",
+    "type": "java.lang.String",
+    "description": "A description for 'jwt.secret'"
+  },
+  {
+    "name": "springdoc.api-docs.path",
+    "type": "java.lang.String",
+    "description": "A description for 'springdoc.api-docs.path'"
+   },
+  {
+   "name": "springdoc.swagger-ui.path",
+    "type": "java.lang.String",
+    "description": "A description for 'springdoc.swagger-ui.path'"
+  },
+  {
+    "name": "sendgrid.api-key",
+    "type": "java.lang.String",
+    "description": "A description for 'sendgrid.api-key'"
+  },
+  {
+    "name": "twilio.from-number",
+    "type": "java.lang.String",
+    "description": "A description for 'twilio.from-number'"
+  },
+  {
+    "name": "twilio.auth-token",
+    "type": "java.lang.String",
+    "description": "A description for 'twilio.auth-token'"
+  },
+  {
+    "name": "twilio.account-sid",
+    "type": "java.lang.String",
+    "description": "A description for 'twilio.account-sid'"
+  }
+]}
