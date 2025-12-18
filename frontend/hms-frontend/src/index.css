@@ -2,17 +2,40 @@
 @tailwind components;
 @tailwind utilities;
 
+/* Ensure full height for root */
+:root, html, body, #root { height: 100%; }
 
 body {
+  @apply bg-gray-50 font-sans;
   margin: 0;
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
-    'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
-    sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
 
-code {
-  font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
-    monospace;
+/* animation */
+@keyframes fadeInUp {
+  from { opacity: 0; transform: translateY(6px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+.animate-fadeInUp { animation: fadeInUp 360ms cubic-bezier(.2,.8,.2,1) both; }
+
+/* subtle card hover */
+.card-hover:hover { transform: translateY(-4px); transition: transform 160ms ease; }
+
+/* small responsive table tweaks */
+.table-responsive { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+
+/* FullCalendar minimal theme adjustments for Hospital Theme 1 */
+.fc {
+  --fc-bg: #ffffff;
+  --fc-accent: #0ea5a4; /* teal */
+}
+.fc .fc-toolbar-title {
+  font-weight: 600;
+}
+.fc .fc-daygrid-event {
+  background: var(--fc-accent);
+  border: none;
+  color: white;
+  border-radius: 8px;
 }

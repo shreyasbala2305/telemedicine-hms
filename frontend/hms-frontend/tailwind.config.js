@@ -1,9 +1,24 @@
-// ECHO is on.
 /** @type {import('tailwindcss').Config} */
-module.exports = {
-  content: ["./src/**/*.{js,jsx,ts,tsx}"],
+export default {
+  darkMode: 'class',
+  content: ['./index.html', './src/**/*.{js,ts,jsx,tsx}'],
   theme: {
-    extend: {},
+    extend: {
+      colors: {
+        primary: {
+          DEFAULT: '#10B981',
+          600: '#059669',
+        },
+        accent: '#06B6D4',
+        sidebar: '#0f172a',
+      },
+      fontFamily: {
+        sans: ['Inter', 'ui-sans-serif', 'system-ui'],
+      },
+      borderRadius: {
+        '2xl': '16px',
+      }
+    },
   },
   plugins: [],
-}
+};

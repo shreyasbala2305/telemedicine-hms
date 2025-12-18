@@ -1,5 +1,4 @@
-// ECHO is on.
-module.exports = {
+export default {
   plugins: {
     tailwindcss: {},
     autoprefixer: {},
