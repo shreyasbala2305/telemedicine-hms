@@ -1,5 +1,6 @@
 package com.hms.appointmentservice.controller;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
 
@@ -12,6 +13,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.hms.appointmentservice.dto.AppointmentDTO;
@@ -45,4 +47,16 @@ public class AppointmentController {
 	public ResponseEntity<Appointment> updateStatus(@PathVariable Long id, @RequestBody Map<String, String> body){
 		return ResponseEntity.ok(appointmentService.updateStatus(id, body.get("status")));
 	}
+	
+	@GetMapping("/doctor/{doctorId}/range")
+	public List<Appointment> getByDoctorAndRange(
+	        @PathVariable Long doctorId,
+	        @RequestParam("start") String start,
+	        @RequestParam("end") String end
+	) {
+	    LocalDateTime startDt = LocalDateTime.parse(start); // ISO string from frontend
+	    LocalDateTime endDt = LocalDateTime.parse(end);
+	    return appointmentService.getByDoctorAndRange(doctorId, startDt, endDt);
+	}
+
 }
