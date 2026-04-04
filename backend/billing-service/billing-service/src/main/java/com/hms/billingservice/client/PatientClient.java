@@ -6,7 +6,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 
 import com.hms.billingservice.dto.PatientDTO;
 
-@FeignClient(name = "patient-service")
+@FeignClient(name = "patient-service", url = "http://localhost:8082")
 public interface PatientClient {
 	@GetMapping("/patients/{id}")
     PatientDTO getPatientById(@PathVariable Long id);
