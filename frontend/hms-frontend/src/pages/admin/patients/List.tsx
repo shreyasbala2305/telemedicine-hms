@@ -109,7 +109,7 @@ import React, { useEffect, useState } from "react";
 import DashboardLayout from "../../../layouts/DashboardLayout";
 import SearchBar from "../../../components/ui/SearchBar";
 import Pagination from "../../../components/ui/Pagination";
-import { getPatientsPaged } from "../../../services/PatientService";
+import { getPatientsPaged } from "../../../services/patientService";
 import useDebounce from "../../../hooks/useDebounce";
 import { Link } from "react-router-dom";
 
@@ -167,7 +167,15 @@ export default function PatientsList() {
 
           <tbody>
             {loading ? (
-              <tr><td colSpan={5} className="p-6 text-center">Loading...</td></tr>
+              [...Array(3)].map((_, i) => (
+                <tr key={i} className="border-t animate-pulse">
+                  {Array(5).fill(0).map((_, j) => (
+                    <td key={j} className="p-2">
+                      <div className="h-3 w-full max-w-[150px] bg-gray-300 dark:bg-gray-700 rounded"></div>
+                    </td>
+                  ))}
+                </tr>
+              ))
             ) : patients.length === 0 ? (
               <tr><td colSpan={5} className="p-6 text-center">No patients found</td></tr>
             ) : (

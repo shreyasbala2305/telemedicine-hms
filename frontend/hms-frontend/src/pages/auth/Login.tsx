@@ -68,7 +68,7 @@ export default function Login() {
             <input type="password" placeholder="Password" value={password} onChange={(e)=>setPassword(e.target.value)} required className="w-full pl-10 pr-3 py-3 border rounded-lg focus:ring-2 focus:ring-primary focus:outline-none" />
           </div>
 
-          <button type="submit" disabled={loading} className={`w-full py-3 rounded-lg font-semibold text-white ${loading ? "bg-primary/70" : "bg-primary hover:bg-primary-600"}`}>{loading ? "Signing in..." : "Login"}</button>
+          <button type="submit" disabled={loading} opacity-50 cursor-not-allowed className={`w-full py-3 rounded-lg font-semibold text-white ${loading ? "bg-primary/70" : "bg-primary hover:bg-primary-600"}`}>{loading ? "Signing in..." : "Login"}</button>
         </form>
 
         <div className="flex justify-between text-sm text-gray-500 mt-4">

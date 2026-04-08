@@ -8,7 +8,7 @@ import toast from 'react-hot-toast';
 export default function DoctorEdit() {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
-  const [form, setForm] = useState<Doctor>({ name: '', email: '', contact: '', speciality: '', qualification: '', availability: '' });
+  const [form, setForm] = useState<Doctor>({ name: '', email: '', contact: '', speciality: '', qualification: '', availability: [] });
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {

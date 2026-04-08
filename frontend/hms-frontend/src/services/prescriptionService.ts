@@ -36,7 +36,7 @@ export const getPrescriptionsByPatient = async (patientId: string | number) => {
       { id: 101, patientId, doctorId: 11, symptoms: "Fever", diagnosis: "Viral fever", medicines: [{ name: "Paracetamol", dose: "500mg", frequency: "3x/day", duration: "5 days" }], followUpDate: "2025-10-01", notes: "Rest" },
     ]);
   }
-  const res = await api.get(`${base}?patientId=${patientId}`);
+  const res = await api.get(`${base}/patient/${patientId}`);
   return res.data;
 };
 
@@ -46,7 +46,7 @@ export const getPrescriptionsByDoctor = async (doctorId: string | number) => {
       { id: 201, patientId: 9, doctorId, symptoms: "Cough", diagnosis: "Bronchitis", medicines: [{ name: "Cough Syrup", dose: "10ml", frequency: "2x/day", duration: "7 days" }], followUpDate: "2025-10-07", notes: "" },
     ]);
   }
-  const res = await api.get(`${base}?doctorId=${doctorId}`);
+  const res = await api.get(`${base}/doctor/${doctorId}`);
   return res.data;
 };
 

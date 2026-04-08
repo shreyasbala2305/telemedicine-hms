@@ -32,7 +32,17 @@ export default function AppointmentDetail() {
     <DoctorLayout>
       <div>
         <h1 className="text-2xl font-bold mb-4">Appointment Details</h1>
-        {loading ? <div>Loading...</div> : appointment && (
+        {loading ? (
+          [...Array(5)].map((_, i) => (
+            <tr key={i} className="border-t animate-pulse">
+              {Array(3).fill(0).map((_, j) => (
+                <td key={j} className="p-3">
+                  <div className="h-3 w-full max-w-[150px] bg-gray-300 dark:bg-gray-700 rounded"></div>
+                </td>
+              ))}
+            </tr>
+          ))
+        ) : appointment && (
           <div className="bg-white p-6 rounded-2xl shadow max-w-2xl">
             <div className="mb-4 flex justify-between items-center">
               <div>

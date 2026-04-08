@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from "react";
+import toast from "react-hot-toast";
 import DoctorLayout from "../../layouts/DoctorLayout";
 import { getAppointmentsByDoctor, updateAppointment } from "../../services/appointmentService";
 import { useAuth } from "../../context/AuthContext";
@@ -18,55 +19,134 @@ export default function DoctorAppointments() {
   };
 
   const load = async () => {
-    setLoading(true);
-    const docId = getDoctorIdFromToken();
-    if (!docId) { setAppointments([]); setLoading(false); return; }
-    const data = await getAppointmentsByDoctor(docId);
-    setAppointments(data);
-    setLoading(false);
+    try {
+      setLoading(true);
+      const docId = getDoctorIdFromToken();
+
+      if (!docId) {
+        setAppointments([]);
+        return;
+      }
+
+      const data = await getAppointmentsByDoctor(docId);
+      setAppointments(data || []);
+    } catch (err) {
+      console.error("Failed to load doctor appointments", err);
+      setAppointments([]);
+    } finally {
+      setLoading(false);
+    }
   };
 
   useEffect(() => { load(); }, [token]);
 
   const changeStatus = async (id: number, status: string) => {
+  try {
     await updateAppointment(id, { status });
+    toast.success(`Marked as ${status}`);
     load();
-  };
+  } catch (err) {
+    console.error(err);
+    toast.error("Failed to update status");
+  }
+};
 
   return (
     <DoctorLayout>
-      <div className="flex justify-between items-center mb-6">
-        <h1 className="text-2xl font-bold">My Appointments</h1>
-      </div>
+      <div className="max-w-5xl mx-auto space-y-6">
 
-      <div className="bg-white rounded-2xl shadow overflow-hidden">
-        <table className="min-w-full">
-          <thead className="bg-gray-50">
-            <tr>
-              <th className="p-3 text-left">ID</th>
-              <th className="p-3 text-left">Patient</th>
-              <th className="p-3 text-left">Date</th>
-              <th className="p-3 text-left">Status</th>
-              <th className="p-3 text-left">Actions</th>
-            </tr>
-          </thead>
-          <tbody>
-            {loading ? <tr><td colSpan={5} className="p-6 text-center">Loading...</td></tr> :
-            appointments.length === 0 ? <tr><td colSpan={5} className="p-6 text-center">No appointments</td></tr> :
+        {/* HEADER */}
+        <div>
+          <h1 className="text-3xl font-bold">My Appointments</h1>
+          <p className="text-gray-500 text-sm">
+            Manage and update patient appointments
+          </p>
+        </div>
+
+        {/* CONTENT */}
+        <div className="space-y-4">
+
+          {loading ? (
+            <div className="space-y-3">
+              {Array.from({ length: 5 }).map((_, i) => (
+                <div key={i} className="bg-white p-5 rounded-2xl shadow animate-pulse h-24" />
+              ))}
+            </div>
+          ) : appointments.length === 0 ? (
+
+            /* EMPTY STATE */
+            <div className="bg-white p-10 rounded-2xl shadow text-center">
+              <div className="text-lg font-medium text-gray-700">
+                No appointments assigned
+              </div>
+              <p className="text-sm text-gray-500 mt-2">
+                Your upcoming appointments will appear here
+              </p>
+            </div>
+
+          ) : (
+
             appointments.map(a => (
-              <tr key={a.id} className="border-t">
-                <td className="p-3">{a.id}</td>
-                <td className="p-3">#{a.patientId}</td>
-                <td className="p-3">{new Date(a.appointmentDate).toLocaleString()}</td>
-                <td className="p-3"><StatusBadge status={a.status} /></td>
-                <td className="p-3">
-                  <button onClick={() => changeStatus(a.id, 'COMPLETED')} className="mr-2 text-green-600">Complete</button>
-                  <button onClick={() => changeStatus(a.id, 'CANCELLED')} className="text-red-600">Cancel</button>
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
+              <div
+                key={a.id}
+                className="bg-white p-5 rounded-2xl shadow-sm border hover:shadow-md transition flex flex-col md:flex-row md:items-center md:justify-between gap-4"
+              >
+
+                {/* LEFT */}
+                <div>
+                  <div className="font-semibold text-gray-800">
+                    {new Date(a.dateTime).toLocaleString()}
+                  </div>
+
+                  <div className="text-sm text-gray-500 mt-1">
+                    Patient ID: #{a.patientId}
+                  </div>
+                </div>
+
+                {/* RIGHT */}
+                <div className="flex items-center gap-3">
+
+                  {/* STATUS */}
+                  <span
+                    className={`px-3 py-1 text-xs rounded-full font-medium ${
+                      a.status === "CONFIRMED"
+                        ? "bg-green-100 text-green-600"
+                        : a.status === "CANCELLED"
+                        ? "bg-red-100 text-red-600"
+                        : a.status === "COMPLETED"
+                        ? "bg-blue-100 text-blue-600"
+                        : "bg-gray-100 text-gray-600"
+                    }`}
+                  >
+                    {a.status}
+                  </span>
+
+                  {/* ACTIONS */}
+                  <button
+                    disabled={a.status === "COMPLETED"}
+                    onClick={() => changeStatus(a.id, "COMPLETED")}
+                    className="px-3 py-1 text-sm rounded-lg bg-green-500 text-white hover:bg-green-600 disabled:opacity-40"
+                  >
+                    Complete
+                  </button>
+
+                  <button
+                    disabled={a.status === "CANCELLED"}
+                    onClick={() => changeStatus(a.id, "CANCELLED")}
+                    className="px-3 py-1 text-sm rounded-lg bg-red-500 text-white hover:bg-red-600 disabled:opacity-40"
+                  >
+                    Cancel
+                  </button>
+
+                </div>
+
+              </div>
+            ))
+
+          )}
+
+        </div>
+
       </div>
     </DoctorLayout>
   );

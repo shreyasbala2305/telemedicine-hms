@@ -28,6 +28,7 @@ import PatientPrescriptions from "./pages/patient/prescriptions/List";
 import PatientPrescriptionDetail from "./pages/patient/prescriptions/Detail";
 import AdminDoctorAvailability from "./pages/admin/doctors/Availability";
 import DoctorAvailabilityPage from "./pages/doctor/Availability";
+import { ThemeProvider } from "./context/ThemeContext";
 
 
 export default function App() {
@@ -212,18 +213,21 @@ export default function App() {
         />
       <Route path="/" element={<Navigate to="/login" replace />} />
       <Route path="*" element={<div className="p-8">Page not found</div>} />
-      // Doctor prescriptions
+      {/* Doctor prescriptions */}
       <Route path="/doctor/prescriptions" element={<ProtectedRoute allowedRoles={["DOCTOR"]}><DoctorPrescriptions /></ProtectedRoute>} />
       <Route path="/doctor/prescriptions/new" element={<ProtectedRoute allowedRoles={["DOCTOR"]}><DoctorPrescriptionNew /></ProtectedRoute>} />
       <Route path="/doctor/prescriptions/:id" element={<ProtectedRoute allowedRoles={["DOCTOR"]}><DoctorPrescriptionDetail /></ProtectedRoute>} />
 
-      // Patient prescriptions
+      { /*Patient prescriptions */}
       <Route path="/patient/prescriptions" element={<ProtectedRoute allowedRoles={["PATIENT"]}><PatientPrescriptions /></ProtectedRoute>} />
       <Route path="/patient/prescriptions/:id" element={<ProtectedRoute allowedRoles={["PATIENT"]}><PatientPrescriptionDetail /></ProtectedRoute>} />
 
-      // Availability
+      { /*Availability*/ }
       <Route path="/admin/doctors/:id/availability" element={<ProtectedRoute allowedRoles={["ADMIN"]}><AdminDoctorAvailability /></ProtectedRoute>} />
       <Route path="/doctor/availability" element={<ProtectedRoute allowedRoles={["DOCTOR"]}><DoctorAvailabilityPage /></ProtectedRoute>} />
+
+      {/* 404 LAST */}
+      <Route path="*" element={<div className="p-8">Page not found</div>} />
     </Routes>
   );
 }

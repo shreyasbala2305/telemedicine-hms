@@ -2,7 +2,7 @@
 import React, { useEffect, useState } from 'react';
 import DashboardLayout from '../../../layouts/DashboardLayout';
 import { createAppointment } from '../../../services/appointmentService';
-import { getPatients } from '../../../services/PatientService';
+import { getPatients } from '../../../services/patientService';
 import { getDoctors } from '../../../services/doctorService';
 import { useNavigate } from 'react-router-dom';
 import toast from 'react-hot-toast';

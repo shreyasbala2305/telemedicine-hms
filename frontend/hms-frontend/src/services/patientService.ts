@@ -37,7 +37,7 @@ export const createPatient = async (payload: Patient) => {
   if (MOCK_MODE) {
     return Promise.resolve({ ...payload, id: Math.floor(Math.random() * 1000) });
   }
-  const res = await api.post(`${base}`, payload);
+  const res = await api.post(`/patient-service/patients/register`, payload);
   return res.data;
 };
 

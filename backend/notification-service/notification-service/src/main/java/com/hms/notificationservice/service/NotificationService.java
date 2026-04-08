@@ -1,6 +1,7 @@
 package com.hms.notificationservice.service;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -84,4 +85,8 @@ public class NotificationService {
         ).create();
         System.out.println("✅ SMS sent: " + message.getSid());
     }
+
+	public List<Notification> getByRecipient(Long recipientId) {
+		return notificationRepository.findByRecipientById(recipientId);
+	}
 }

@@ -21,12 +21,20 @@ export default function AppointmentsList() {
   const pageSize = 10;
 
   useEffect(() => {
-    (async () => {
-      setLoading(true);
-      const data = await getAppointments();
-      setAppointments(data || []);
-      setLoading(false);
-    })();
+    const fetchData = async () => {
+      try {
+        setLoading(true);
+        const data = await getAppointments();
+        setAppointments(data || []);
+      } catch (err) {
+        console.error("Failed to load appointments", err);
+        setAppointments([]);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchData();
   }, []);
 
   const filtered = useMemo(() => {

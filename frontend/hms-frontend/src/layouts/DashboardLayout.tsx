@@ -1,60 +1,136 @@
-// src/layouts/DashboardLayout.tsx
 import React, { useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useNavigate, useLocation } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
+import { useTheme } from "../context/ThemeContext";
 import NotificationPanel from "../components/widgets/NotificationPanel";
-import MobileSidebar from "../components/ui/MobileSideBar";
-import { Menu } from "lucide-react";
+import MobileSidebar from "../components/ui/MobileSidebar";
+import {
+  Menu,
+  LayoutDashboard,
+  Users,
+  Stethoscope,
+  Calendar,
+  LogOut,
+  Moon,
+  Sun,
+} from "lucide-react";
 
 export default function DashboardLayout({ children }: { children: React.ReactNode }) {
   const { logout } = useAuth();
+  const { dark, toggle } = useTheme();
   const navigate = useNavigate();
+  const location = useLocation();
   const [open, setOpen] = useState(false);
 
+  const navItem = (to: string, label: string, icon: any) => {
+    const active = location.pathname === to;
+
+    return (
+      <Link
+        to={to}
+        className={`flex items-center gap-3 px-4 py-2 rounded-lg transition-colors ${
+          active
+            ? "bg-blue-600 text-white"
+            : "text-gray-300 hover:bg-white/10"
+        }`}
+      >
+        {icon}
+        {label}
+      </Link>
+    );
+  };
+
   const sidebar = (
-    <>
-      <h2 className="text-2xl font-bold mb-6">HMS</h2>
-      <nav className="space-y-3 text-sm">
-        <Link to="/admin" className="block py-2 px-3 rounded hover:bg-white/5">Dashboard</Link>
-        <Link to="/admin/patients" className="block py-2 px-3 rounded hover:bg-white/5">Patients</Link>
-        <Link to="/admin/doctors" className="block py-2 px-3 rounded hover:bg-white/5">Doctors</Link>
-        <Link to="/admin/appointments" className="block py-2 px-3 rounded hover:bg-white/5">Appointments</Link>
-        <Link to="/admin/logs" className="block py-2 px-3 rounded hover:bg-white/5">Activity Logs</Link>
-      </nav>
-      <div className="mt-6">
-        <button onClick={() => { logout(); navigate("/login"); }} className="w-full py-2 bg-red-600 rounded">Logout</button>
+    <div className="flex flex-col h-full justify-between">
+      <div>
+        {/* Logo */}
+        <div className="mb-8">
+          <h2 className="text-2xl font-bold text-white">🏥 HMS</h2>
+          <p className="text-xs text-gray-400">Admin Panel</p>
+        </div>
+
+        {/* Nav */}
+        <nav className="space-y-2 text-sm">
+          {navItem("/admin", "Dashboard", <LayoutDashboard size={18} />)}
+          {navItem("/admin/patients", "Patients", <Users size={18} />)}
+          {navItem("/admin/doctors", "Doctors", <Stethoscope size={18} />)}
+          {navItem("/admin/appointments", "Appointments", <Calendar size={18} />)}
+        </nav>
       </div>
-    </>
+
+      {/* Logout */}
+      <button
+        onClick={() => {
+          logout();
+          navigate("/login");
+        }}
+        className="flex items-center gap-2 px-4 py-2 bg-red-500 hover:bg-red-600 rounded-lg text-white transition"
+      >
+        <LogOut size={16} />
+        Logout
+      </button>
+    </div>
   );
 
   return (
-    <div className="flex h-screen bg-gray-100">
-      {/* Desktop sidebar */}
-      <aside className="hidden md:block w-72 bg-sidebar text-white p-6 flex flex-col justify-between">
+    <div className="flex h-screen bg-gray-100 dark:bg-gray-900 transition-colors">
+
+      {/* Desktop Sidebar */}
+      <aside className="hidden md:flex w-64 bg-slate-900 text-white p-5">
         {sidebar}
       </aside>
 
-      {/* Mobile sidebar drawer */}
+      {/* Mobile Sidebar */}
       <MobileSidebar open={open} onClose={() => setOpen(false)}>
-        <div className="h-full flex flex-col justify-between">
+        <div className="bg-slate-900 h-full p-5 text-white">
           {sidebar}
         </div>
       </MobileSidebar>
 
-      {/* Main area */}
+      {/* Main */}
       <div className="flex-1 flex flex-col">
-        <header className="flex items-center justify-between px-4 py-3 bg-white shadow sm:px-6">
+
+        {/* HEADER */}
+        <header className="flex items-center justify-between px-6 py-4 bg-white dark:bg-gray-800 border-b dark:border-gray-700 transition-colors">
+
+          {/* LEFT */}
           <div className="flex items-center gap-3">
-            <button className="md:hidden p-2" onClick={() => setOpen(true)}><Menu /></button>
-            <div className="text-lg font-semibold">Admin Panel</div>
+            <button className="md:hidden p-2" onClick={() => setOpen(true)}>
+              <Menu className="text-gray-700 dark:text-gray-200" />
+            </button>
+
+            <h1 className="text-lg font-semibold text-gray-800 dark:text-white">
+              Admin Dashboard
+            </h1>
           </div>
 
-          <div className="flex items-center gap-3">
+          {/* RIGHT */}
+          <div className="flex items-center gap-4">
+
+            {/* Dark Mode Toggle */}
+            <button
+              onClick={toggle}
+              className="p-2 rounded-lg border border-gray-200 dark:border-gray-600 hover:bg-gray-100 dark:hover:bg-gray-700 transition"
+            >
+              {dark ? <Sun size={18} /> : <Moon size={18} />}
+            </button>
+
+            {/* Notifications */}
             <NotificationPanel />
+
+            {/* Avatar */}
+            <div className="w-8 h-8 rounded-full bg-blue-600 text-white flex items-center justify-center text-sm">
+              A
+            </div>
+
           </div>
         </header>
 
-        <main className="flex-1 overflow-auto p-6">{children}</main>
+        {/* CONTENT */}
+        <main className="flex-1 overflow-auto p-6 text-gray-900 dark:text-gray-100 transition-colors">
+          {children}
+        </main>
+
       </div>
     </div>
   );

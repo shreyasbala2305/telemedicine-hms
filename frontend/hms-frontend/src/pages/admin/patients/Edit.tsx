@@ -1,7 +1,7 @@
 // src/pages/admin/patients/Edit.tsx
 import React, { useEffect, useState } from 'react';
 import DashboardLayout from '../../../layouts/DashboardLayout';
-import { createPatient, getPatient, updatePatient, Patient } from '../../../services/PatientService';
+import { createPatient, getPatient, updatePatient, Patient } from '../../../services/patientService';
 import { useNavigate, useParams } from 'react-router-dom';
 import toast from 'react-hot-toast';
 

@@ -62,36 +62,112 @@ export default function BookDoctor() {
 
   return (
     <PatientLayout>
-      <div className="mb-4 flex items-center justify-between">
-        <div>
-          <h1 className="text-2xl font-bold">Book with Doctor #{doctorId}</h1>
-          <div className="text-sm text-gray-500">Select date and choose a slot</div>
-        </div>
-      </div>
+      <div className="max-w-4xl mx-auto space-y-6">
 
-      <div className="bg-white p-6 rounded-2xl shadow max-w-3xl">
-        <div className="mb-4">
-          <label className="block text-sm text-gray-600 mb-1">Choose Date</label>
-          <input type="date" value={date} onChange={e => setDate(e.target.value)} className="px-3 py-2 border rounded" />
+        {/* HEADER */}
+        <div className="flex items-center justify-between">
+          <div>
+            <h1 className="text-3xl font-bold">
+              Book Appointment
+            </h1>
+            <p className="text-gray-500 text-sm">
+              Select date and preferred time slot
+            </p>
+          </div>
         </div>
 
-        <div>
-          <h3 className="font-medium mb-3">Available slots</h3>
-          {loading ? <div>Loading slots...</div> : slots.length === 0 ? <div className="text-sm text-gray-500">No slots available for the selected date.</div> : (
-            <div className="grid grid-cols-3 md:grid-cols-6 gap-3">
-              {slots.map(s => (
-                <SlotButton key={s.iso} time={s.time} disabled={!s.available} selected={selected === s.iso || selected === s.time} onClick={() => s.available ? setSelected(s.iso || s.time) : null} />
-              ))}
+        {/* DOCTOR CARD */}
+        <div className="bg-white p-5 rounded-2xl shadow-sm border flex items-center gap-4">
+          <div className="w-14 h-14 rounded-full bg-blue-100 text-blue-600 flex items-center justify-center font-bold text-lg">
+            D
+          </div>
+
+          <div>
+            <div className="font-semibold text-lg">
+              Doctor #{doctorId}
+            </div>
+            <div className="text-sm text-gray-500">
+              Specialist • Available slots
+            </div>
+          </div>
+        </div>
+
+        {/* DATE PICKER */}
+        <div className="bg-white p-5 rounded-2xl shadow-sm border">
+          <label className="block text-sm text-gray-600 mb-2">
+            Select Date
+          </label>
+
+          <input
+            type="date"
+            value={date}
+            onChange={e => setDate(e.target.value)}
+            className="px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 outline-none"
+          />
+        </div>
+
+        {/* SLOTS */}
+        <div className="bg-white p-5 rounded-2xl shadow-sm border">
+          <h3 className="font-semibold mb-4 text-lg">
+            Available Slots
+          </h3>
+
+          {loading ? (
+            <div className="text-gray-500">Loading slots...</div>
+          ) : slots.length === 0 ? (
+            <div className="text-sm text-gray-500">
+              No slots available for this date
+            </div>
+          ) : (
+            <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-6 gap-3">
+              {slots.map(s => {
+                const isSelected = selected === s.iso || selected === s.time;
+
+                return (
+                  <button
+                    key={s.iso}
+                    disabled={!s.available}
+                    onClick={() => s.available && setSelected(s.iso || s.time)}
+                    className={`py-2 rounded-full text-sm border transition
+                      ${
+                        isSelected
+                          ? "bg-blue-600 text-white"
+                          : s.available
+                          ? "hover:bg-blue-50"
+                          : "opacity-40 cursor-not-allowed"
+                      }
+                    `}
+                  >
+                    {s.time}
+                  </button>
+                );
+              })}
             </div>
           )}
         </div>
 
-        <div className="mt-6 flex gap-3">
-          <button onClick={handleBook} disabled={!selected || booking} className="bg-primary text-white px-4 py-2 rounded">
+        {/* ACTIONS */}
+        <div className="flex justify-between items-center">
+          <button
+            onClick={() => navigate("/patient/book")}
+            className="px-4 py-2 border rounded-lg hover:bg-gray-50"
+          >
+            Back
+          </button>
+
+          <button
+            onClick={handleBook}
+            disabled={!selected || booking}
+            className={`px-6 py-3 rounded-lg text-white font-semibold transition ${
+              booking
+                ? "bg-blue-400"
+                : "bg-blue-600 hover:bg-blue-700"
+            }`}
+          >
             {booking ? "Booking..." : "Confirm Booking"}
           </button>
-          <button onClick={() => navigate("/patient/book")} className="px-4 py-2 border rounded">Back</button>
         </div>
+
       </div>
     </PatientLayout>
   );

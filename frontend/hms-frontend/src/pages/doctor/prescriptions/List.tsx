@@ -16,13 +16,27 @@ export default function DoctorPrescriptions() {
   };
 
   useEffect(() => {
-    (async () => {
-      setLoading(true);
-      const docId = getDoctorIdFromToken();
-      const res = await getPrescriptionsByDoctor(docId || "");
-      setItems(res || []);
-      setLoading(false);
-    })();
+    const fetchData = async () => {
+      try {
+        setLoading(true);
+        const docId = getDoctorIdFromToken();
+
+        if (!docId) {
+          setItems([]);
+          return;
+        }
+
+        const res = await getPrescriptionsByDoctor(docId);
+        setItems(res || []);
+      } catch (err) {
+        console.error("Failed to load prescriptions", err);
+        setItems([]);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchData();
   }, [token]);
 
   return (
@@ -33,7 +47,17 @@ export default function DoctorPrescriptions() {
       </div>
 
       <div className="bg-white rounded-2xl shadow p-4">
-        {loading ? <div>Loading...</div> : items.length===0 ? <div>No prescriptions</div> : (
+        {loading ? (
+          [...Array(5)].map((_, i) => (
+            <tr key={i} className="border-t animate-pulse">
+              {Array(5).fill(0).map((_, j) => (
+                <td key={j} className="p-3">
+                  <div className="h-4 w-full max-w-[150px] bg-gray-300 dark:bg-gray-700 rounded"></div>
+                </td>
+              ))}
+            </tr>
+          ))
+        ) : items.length===0 ? <div>No prescriptions</div> : (
           <div className="space-y-3">
             {items.map(it=>(
               <div key={it.id} className="p-3 border rounded flex justify-between items-center">

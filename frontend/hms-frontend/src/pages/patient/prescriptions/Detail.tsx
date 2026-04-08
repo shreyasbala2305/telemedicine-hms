@@ -13,7 +13,7 @@ export default function PatientPrescriptionDetail() {
     (async () => setPres(await getPrescription(Number(id))))();
   }, [id]);
 
-  if (!pres) return <PatientLayout><div>Loading...</div></PatientLayout>;
+  if (!pres) return <PatientLayout><div>Loading..</div></PatientLayout>;
 
   return (
     <PatientLayout>

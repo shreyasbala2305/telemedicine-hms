@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import PatientLayout from "../../layouts/PatientLayout";
-import { getPatients } from "../../services/PatientService";
+import { getPatients } from "../../services/patientService";
 import { useAuth } from "../../context/AuthContext";
 
 export default function PatientProfile() {

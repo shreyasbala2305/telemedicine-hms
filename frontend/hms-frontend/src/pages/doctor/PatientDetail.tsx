@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import DoctorLayout from "../../layouts/DoctorLayout";
-import { getPatient } from "../../services/PatientService";
+import { getPatient } from "../../services/patientService";
 import { useParams } from "react-router-dom";
 
 export default function DoctorPatientDetail() {
@@ -11,7 +11,7 @@ export default function DoctorPatientDetail() {
     if (id) (async () => setPatient(await getPatient(Number(id))))();
   }, [id]);
 
-  if (!patient) return (<DoctorLayout><div>Loading...</div></DoctorLayout>);
+  if (!patient) return (<DoctorLayout><div>Loading..</div></DoctorLayout>);
 
   return (
     <DoctorLayout>

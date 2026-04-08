@@ -15,7 +15,7 @@ export default function PrescriptionDetail() {
     })();
   }, [id]);
 
-  if (!pres) return <DoctorLayout><div>Loading...</div></DoctorLayout>;
+  if (!pres) return <DoctorLayout><div>animate-pulse skeleton</div></DoctorLayout>;
 
   return (
     <DoctorLayout>

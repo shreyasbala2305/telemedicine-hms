@@ -55,6 +55,25 @@ export const deleteAppointment = async (id: number) => {
   return res.data;
 };
 
+// get appointments filtered by patient id (assumes backend supports query param ?patientId= or you fetch all and filter)
+export const getAppointmentsByPatient = async (patientId: string | number) => {
+  if (MOCK_MODE) {
+    // reuse existing mock list and filter
+    const list = await getAppointments();
+    return list.filter((a: any) => String(a.patientId) === String(patientId));
+  }
+
+  // try backend query first (if supported)
+  try {
+    const res = await api.get(`${base}?patientId=${patientId}`);
+    return res.data;
+  } catch {
+    // fallback: fetch all and filter client-side
+    const res = await api.get(`${base}`);
+    return res.data.filter((a: any) => String(a.patientId) === String(patientId));
+  }
+};
+
 // get appointments filtered by doctor id (assumes backend supports query param ?doctorId= or you fetch all and filter)
 export const getAppointmentsByDoctor = async (doctorId: string | number) => {
   if (MOCK_MODE) {

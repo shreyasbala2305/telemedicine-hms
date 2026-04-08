@@ -54,7 +54,17 @@ export default function DoctorDashboard() {
 
       <div className="mt-6 bg-white p-4 rounded-2xl shadow">
         <h2 className="font-semibold mb-3">Next Appointments</h2>
-        {loading ? <div>Loading...</div> : (
+        {loading ? (
+          [...Array(5)].map((_, i) => (
+            <tr key={i} className="border-t animate-pulse">
+              {Array(3).fill(0).map((_, j) => (
+                <td key={j} className="p-3">
+                  <div className="h-3 w-full max-w-[150px] bg-gray-300 dark:bg-gray-700 rounded"></div>
+                </td>
+              ))}
+            </tr>
+          ))
+        ) : (
           appointments.slice(0, 6).map(a => (
             <div key={a.id} className="py-2 border-b last:border-b-0">
               <div className="flex justify-between">

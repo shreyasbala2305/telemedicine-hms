@@ -15,13 +15,19 @@ export default function PatientDashboard() {
 
   useEffect(() => {
     (async () => {
-      setLoading(true);
-      const userId = getUserIdFromToken();
-      if (!userId) { setAppointments([]); setLoading(false); return; }
-      const all = await getAppointments();
-      const mine = all.filter((a: { patientId: any; }) => String(a.patientId) === String(userId));
-      setAppointments(mine);
-      setLoading(false);
+      try{
+        setLoading(true);
+        const userId = getUserIdFromToken();
+        if (!userId) { setAppointments([]); setLoading(false); return; }
+        const all = await getAppointments();
+        const mine = all.filter((a: { patientId: any; }) => String(a.patientId) === String(userId));
+        setAppointments(mine);
+      }catch(err){
+        console.error("Failed to load appointment",err);
+        setAppointments([]);
+      }finally{
+        setLoading(false);
+      }
     })();
   }, [token]);
 
@@ -30,7 +36,17 @@ export default function PatientDashboard() {
       <h1 className="text-2xl font-bold mb-4">Welcome</h1>
       <div className="bg-white p-4 rounded-2xl shadow">
         <h2 className="font-semibold mb-2">Your Upcoming Appointments</h2>
-        {loading ? <div>Loading...</div> : (appointments.length === 0 ? <div>No upcoming appointments</div> : appointments.map(a => (
+        {loading ? (
+          [...Array(5)].map((_, i) => (
+            <tr key={i} className="border-t animate-pulse">
+              {Array(5).fill(0).map((_, j) => (
+                <td key={j} className="p-3">
+                  <div className="h-4 w-full max-w-[150px] bg-gray-300 dark:bg-gray-700 rounded"></div>
+                </td>
+              ))}
+            </tr>
+          ))
+        ) : (appointments.length === 0 ? <div>No upcoming appointments</div> : appointments.map(a => (
           <div key={a.id} className="py-2 border-b">
             <div>{new Date(a.appointmentDate).toLocaleString()} — Doctor #{a.doctorId} — <span className="font-semibold">{a.status}</span></div>
           </div>

@@ -43,7 +43,7 @@ export default function NewPrescription() {
     try {
       const payload = {
         appointmentId: form.appointmentId,
-        patientId: form.patientId,
+        patientId: Number(form.patientId),
         doctorId: getDoctorIdFromToken(),
         symptoms: form.symptoms,
         diagnosis: form.diagnosis,

@@ -9,7 +9,7 @@ export interface Doctor {
   contact?: string;
   speciality?: string;
   qualification?: string;
-  availability?: string; // e.g. "Mon-Fri 9-5"
+  availability?: string[]; // e.g. "Mon-Fri 9-5"
 }
 
 const base = '/doctor-service/doctors';
