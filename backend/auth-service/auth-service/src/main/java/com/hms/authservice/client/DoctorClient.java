@@ -6,7 +6,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 
 import com.hms.authservice.dto.DoctorDTO;
 
-@FeignClient(name = "doctor-service")
+@FeignClient(name = "doctor-service", url = "http://localhost:8083")
 public interface DoctorClient {
     @PostMapping("/doctors/register")
     void createDoctor(@RequestBody DoctorDTO doctorDTO);

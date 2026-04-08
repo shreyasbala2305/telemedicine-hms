@@ -62,6 +62,10 @@ public class AppointmentService {
 		if(doctor == null)
 			throw new RuntimeException("Doctor not found.");
 		
+		boolean conflict = appointmentRepository.existsByDoctorIdAndDateTime(doctorId, dateTime);
+	    if (conflict) {
+	        throw new RuntimeException("Slot already booked for this doctor at " + dateTime);
+	    }
 		
 //		// Validate patient exists
 //        try {
@@ -141,4 +145,9 @@ public class AppointmentService {
 		appointment.setStatus(Appointment.Status.valueOf(newStatus.toUpperCase()));
 		return appointmentRepository.save(appointment);
 	}
+	
+	public List<Appointment> getByDoctorAndRange(Long doctorId, LocalDateTime start, LocalDateTime end) {
+	    return appointmentRepository.findByDoctorIdAndDateTimeBetween(doctorId, start, end);
+	}
+
 }

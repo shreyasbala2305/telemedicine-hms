@@ -36,16 +36,19 @@ public class GatewayConfig {
 //                )
 //                .build();
 //    }
+    
+    
     @Bean
     public SecurityWebFilterChain securityFilterChain(ServerHttpSecurity http) {
         http
-            .csrf(ServerHttpSecurity.CsrfSpec::disable)
-            .authorizeExchange(exchanges -> exchanges
-                .anyExchange().permitAll()
-            )
-            .securityContextRepository(NoOpServerSecurityContextRepository.getInstance()) // optional, disables context storage
-            .httpBasic(ServerHttpSecurity.HttpBasicSpec::disable)
-            .formLogin(ServerHttpSecurity.FormLoginSpec::disable);
+                .cors(cors -> {})
+                .csrf(ServerHttpSecurity.CsrfSpec::disable)
+                .authorizeExchange(exchanges -> exchanges
+                                .anyExchange().permitAll()
+                )
+                .securityContextRepository(NoOpServerSecurityContextRepository.getInstance()) // optional, disables context storage
+                .httpBasic(ServerHttpSecurity.HttpBasicSpec::disable)
+                .formLogin(ServerHttpSecurity.FormLoginSpec::disable);
         return http.build();
     }
 }
