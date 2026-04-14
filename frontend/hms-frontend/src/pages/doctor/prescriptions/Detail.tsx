@@ -15,21 +15,80 @@ export default function PrescriptionDetail() {
     })();
   }, [id]);
 
-  if (!pres) return <DoctorLayout><div>animate-pulse skeleton</div></DoctorLayout>;
+  if (!pres)
+    return (
+      <DoctorLayout>
+        <div className="animate-pulse h-40 bg-gray-200 rounded-xl" />
+      </DoctorLayout>
+    );
 
   return (
     <DoctorLayout>
-      <h1 className="text-2xl font-bold mb-4">Prescription #{pres.id}</h1>
-      <div className="bg-white p-6 rounded-2xl shadow max-w-3xl">
-        <div><strong>Patient:</strong> #{pres.patientId}</div>
-        <div><strong>Diagnosis:</strong> {pres.diagnosis}</div>
-        <div className="mt-3">
-          <strong>Medicines:</strong>
-          <ul className="list-disc ml-6 mt-2">
-            {pres.medicines.map((m:any, i:number) => <li key={i}>{m.name} — {m.dose} — {m.frequency} — {m.duration}</li>)}
-          </ul>
+
+      {/* HEADER */}
+      <div className="mb-6 flex justify-between items-center">
+        <h1 className="text-3xl font-bold">
+          Prescription #{pres.id}
+        </h1>
+      </div>
+
+      <div className="bg-white dark:bg-gray-800 p-6 rounded-2xl shadow max-w-4xl mx-auto space-y-6">
+
+        {/* PATIENT INFO */}
+        <div>
+          <h2 className="text-lg font-semibold mb-2">Patient Info</h2>
+          <p className="text-gray-600">Patient ID: #{pres.patientId}</p>
         </div>
-        <div className="mt-3"><strong>Notes:</strong> {pres.notes || "—"}</div>
+
+        {/* DIAGNOSIS */}
+        <div>
+          <h2 className="text-lg font-semibold mb-2">Diagnosis</h2>
+          <p className="text-gray-700">{pres.diagnosis}</p>
+        </div>
+
+        {/* MEDICINES */}
+        <div>
+          <h2 className="text-lg font-semibold mb-3">Medicines</h2>
+
+          <div className="space-y-3">
+            {pres.medicines.map((m: any, i: number) => (
+              <div
+                key={i}
+                className="border p-4 rounded-lg flex flex-col md:flex-row md:justify-between"
+              >
+                <div>
+                  <p className="font-medium">{m.name}</p>
+                  <p className="text-sm text-gray-500">
+                    Dose: {m.dose}
+                  </p>
+                </div>
+
+                <div className="text-sm text-gray-600">
+                  {m.frequency} • {m.duration}
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* NOTES */}
+        <div>
+          <h2 className="text-lg font-semibold mb-2">Notes</h2>
+          <p className="text-gray-700">
+            {pres.notes || "No additional notes"}
+          </p>
+        </div>
+
+        {/* FOLLOW UP */}
+        {pres.followUpDate && (
+          <div>
+            <h2 className="text-lg font-semibold mb-2">Follow-up</h2>
+            <p className="text-gray-700">
+              {new Date(pres.followUpDate).toLocaleDateString()}
+            </p>
+          </div>
+        )}
+
       </div>
     </DoctorLayout>
   );

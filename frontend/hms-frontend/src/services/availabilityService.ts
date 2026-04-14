@@ -60,12 +60,12 @@ export async function getAvailability(doctorId: number | string, date: string): 
   // Fallback: compute from appointments
   try {
     const all = await getAppointments();
-    const dayApps = (all || []).filter((a: any) => String(a.doctorId) === String(doctorId) && a.appointmentDate?.startsWith(date));
+    const dayApps = (all || []).filter((a: any) => String(a.doctorId) === String(doctorId) && a.dateTime?.startsWith(date));
     // take a default schedule (9:00-12:00, 14:00-17:00) with 30-min slots
     const slots = generateSlotsForDate(date, "09:00", "12:00", 30).concat(generateSlotsForDate(date, "14:00", "17:00", 30));
     const taken = new Set(dayApps.map((a: any) => {
-      // map appointmentDate to hh:mm
-      const d = new Date(a.appointmentDate);
+      // map dateTime to hh:mm
+      const d = new Date(a.dateTime);
       return d.toTimeString().slice(0,5);
     }));
     return slots.map(s => ({ time: s, iso: `${date}T${s}:00`, available: !taken.has(s) }));
@@ -95,11 +95,11 @@ function pad(n:number) { return n < 10 ? `0${n}` : `${n}`; }
  * {
  *   patientId: "9",
  *   doctorId: "11",
- *   appointmentDate: "2025-09-14T10:45:00",
+ *   dateTime: "2025-09-14T10:45:00",
  *   status: "CONFIRMED"
  * }
  */
-export async function createBooking(payload: { patientId: string; doctorId: string | number; appointmentDate: string; status?: string; description?: string }) {
+export async function createBooking(payload: { patientId: string; doctorId: string | number; dateTime: string; status?: string; description?: string }) {
   if (MOCK_MODE) {
     // simulate network
     return new Promise((res) => setTimeout(() => res({ id: Math.floor(Math.random()*10000), ...payload }), 700));

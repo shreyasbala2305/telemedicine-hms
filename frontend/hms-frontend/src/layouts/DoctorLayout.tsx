@@ -29,15 +29,22 @@ export default function DoctorLayout({ children }: { children: React.ReactNode }
     );
   };
 
+  // inside sidebar
   const sidebar = (
     <div className="flex flex-col h-full justify-between text-white">
+      
       <div>
-        <h2 className="text-xl font-bold mb-6">HMS — Doctor</h2>
+        <h2 className="text-2xl font-bold mb-8 tracking-wide">
+          🏥 HMS Doctor
+        </h2>
+
         <nav className="space-y-2 text-sm">
-          {navItem("/doctor/dashboard", "Dashboard")}
-          {navItem("/doctor/appointments", "My Appointments")}
-          {navItem("/doctor/patients", "My Patients")}
-          {navItem("/doctor/profile", "Profile")}
+
+          {navItem("/doctor/dashboard", "📊 Dashboard")}
+          {navItem("/doctor/appointments", "📅 Appointments")}
+          {navItem("/doctor/patients", "👥 Patients")}
+          {navItem("/doctor/profile", "👤 Profile")}
+
         </nav>
       </div>
 
@@ -46,7 +53,7 @@ export default function DoctorLayout({ children }: { children: React.ReactNode }
           logout();
           navigate("/login");
         }}
-        className="w-full py-2 bg-red-500 hover:bg-red-600 rounded text-white transition"
+        className="w-full py-2 bg-red-500 hover:bg-red-600 rounded-xl text-white transition font-medium"
       >
         Logout
       </button>

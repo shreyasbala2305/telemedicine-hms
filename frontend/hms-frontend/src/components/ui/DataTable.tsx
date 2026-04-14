@@ -2,10 +2,10 @@ import React from "react";
 
 export default function DataTable({ columns, data, loading }: any) {
   return (
-    <div className="bg-white rounded-2xl shadow-sm border overflow-hidden">
+    <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-sm border dark:border-white-100 overflow-hidden">
 
       <table className="min-w-full">
-        <thead className="bg-gray-50">
+        <thead className="bg-gray-50 dark:bg-gray-800">
           <tr>
             {columns.map((col: any) => (
               <th key={col.key} className="p-3 text-left text-sm font-medium text-gray-600">
@@ -19,7 +19,7 @@ export default function DataTable({ columns, data, loading }: any) {
           {loading ? (
             [...Array(5)].map((_, i) => (
               <tr key={i} className="border-t animate-pulse">
-                {Array(3).fill(0).map((_, j) => (
+                {Array(4).fill(0).map((_, j) => (
                   <td key={j} className="p-3">
                     <div className="h-3 w-full max-w-[150px] bg-gray-300 dark:bg-gray-700 rounded"></div>
                   </td>

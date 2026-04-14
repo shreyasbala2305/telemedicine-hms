@@ -27,14 +27,18 @@ export default function PatientProfile() {
 
   return (
     <PatientLayout>
-      <h1 className="text-2xl font-bold mb-4">My Profile</h1>
-      <div className="bg-white p-6 rounded-2xl shadow max-w-2xl">
-        <div><strong>Name:</strong> {patient.name}</div>
-        <div><strong>Email:</strong> {patient.email}</div>
-        <div><strong>DOB:</strong> {patient.dob?.split('T')[0]}</div>
-        <div><strong>Gender:</strong> {patient.gender}</div>
-        <div><strong>Contact:</strong> {patient.contact}</div>
-        <div><strong>User ID:</strong> {patient.userId}</div>
+      <div className="bg-white p-6 rounded-2xl shadow max-w-2xl space-y-4">
+
+        <h2 className="text-xl font-semibold">Personal Information</h2>
+
+        <div className="grid grid-cols-2 gap-4 text-sm">
+          <div><strong>Name:</strong> {patient.name}</div>
+          <div><strong>Email:</strong> {patient.email}</div>
+          <div><strong>DOB:</strong> {patient.dob?.split("T")[0]}</div>
+          <div><strong>Gender:</strong> {patient.gender}</div>
+          <div><strong>Contact:</strong> {patient.contact}</div>
+        </div>
+
       </div>
     </PatientLayout>
   );

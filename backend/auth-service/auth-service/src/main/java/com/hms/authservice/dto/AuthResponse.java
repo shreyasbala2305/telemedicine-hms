@@ -1,12 +1,15 @@
 package com.hms.authservice.dto;
 
 import com.hms.authservice.model.Role;
-
 import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
+@Data
 @AllArgsConstructor
+@NoArgsConstructor
 public class AuthResponse {
-	public String token;
-	public Role role;
-	public String fullName;	
+    private String token;
+    private Role role;
+    private String fullName;
 }

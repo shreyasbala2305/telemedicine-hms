@@ -47,7 +47,7 @@ export default function AppointmentDetail() {
             <div className="mb-4 flex justify-between items-center">
               <div>
                 <div className="text-lg font-medium">Patient ID: {appointment.patientId}</div>
-                <div className="text-sm text-gray-500">{new Date(appointment.appointmentDate).toLocaleString()}</div>
+                <div className="text-sm text-gray-500">{new Date(appointment.dateTime).toLocaleString()}</div>
               </div>
               <StatusBadge status={appointment.status} />
             </div>

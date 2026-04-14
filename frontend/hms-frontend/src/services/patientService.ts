@@ -21,8 +21,8 @@ export const getPatients = async (): Promise<Patient[]> => {
       { id: 10, name: 'John Smith', email: 'john@demo.com', dob: '1986-11-02', gender: 'M', contact: '9123456780', userId: 'user10' },
     ]);
   }
-  const res = await api.get(`${base}`);
-  return res.data;
+  const res = await api.get(`${base}?page=0&size=100`);
+  return res.data.content || res.data;
 };
 
 export const getPatient = async (id: number): Promise<Patient> => {
@@ -76,9 +76,12 @@ export async function getPatientsPaged(params: {
 }) {
   const query = new URLSearchParams();
   if (params.search) query.append("search", params.search);
-  if (params.page) query.append("page", String(params.page));
+  if (params.page) query.append("page", String(params.page-1));
   if (params.pageSize) query.append("pageSize", String(params.pageSize));
 
   const res = await api.get(`/patient-service/patients?${query.toString()}`);
-  return res.data; // expected: { data: [], total: number }
+  return {
+    data: res.data.content,
+    total: res.data.totalElements
+  };
 }

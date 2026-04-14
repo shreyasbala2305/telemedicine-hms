@@ -41,37 +41,77 @@ export default function DoctorPrescriptions() {
 
   return (
     <DoctorLayout>
-      <div className="mb-6 flex items-center justify-between">
-        <h1 className="text-2xl font-bold">Prescriptions</h1>
-        <Link to="/doctor/prescriptions/new" className="bg-primary text-white px-4 py-2 rounded">+ New</Link>
+
+      {/* HEADER */}
+      <div className="mb-6 flex flex-col md:flex-row md:items-center md:justify-between gap-3">
+        <div>
+          <h1 className="text-3xl font-bold">Prescriptions 💊</h1>
+          <p className="text-gray-500 text-sm">
+            Manage and view patient prescriptions
+          </p>
+        </div>
+
+        <Link
+          to="/doctor/prescriptions/new"
+          className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700"
+        >
+          + New Prescription
+        </Link>
       </div>
 
-      <div className="bg-white rounded-2xl shadow p-4">
+      {/* CONTENT */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+
         {loading ? (
-          [...Array(5)].map((_, i) => (
-            <tr key={i} className="border-t animate-pulse">
-              {Array(5).fill(0).map((_, j) => (
-                <td key={j} className="p-3">
-                  <div className="h-4 w-full max-w-[150px] bg-gray-300 dark:bg-gray-700 rounded"></div>
-                </td>
-              ))}
-            </tr>
+          Array.from({ length: 6 }).map((_, i) => (
+            <div key={i} className="h-28 bg-gray-200 animate-pulse rounded-xl" />
           ))
-        ) : items.length===0 ? <div>No prescriptions</div> : (
-          <div className="space-y-3">
-            {items.map(it=>(
-              <div key={it.id} className="p-3 border rounded flex justify-between items-center">
-                <div>
-                  <div className="font-medium">Prescription #{it.id} — Patient #{it.patientId}</div>
-                  <div className="text-sm text-gray-500">{it.diagnosis}</div>
-                </div>
-                <div>
-                  <Link to={`/doctor/prescriptions/${it.id}`} className="text-blue-600">View</Link>
-                </div>
-              </div>
-            ))}
+        ) : items.length === 0 ? (
+
+          <div className="col-span-full text-center py-10 bg-white rounded-2xl shadow">
+            <p className="text-lg font-medium text-gray-700">
+              No prescriptions found
+            </p>
           </div>
+
+        ) : (
+
+          items.map((it) => (
+            <div
+              key={it.id}
+              className="bg-white p-5 rounded-2xl shadow hover:shadow-md transition border"
+            >
+
+              <div className="flex justify-between items-start">
+
+                <div>
+                  <h2 className="font-semibold text-lg">
+                    Prescription #{it.id}
+                  </h2>
+
+                  <p className="text-sm text-gray-500 mt-1">
+                    Patient ID: #{it.patientId}
+                  </p>
+
+                  <p className="text-sm text-gray-600 mt-2">
+                    {it.diagnosis || "No diagnosis"}
+                  </p>
+                </div>
+
+                <Link
+                  to={`/doctor/prescriptions/${it.id}`}
+                  className="text-blue-600 text-sm hover:underline"
+                >
+                  View →
+                </Link>
+
+              </div>
+
+            </div>
+          ))
+
         )}
+
       </div>
     </DoctorLayout>
   );

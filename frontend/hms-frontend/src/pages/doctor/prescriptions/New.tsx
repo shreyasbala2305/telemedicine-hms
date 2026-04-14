@@ -61,50 +61,130 @@ export default function NewPrescription() {
 
   return (
     <DoctorLayout>
-      <h1 className="text-2xl font-bold mb-4">New Prescription</h1>
-      <div className="bg-white p-6 rounded-2xl shadow max-w-3xl">
-        <form onSubmit={handleSubmit} className="space-y-4">
+
+      {/* HEADER */}
+      <div className="mb-6">
+        <h1 className="text-3xl font-bold">Create Prescription 💊</h1>
+        <p className="text-gray-500 text-sm">
+          Add diagnosis and medicines for the patient
+        </p>
+      </div>
+
+      <div className="bg-white dark:bg-gray-800 p-6 rounded-2xl shadow max-w-4xl">
+
+        <form onSubmit={handleSubmit} className="space-y-6">
+
+          {/* PATIENT INFO */}
           <div>
-            <label className="block text-sm">Patient ID</label>
-            <input className="w-full px-3 py-2 border rounded" value={form.patientId} onChange={e=>setForm({...form, patientId:e.target.value})} required />
+            <h2 className="font-semibold text-lg mb-3">Patient Info</h2>
+
+            <input
+              placeholder="Enter Patient ID"
+              className="w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-blue-500"
+              value={form.patientId}
+              onChange={e => setForm({ ...form, patientId: e.target.value })}
+              required
+            />
           </div>
 
+          {/* SYMPTOMS */}
           <div>
-            <label className="block text-sm">Symptoms</label>
-            <textarea className="w-full px-3 py-2 border rounded" value={form.symptoms} onChange={e=>setForm({...form, symptoms:e.target.value})} />
+            <h2 className="font-semibold text-lg mb-3">Symptoms</h2>
+
+            <textarea
+              placeholder="Enter symptoms..."
+              className="w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-blue-500"
+              value={form.symptoms}
+              onChange={e => setForm({ ...form, symptoms: e.target.value })}
+            />
           </div>
 
+          {/* DIAGNOSIS */}
           <div>
-            <label className="block text-sm">Diagnosis</label>
-            <textarea className="w-full px-3 py-2 border rounded" value={form.diagnosis} onChange={e=>setForm({...form, diagnosis:e.target.value})} />
+            <h2 className="font-semibold text-lg mb-3">Diagnosis</h2>
+
+            <textarea
+              placeholder="Enter diagnosis..."
+              className="w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-blue-500"
+              value={form.diagnosis}
+              onChange={e => setForm({ ...form, diagnosis: e.target.value })}
+              required
+            />
           </div>
 
+          {/* MEDICINES */}
           <div>
-            <label className="block text-sm mb-2">Medicines</label>
-            <div className="space-y-2">
+            <div className="flex justify-between items-center mb-3">
+              <h2 className="font-semibold text-lg">Medicines</h2>
+
+              <button
+                type="button"
+                onClick={addRow}
+                className="px-3 py-1 bg-blue-500 text-white rounded-lg text-sm hover:bg-blue-600"
+              >
+                + Add
+              </button>
+            </div>
+
+            <div className="space-y-3">
               {form.medicines.map((m, idx) => (
-                <MedicineRow key={idx} idx={idx} item={m} onChange={(v)=>onMedicineChange(idx,v)} onRemove={()=>removeRow(idx)} />
+                <div key={idx} className="bg-gray-50 p-3 rounded-lg">
+                  <MedicineRow
+                    idx={idx}
+                    item={m}
+                    onChange={(v) => onMedicineChange(idx, v)}
+                    onRemove={() => removeRow(idx)}
+                  />
+                </div>
               ))}
             </div>
-            <div className="mt-2">
-              <button type="button" onClick={addRow} className="px-3 py-2 border rounded">+ Add medicine</button>
-            </div>
           </div>
 
+          {/* FOLLOW UP */}
           <div>
-            <label className="block text-sm">Follow-up date</label>
-            <input type="date" className="px-3 py-2 border rounded" value={form.followUpDate} onChange={e=>setForm({...form, followUpDate:e.target.value})} />
+            <h2 className="font-semibold text-lg mb-3">Follow-up</h2>
+
+            <input
+              type="date"
+              className="px-4 py-3 border rounded-lg focus:ring-2 focus:ring-blue-500"
+              value={form.followUpDate}
+              onChange={e => setForm({ ...form, followUpDate: e.target.value })}
+            />
           </div>
 
+          {/* NOTES */}
           <div>
-            <label className="block text-sm">Notes</label>
-            <textarea className="w-full px-3 py-2 border rounded" value={form.notes} onChange={e=>setForm({...form, notes:e.target.value})} />
+            <h2 className="font-semibold text-lg mb-3">Notes</h2>
+
+            <textarea
+              placeholder="Additional notes..."
+              className="w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-blue-500"
+              value={form.notes}
+              onChange={e => setForm({ ...form, notes: e.target.value })}
+            />
           </div>
 
-          <div className="flex gap-3">
-            <button type="submit" disabled={saving} className="bg-primary text-white px-4 py-2 rounded">{saving ? "Saving..." : "Save"}</button>
-            <button type="button" onClick={()=>navigate("/doctor/prescriptions")} className="px-4 py-2 border rounded">Cancel</button>
+          {/* ACTIONS */}
+          <div className="flex gap-4 pt-4">
+
+            <button
+              type="submit"
+              disabled={saving}
+              className="bg-green-500 text-white px-6 py-3 rounded-lg font-semibold hover:bg-green-600 disabled:opacity-50"
+            >
+              {saving ? "Saving..." : "Save Prescription"}
+            </button>
+
+            <button
+              type="button"
+              onClick={() => navigate("/doctor/prescriptions")}
+              className="px-6 py-3 border rounded-lg hover:bg-gray-100"
+            >
+              Cancel
+            </button>
+
           </div>
+
         </form>
       </div>
     </DoctorLayout>

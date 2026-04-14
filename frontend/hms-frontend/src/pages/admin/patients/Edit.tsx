@@ -42,32 +42,32 @@ export default function PatientEdit() {
   return (
     <DashboardLayout>
       <h1 className="text-2xl font-bold mb-6">{id && id !== 'new' ? 'Edit Patient' : 'New Patient'}</h1>
-      <div className="bg-white rounded-2xl p-6 shadow max-w-2xl">
+      <div className="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow max-w-2xl">
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
             <label className="block text-sm">Full Name</label>
-            <input value={form.name} onChange={e => handleChange('name', e.target.value)} className="w-full px-4 py-2 border rounded" required />
+            <input value={form.name} onChange={e => handleChange('name', e.target.value)} className="w-full px-4 py-2 dark:bg-gray-800 border rounded" required />
           </div>
           <div>
             <label className="block text-sm">Email</label>
-            <input value={form.email} onChange={e => handleChange('email', e.target.value)} type="email" className="w-full px-4 py-2 border rounded" required />
+            <input value={form.email} onChange={e => handleChange('email', e.target.value)} type="email" className="w-full px-4 py-2 dark:bg-gray-800 border rounded" required />
           </div>
           <div>
             <label className="block text-sm">DOB</label>
-            <input value={form.dob?.split('T')[0] ?? ''} onChange={e => handleChange('dob', e.target.value)} type="date" className="w-full px-4 py-2 border rounded" />
+            <input value={form.dob?.split('T')[0] ?? ''} onChange={e => handleChange('dob', e.target.value)} type="date" className="w-full px-4 py-2 dark:bg-gray-800 border rounded" />
           </div>
           <div>
             <label className="block text-sm">Gender</label>
-            <input value={form.gender} onChange={e => handleChange('gender', e.target.value)} className="w-full px-4 py-2 border rounded" />
+            <input value={form.gender} onChange={e => handleChange('gender', e.target.value)} className="w-full px-4 py-2 dark:bg-gray-800 border rounded" />
           </div>
           <div>
             <label className="block text-sm">Contact</label>
-            <input value={form.contact} onChange={e => handleChange('contact', e.target.value)} className="w-full px-4 py-2 border rounded" />
+            <input value={form.contact} onChange={e => handleChange('contact', e.target.value)} className="w-full px-4 py-2 dark:bg-gray-800 border rounded" />
           </div>
-          <div>
+          {/* <div>
             <label className="block text-sm">User ID</label>
-            <input value={form.userId} onChange={e => handleChange('userId', e.target.value)} className="w-full px-4 py-2 border rounded" />
-          </div>
+            <input value={form.userId} onChange={e => handleChange('userId', e.target.value)} className="w-full px-4 py-2 dark:bg-gray-800 border rounded" />
+          </div> */}
 
           <div className="flex gap-3">
             <button type="submit" disabled={loading} className="bg-primary text-white px-4 py-2 rounded">{loading ? 'Saving...' : 'Save'}</button>

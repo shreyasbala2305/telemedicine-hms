@@ -45,6 +45,12 @@ export default function DoctorPatients() {
 
         const appointments: Appointment[] = await getAppointmentsByDoctor(docId);
 
+        console.log("Appointments:", appointments);
+
+        if (!appointments || appointments.length === 0) {
+          console.warn("No appointments found for doctor:", docId);
+        }
+
         const uniquePatientIds = Array.from(
           new Set((appointments || []).map(a => a.patientId))
         );
@@ -63,8 +69,12 @@ export default function DoctorPatients() {
 
   return (
     <DoctorLayout>
-      <div className="mb-6 flex justify-between items-center">
+      <div className="flex justify-between mb-4">
         <h1 className="text-2xl font-bold">My Patients</h1>
+        <input
+          placeholder="Search patient..."
+          className="border px-3 py-2 rounded-lg"
+        />
       </div>
 
       <div className="bg-white rounded-2xl shadow overflow-hidden">
@@ -93,7 +103,7 @@ export default function DoctorPatients() {
             ) : patients.length === 0 ? (
               <tr>
                 <td colSpan={5} className="p-6 text-center">
-                  No patients
+                  No Patients
                 </td>
               </tr>
             ) : (

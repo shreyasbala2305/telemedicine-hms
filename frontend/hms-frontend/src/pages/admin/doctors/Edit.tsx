@@ -42,31 +42,39 @@ export default function DoctorEdit() {
   return (
     <DashboardLayout>
       <h1 className="text-2xl font-bold mb-6">{id && id !== 'new' ? 'Edit Doctor' : 'New Doctor'}</h1>
-      <div className="bg-white rounded-2xl p-6 shadow max-w-2xl">
+      <div className="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow max-w-2xl">
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
             <label className="block text-sm">Name</label>
-            <input value={form.name} onChange={e => handleChange('name', e.target.value)} className="w-full px-4 py-2 border rounded" required />
+            <input value={form.name} onChange={e => handleChange('name', e.target.value)} className="w-full px-4 py-2 dark:bg-gray-800 border rounded" required />
           </div>
           <div>
             <label className="block text-sm">Email</label>
-            <input value={form.email} onChange={e => handleChange('email', e.target.value)} type="email" className="w-full px-4 py-2 border rounded" required />
+            <input value={form.email} onChange={e => handleChange('email', e.target.value)} type="email" className="w-full px-4 py-2 dark:bg-gray-800 border rounded" required />
           </div>
           <div>
             <label className="block text-sm">Contact</label>
-            <input value={form.contact} onChange={e => handleChange('contact', e.target.value)} className="w-full px-4 py-2 border rounded" />
+            <input value={form.contact} onChange={e => handleChange('contact', e.target.value)} className="w-full px-4 py-2 dark:bg-gray-800 border rounded" />
           </div>
           <div>
             <label className="block text-sm">Speciality</label>
-            <input value={form.speciality} onChange={e => handleChange('speciality', e.target.value)} className="w-full px-4 py-2 border rounded" />
+            <input value={form.speciality} onChange={e => handleChange('speciality', e.target.value)} className="w-full px-4 py-2 dark:bg-gray-800 border rounded" />
           </div>
           <div>
             <label className="block text-sm">Qualification</label>
-            <input value={form.qualification} onChange={e => handleChange('qualification', e.target.value)} className="w-full px-4 py-2 border rounded" />
+            <input value={form.qualification} onChange={e => handleChange('qualification', e.target.value)} className="w-full px-4 py-2 dark:bg-gray-800 border rounded" />
           </div>
           <div>
             <label className="block text-sm">Availability</label>
-            <input value={form.availability} onChange={e => handleChange('availability', e.target.value)} placeholder="Mon-Fri 9-5" className="w-full px-4 py-2 border rounded" />
+              <div className="mt-4">
+                <button
+                  type="button"
+                  onClick={() => navigate(`/admin/doctors/${id}/availability`)}
+                  className="px-4 py-2 border rounded"
+                >
+                  Manage Availability
+                </button>
+              </div>
           </div>
 
           <div className="flex gap-3">

@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -57,6 +58,14 @@ public class AppointmentController {
 	    LocalDateTime startDt = LocalDateTime.parse(start); // ISO string from frontend
 	    LocalDateTime endDt = LocalDateTime.parse(end);
 	    return appointmentService.getByDoctorAndRange(doctorId, startDt, endDt);
+	}
+	
+	@GetMapping
+	public Page<Appointment> getAll(
+	        @RequestParam(defaultValue = "0") int page,
+	        @RequestParam(defaultValue = "10") int size
+	) {
+	    return appointmentService.getAllPaged(page, size);
 	}
 
 }

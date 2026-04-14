@@ -35,7 +35,9 @@ export default function PatientLayout({ children }: { children: React.ReactNode 
         <h2 className="text-xl font-bold mb-6">HMS — Patient</h2>
         <nav className="space-y-2 text-sm">
           {navItem("/patient/dashboard", "Dashboard")}
+          {navItem("/patient/doctors", "Find Doctors")}
           {navItem("/patient/appointments", "My Appointments")}
+          {navItem("/patient/ehr", "Health Records")}
           {navItem("/patient/profile", "Profile")}
         </nav>
       </div>

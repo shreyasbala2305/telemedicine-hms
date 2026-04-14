@@ -50,7 +50,7 @@ export default function BookDoctor() {
     setBooking(true);
     try {
       const iso = selected.includes("T") ? selected : `${date}T${selected}:00`;
-      await createBooking({ patientId: String(patientId), doctorId: Number(doctorId), appointmentDate: iso, status: "CONFIRMED" });
+      await createBooking({ patientId: String(patientId), doctorId: Number(doctorId), dateTime: iso, status: "CONFIRMED" });
       toast.success("Appointment booked");
       navigate("/patient/appointments");
     } catch (err) {

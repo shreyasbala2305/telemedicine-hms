@@ -3,9 +3,10 @@ package com.hms.appointmentservice.service;
 import java.time.LocalDateTime;
 import java.util.List;
 
-import javax.sound.midi.Soundbank;
-
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import com.hms.appointmentservice.client.DoctorClient;
@@ -148,6 +149,11 @@ public class AppointmentService {
 	
 	public List<Appointment> getByDoctorAndRange(Long doctorId, LocalDateTime start, LocalDateTime end) {
 	    return appointmentRepository.findByDoctorIdAndDateTimeBetween(doctorId, start, end);
+	}
+	
+	public Page<Appointment> getAllPaged(int page, int size) {
+	    Pageable pageable = PageRequest.of(page, size);
+	    return appointmentRepository.findAll(pageable);
 	}
 
 }

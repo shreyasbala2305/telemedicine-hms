@@ -30,14 +30,14 @@ export default function DoctorCalendar({ doctorIdProp }: { doctorIdProp?: string
       const res = await getAppointmentsByDoctor(docId);
       // filter by date range (server should do this; frontend filters if not)
       const filtered = (res || []).filter((a:any) => {
-        const d = new Date(a.appointmentDate);
+        const d = new Date(a.dateTime);
         return d >= new Date(start) && d <= new Date(end);
       });
       const mapped = filtered.map((a:any) => ({
         id: String(a.id),
         title: `P#${a.patientId} — ${a.status}`,
-        start: a.appointmentDate,
-        end: a.appointmentDate, // you can compute end using slot duration
+        start: a.dateTime,
+        end: a.dateTime, // you can compute end using slot duration
         extendedProps: a,
         backgroundColor: a.status === "CONFIRMED" ? "#0ea5a4" : "#3b82f6"
       }));
@@ -62,7 +62,7 @@ export default function DoctorCalendar({ doctorIdProp }: { doctorIdProp?: string
       // use a prompt to get patient id quickly (or open a proper modal)
       const patientId = prompt("Enter patient id");
       if (!patientId) return;
-      await createBooking({ patientId: String(patientId), doctorId: getDoctorIdFromToken(), appointmentDate: selectInfo.startStr, status: "CONFIRMED" });
+      await createBooking({ patientId: String(patientId), doctorId: getDoctorIdFromToken(), dateTime: selectInfo.startStr, status: "CONFIRMED" });
       toast.success("Appointment created");
       // refresh
       await fetchEvents(selectInfo.startStr, selectInfo.endStr);

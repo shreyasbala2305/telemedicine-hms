@@ -110,9 +110,20 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
             {/* Dark Mode Toggle */}
             <button
               onClick={toggle}
-              className="p-2 rounded-lg border border-gray-200 dark:border-gray-600 hover:bg-gray-100 dark:hover:bg-gray-700 transition"
+              className="
+                p-2 rounded-lg 
+                border 
+                border-gray-200 dark:border-gray-600
+                bg-white dark:bg-gray-800 
+                hover:bg-gray-100 dark:hover:bg-gray-600
+                transition
+              "
             >
-              {dark ? <Sun size={18} /> : <Moon size={18} />}
+              {dark ? (
+                <Sun size={20} className="text-yellow-400" />   // ☀️ visible in dark
+              ) : (
+                <Moon size={20} className="text-gray-700" />
+              )}
             </button>
 
             {/* Notifications */}

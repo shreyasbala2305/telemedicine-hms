@@ -87,6 +87,6 @@ public class NotificationService {
     }
 
 	public List<Notification> getByRecipient(Long recipientId) {
-		return notificationRepository.findByRecipientById(recipientId);
+		return notificationRepository.findByRecipientId(recipientId);
 	}
 }

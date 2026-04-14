@@ -27,57 +27,80 @@ export default function DoctorDashboard() {
     })();
   }, [token]);
 
-  const upcoming = appointments.filter(a => new Date(a.appointmentDate) > new Date());
+  const upcoming = appointments.filter(a => new Date(a.dateTime) > new Date());
   const today = appointments.filter(a => {
-    const d = new Date(a.appointmentDate);
+    const d = new Date(a.dateTime);
     const now = new Date();
     return d.toDateString() === now.toDateString();
   });
 
   return (
     <DoctorLayout>
-      <h1 className="text-2xl font-bold mb-4">Doctor Dashboard</h1>
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-        <div className="bg-white p-4 rounded-2xl shadow">
-          <p className="text-sm text-gray-500">Today's Appointments</p>
-          <p className="text-2xl font-bold">{today.length}</p>
-        </div>
-        <div className="bg-white p-4 rounded-2xl shadow">
-          <p className="text-sm text-gray-500">Upcoming</p>
-          <p className="text-2xl font-bold">{upcoming.length}</p>
-        </div>
-        <div className="bg-white p-4 rounded-2xl shadow">
-          <p className="text-sm text-gray-500">Total</p>
-          <p className="text-2xl font-bold">{appointments.length}</p>
-        </div>
+
+      {/* HEADER */}
+      <div className="mb-6">
+        <h1 className="text-3xl font-bold">Welcome Doctor 👨‍⚕️</h1>
+        <p className="text-gray-500 text-sm">
+          Here's your overview for today
+        </p>
       </div>
 
-      <div className="mt-6 bg-white p-4 rounded-2xl shadow">
-        <h2 className="font-semibold mb-3">Next Appointments</h2>
+      {/* STATS */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
+
+        <div className="bg-white dark:bg-gray-800 p-5 rounded-2xl shadow hover:shadow-md transition">
+          <p className="text-sm text-gray-500">Today's Appointments</p>
+          <p className="text-3xl font-bold mt-2">{today.length}</p>
+        </div>
+
+        <div className="bg-white dark:bg-gray-800 p-5 rounded-2xl shadow hover:shadow-md transition">
+          <p className="text-sm text-gray-500">Upcoming</p>
+          <p className="text-3xl font-bold mt-2">{upcoming.length}</p>
+        </div>
+
+        <div className="bg-white dark:bg-gray-800 p-5 rounded-2xl shadow hover:shadow-md transition">
+          <p className="text-sm text-gray-500">Total</p>
+          <p className="text-3xl font-bold mt-2">{appointments.length}</p>
+        </div>
+
+      </div>
+
+      {/* APPOINTMENTS LIST */}
+      <div className="mt-8 bg-white dark:bg-gray-800 p-6 rounded-2xl shadow">
+        <h2 className="font-semibold text-lg mb-4">Upcoming Appointments</h2>
+
         {loading ? (
-          [...Array(5)].map((_, i) => (
-            <tr key={i} className="border-t animate-pulse">
-              {Array(3).fill(0).map((_, j) => (
-                <td key={j} className="p-3">
-                  <div className="h-3 w-full max-w-[150px] bg-gray-300 dark:bg-gray-700 rounded"></div>
-                </td>
-              ))}
-            </tr>
-          ))
+          <div className="space-y-3">
+            {Array.from({ length: 5 }).map((_, i) => (
+              <div key={i} className="h-16 bg-gray-200 dark:bg-gray-700 rounded animate-pulse" />
+            ))}
+          </div>
+        ) : appointments.length === 0 ? (
+          <div className="text-center text-gray-500">
+            No appointments available
+          </div>
         ) : (
           appointments.slice(0, 6).map(a => (
-            <div key={a.id} className="py-2 border-b last:border-b-0">
-              <div className="flex justify-between">
-                <div>
-                  <div className="font-medium">Patient ID: {a.patientId}</div>
-                  <div className="text-sm text-gray-500">{new Date(a.appointmentDate).toLocaleString()}</div>
+            <div key={a.id} className="flex justify-between py-3 border-b last:border-0">
+
+              <div>
+                <div className="font-medium">
+                  Patient #{a.patientId}
                 </div>
-                <div className="text-sm text-gray-600">{a.status}</div>
+                <div className="text-sm text-gray-500">
+                  {new Date(a.dateTime).toLocaleString()}
+                </div>
               </div>
+
+              <div className="text-sm font-medium text-blue-600">
+                {a.status}
+              </div>
+
             </div>
           ))
         )}
       </div>
+
     </DoctorLayout>
   );
 }

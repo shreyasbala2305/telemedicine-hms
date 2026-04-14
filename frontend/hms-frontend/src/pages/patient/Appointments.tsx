@@ -1,7 +1,8 @@
 import React, { useEffect, useState } from "react";
 import PatientLayout from "../../layouts/PatientLayout";
-import { getAppointmentsByPatient} from "../../services/appointmentService";
+import { getAppointmentsByPatient, updateAppointment} from "../../services/appointmentService";
 import { useAuth } from "../../context/AuthContext";
+import toast from "react-hot-toast";
 
 export default function PatientAppointments() {
   const { token } = useAuth();
@@ -11,6 +12,18 @@ export default function PatientAppointments() {
   const getUserIdFromToken = () => {
     if (!token) return null;
     try { const payload = JSON.parse(atob(token.split(".")[1])); return payload.sub || payload.userId || payload.id || null; } catch { return null; }
+  };
+
+  const cancelAppointment = async (id: number) => {
+    try {
+      await updateAppointment(id, { status: "CANCELLED" });
+      toast.success("Appointment cancelled");
+      setAppointments(prev => prev.map(a =>
+        a.id === id ? { ...a, status: "CANCELLED" } : a
+      ));
+    } catch {
+      toast.error("Failed to cancel");
+    }
   };
 
   useEffect(() => {
@@ -99,6 +112,13 @@ export default function PatientAppointments() {
                     {a.status}
                   </span>
 
+                  <button
+                    disabled={a.status === "CANCELLED"}
+                    onClick={() => cancelAppointment(a.id)}
+                    className="ml-3 px-3 py-1 text-xs bg-red-500 text-white rounded"
+                  >
+                    Cancel
+                  </button>
                 </div>
 
               </div>

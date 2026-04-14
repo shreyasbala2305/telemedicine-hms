@@ -5,7 +5,7 @@ import { MOCK_MODE } from '../config';
 export interface AppointmentPayload {
   patientId: string;
   doctorId: string;
-  appointmentDate: string; // ISO
+  dateTime: string; // ISO
   status: string; // CONFIRMED | CANCELLED | COMPLETED etc
   description?: string;
 }
@@ -15,8 +15,8 @@ const base = '/appointment-service/appointments';
 export const getAppointments = async () => {
   if (MOCK_MODE) {
     return Promise.resolve([
-      { id: 1, patientId: '9', doctorId: '11', appointmentDate: '2025-09-14T10:45:00', status: 'CONFIRMED', description: 'General checkup' },
-      { id: 2, patientId: '10', doctorId: '12', appointmentDate: '2025-09-15T11:00:00', status: 'SCHEDULED', description: 'Follow-up' },
+      { id: 1, patientId: '9', doctorId: '11', dateTime: '2025-09-14T10:45:00', status: 'CONFIRMED', description: 'General checkup' },
+      { id: 2, patientId: '10', doctorId: '12', dateTime: '2025-09-15T11:00:00', status: 'SCHEDULED', description: 'Follow-up' },
     ]);
   }
   const res = await api.get(`${base}`);
@@ -25,7 +25,7 @@ export const getAppointments = async () => {
 
 export const getAppointment = async (id: number) => {
   if (MOCK_MODE) {
-    return Promise.resolve({ id, patientId: '9', doctorId: '11', appointmentDate: '2025-09-14T10:45:00', status: 'CONFIRMED', description: '' });
+    return Promise.resolve({ id, patientId: '9', doctorId: '11', dateTime: '2025-09-14T10:45:00', status: 'CONFIRMED', description: '' });
   }
   const res = await api.get(`${base}/${id}`);
   return res.data;

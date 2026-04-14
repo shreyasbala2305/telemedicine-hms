@@ -4,6 +4,7 @@ import DoctorLayout from "../../layouts/DoctorLayout";
 import { getAppointmentsByDoctor, updateAppointment } from "../../services/appointmentService";
 import { useAuth } from "../../context/AuthContext";
 import StatusBadge from "../../components/ui/StatusBadge";
+import { Link } from "react-router-dom";
 
 export default function DoctorAppointments() {
   const { token } = useAuth();
@@ -138,6 +139,12 @@ export default function DoctorAppointments() {
                     Cancel
                   </button>
 
+                  <Link
+                    to={`/doctor/prescriptions/new?appointment=${a.id}`}
+                    className="px-3 py-1 text-sm bg-blue-500 text-white rounded"
+                  >
+                    Add Prescription
+                  </Link>
                 </div>
 
               </div>
@@ -148,6 +155,7 @@ export default function DoctorAppointments() {
         </div>
 
       </div>
+      
     </DoctorLayout>
   );
 }

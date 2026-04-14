@@ -13,9 +13,9 @@ export default function Pagination({
     <div className="flex items-center justify-between px-4 py-3 text-sm">
       <div className="text-gray-600">Showing <span className="font-medium">{(page-1)*pageSize+1}</span> - <span className="font-medium">{Math.min(page*pageSize, total)}</span> of <span className="font-medium">{total}</span></div>
       <div className="flex items-center gap-2">
-        <button onClick={prev} disabled={page<=1} className="px-3 py-1 border rounded disabled:opacity-50">Prev</button>
-        <div className="px-3 py-1 border rounded bg-white">{page} / {pages}</div>
-        <button onClick={next} disabled={page>=pages} className="px-3 py-1 border rounded disabled:opacity-50">Next</button>
+        <button onClick={prev} disabled={page<=1} className="px-3 py-1 dark:bg-gray-800 border rounded disabled:opacity-50">Prev</button>
+        <div className="px-3 py-1 dark:bg-gray-800 border rounded bg-white">{page} / {pages}</div>
+        <button onClick={next} disabled={page>=pages} className="px-3 py-1 dark:bg-gray-800 border rounded disabled:opacity-50">Next</button>
       </div>
     </div>
   );

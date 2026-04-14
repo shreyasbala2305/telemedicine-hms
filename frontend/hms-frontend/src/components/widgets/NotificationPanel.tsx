@@ -37,7 +37,7 @@ export default function NotificationPanel() {
   return (
     <div className="relative">
 
-      <button onClick={() => setOpen(!open)} className="relative">
+      <button onClick={() => setOpen(!open)} className="relative dark:text-gray-50">
         <Bell />
 
         {items.length > 0 && (

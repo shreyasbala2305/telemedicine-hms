@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import DashboardLayout from "../../layouts/DashboardLayout";
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer } from "recharts";
-import { getAppointments } from "../../services/appointmentService";
+import { getAppointmentsPaged } from "../../services/appointmentService";
 import { getPatients } from "../../services/patientService";
 import DataTable from "../../components/ui/DataTable";
 
@@ -9,13 +9,20 @@ export default function AdminDashboard() {
   const [appointments, setAppointments] = useState<any[]>([]);
   const [patients, setPatients] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
+  const [totalPatients, setTotalPatients] = useState(0);
+  const [totalAppointments, setTotalAppointments] = useState(0);
 
   useEffect(() => {
     (async () => {
       setLoading(true);
-      const ap = await getAppointments();
+      const ap = await getAppointmentsPaged({
+        page: 1,
+        pageSize: 1000,
+      });
+      setAppointments(ap.content || []);
+      setTotalAppointments(ap.totalElements || 0);
+
       const ps = await getPatients();
-      setAppointments(ap || []);
       setPatients(ps || []);
       setLoading(false);
     })();
@@ -73,11 +80,11 @@ export default function AdminDashboard() {
 
           <div className="p-5 rounded-2xl bg-gradient-to-r from-teal-500 to-emerald-500 text-white shadow-lg">
             <div className="text-sm opacity-80">Appointments</div>
-            <div className="text-3xl font-bold">{appointments.length}</div>
+            <div className="text-3xl font-bold">{totalAppointments}</div>
           </div>
 
           <div className="p-5 rounded-2xl bg-gradient-to-r from-indigo-500 to-purple-500 text-white shadow-lg">
-            <div className="text-sm opacity-80">Today</div>
+            <div className="text-sm opacity-80">Today's Appointment</div>
             <div className="text-3xl font-bold">
               {
                 appointments.filter(a =>
@@ -141,9 +148,9 @@ export default function AdminDashboard() {
                     </div>
                   </div>
 
-                  <div className="text-xs text-gray-400">
+                  {/* <div className="text-xs text-gray-400">
                     #{p.id}
-                  </div>
+                  </div> */}
                 </div>
               ))}
 
@@ -159,13 +166,13 @@ export default function AdminDashboard() {
         </div>
 
         {/* FULL TABLE */}
-        <div className="bg-white dark:bg-gray-800 p-6 rounded-2xl shadow-sm border dark:border-gray-700 transition-colors">
+        {/* <div className="bg-white dark:bg-gray-800 p-6 rounded-2xl shadow-sm border dark:border-gray-700 transition-colors">
           <h2 className="font-semibold text-lg mb-4 text-gray-900 dark:text-white">
             All Patients
           </h2>
 
           <DataTable columns={columns} data={patients} loading={loading} />
-        </div>
+        </div> */}
 
       </div>
     </DashboardLayout>

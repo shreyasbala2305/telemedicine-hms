@@ -33,24 +33,65 @@ export default function PatientDashboard() {
 
   return (
     <PatientLayout>
-      <h1 className="text-2xl font-bold mb-4">Welcome</h1>
-      <div className="bg-white p-4 rounded-2xl shadow">
-        <h2 className="font-semibold mb-2">Your Upcoming Appointments</h2>
-        {loading ? (
-          [...Array(5)].map((_, i) => (
-            <tr key={i} className="border-t animate-pulse">
-              {Array(5).fill(0).map((_, j) => (
-                <td key={j} className="p-3">
-                  <div className="h-4 w-full max-w-[150px] bg-gray-300 dark:bg-gray-700 rounded"></div>
-                </td>
-              ))}
-            </tr>
-          ))
-        ) : (appointments.length === 0 ? <div>No upcoming appointments</div> : appointments.map(a => (
-          <div key={a.id} className="py-2 border-b">
-            <div>{new Date(a.appointmentDate).toLocaleString()} — Doctor #{a.doctorId} — <span className="font-semibold">{a.status}</span></div>
+      <div className="space-y-6">
+
+        {/* HEADER */}
+        <div>
+          <h1 className="text-3xl font-bold">Welcome 👋</h1>
+          <p className="text-gray-500 text-sm">
+            Overview of your health activity
+          </p>
+        </div>
+
+        {/* STATS */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <div className="bg-white p-5 rounded-2xl shadow">
+            <p className="text-sm text-gray-500">Total Appointments</p>
+            <p className="text-2xl font-bold">{appointments.length}</p>
           </div>
-        )))}
+
+          <div className="bg-white p-5 rounded-2xl shadow">
+            <p className="text-sm text-gray-500">Upcoming</p>
+            <p className="text-2xl font-bold">
+              {appointments.filter(a => new Date(a.dateTime) > new Date()).length}
+            </p>
+          </div>
+
+          <div className="bg-white p-5 rounded-2xl shadow">
+            <p className="text-sm text-gray-500">Completed</p>
+            <p className="text-2xl font-bold">
+              {appointments.filter(a => a.status === "COMPLETED").length}
+            </p>
+          </div>
+        </div>
+
+        {/* UPCOMING LIST */}
+        <div className="bg-white p-5 rounded-2xl shadow">
+          <h2 className="font-semibold mb-3">Upcoming Appointments</h2>
+
+          {loading ? (
+            <div className="animate-pulse h-20 bg-gray-200 rounded" />
+          ) : appointments.length === 0 ? (
+            <div className="text-gray-500">No appointments</div>
+          ) : (
+            appointments.slice(0, 5).map(a => (
+              <div key={a.id} className="py-2 border-b last:border-b-0">
+                <div className="flex justify-between">
+                  <div>
+                    <div className="font-medium">
+                      {new Date(a.dateTime).toLocaleString()}
+                    </div>
+                    <div className="text-sm text-gray-500">
+                      Doctor #{a.doctorId}
+                    </div>
+                  </div>
+                  <div className="text-sm">{a.status}</div>
+                </div>
+              </div>
+            ))
+          )}
+        </div>
+
       </div>
     </PatientLayout>
   );
