@@ -5,6 +5,7 @@ import Pagination from "../../../components/ui/Pagination";
 import { getPatientsPaged } from "../../../services/patientService";
 import useDebounce from "../../../hooks/useDebounce";
 import { Link } from "react-router-dom";
+import { downloadCSV } from "../../../utils/csv";
 
 export default function PatientsList() {
   const [patients, setPatients] = useState<any[]>([]);
@@ -37,9 +38,9 @@ export default function PatientsList() {
     <DashboardLayout>
       <div className="mb-6 flex items-center justify-between">
         <h1 className="text-2xl font-bold">Patients</h1>
-        <Link to="/admin/patients/new" className="bg-primary text-white px-4 py-2 rounded">
+        {/* <Link to="/admin/patients/new" className="bg-primary text-white px-4 py-2 rounded">
           + Add
-        </Link>
+        </Link> */}
       </div>
 
       <div className="mb-4">

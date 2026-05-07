@@ -1,7 +1,13 @@
 package com.hms.appointmentservice.service;
 
+import java.time.DayOfWeek;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.LocalTime;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -154,6 +160,69 @@ public class AppointmentService {
 	public Page<Appointment> getAllPaged(int page, int size) {
 	    Pageable pageable = PageRequest.of(page, size);
 	    return appointmentRepository.findAll(pageable);
+	}
+	
+	public List<String> getAvailableSlots(Long doctorId, String date) {
+
+	    LocalDate selectedDate = LocalDate.parse(date);
+	    DayOfWeek day = selectedDate.getDayOfWeek();
+
+	    DoctorDTO doctor = doctorClient.getDoctorById(doctorId);
+
+	    if (doctor == null || doctor.getAvailability() == null) {
+	        return List.of();
+	    }
+
+	    // 🔥 Convert MONDAY → Monday
+	    String dayName = day.toString().substring(0, 1) +
+	                     day.toString().substring(1).toLowerCase();
+
+	    // 🔥 Find matching availability
+	    String matched = doctor.getAvailability().stream()
+	        .filter(a -> a.startsWith(dayName))
+	        .findFirst()
+	        .orElse(null);
+
+	    if (matched == null) return List.of();
+
+	    // 🔥 Example: "Monday 09:00-17:00"
+	    String[] dayAndTime = matched.split(" ");
+
+	    if (dayAndTime.length < 2) return List.of();
+
+	    String[] timeRange = dayAndTime[1].split("-");
+
+	    if (timeRange.length < 2) return List.of();
+
+	    LocalTime start = LocalTime.parse(timeRange[0]); // 09:00
+	    LocalTime end = LocalTime.parse(timeRange[1]);   // 17:00
+
+	    int slotMinutes = 30;
+
+	    // 🔥 Fetch booked slots
+	    LocalDateTime startDt = selectedDate.atStartOfDay();
+	    LocalDateTime endDt = selectedDate.atTime(23, 59);
+
+	    List<Appointment> booked = appointmentRepository
+	        .findByDoctorIdAndDateTimeBetween(doctorId, startDt, endDt);
+
+	    Set<LocalTime> bookedTimes = booked.stream()
+	        .map(a -> a.getDateTime().toLocalTime())
+	        .collect(Collectors.toSet());
+
+	    List<String> slots = new ArrayList<>();
+
+	    // 🔥 Generate slots
+	    while (start.isBefore(end)) {
+
+	        if (!bookedTimes.contains(start)) {
+	            slots.add(start.toString());
+	        }
+
+	        start = start.plusMinutes(slotMinutes);
+	    }
+
+	    return slots;
 	}
 
 }

@@ -3,6 +3,7 @@ import { useParams, Link } from "react-router-dom";
 import DashboardLayout from "../../../layouts/DashboardLayout";
 import { getDoctor } from "../../../services/doctorService";
 import { getAppointmentsByDoctor } from "../../../services/appointmentService";
+import { getPatientsByIds } from "../../../services/patientService";
 
 export default function DoctorDetail() {
   const { id } = useParams<{ id: string }>();
@@ -10,19 +11,43 @@ export default function DoctorDetail() {
   const [doctor, setDoctor] = useState<any>(null);
   const [appointments, setAppointments] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
+  const [patientMap, setPatientMap] = useState<Record<number, string>>({});
 
   useEffect(() => {
     if (!id) return;
 
     (async () => {
       try {
-        const d = await getDoctor(Number(id));
+        const doctorId = Number(id);
+
+        const d = await getDoctor(doctorId);
         setDoctor(d);
 
-        const appts = await getAppointmentsByDoctor(Number(id));
-        setAppointments(appts || []);
+        const apptsRes = await getAppointmentsByDoctor(doctorId);
+        let appts = apptsRes?.content || apptsRes || [];
+
+        // 🔥 FILTER SAFETY (VERY IMPORTANT)
+        appts = appts.filter((a: any) => a.doctorId === doctorId);
+
+        setAppointments(appts);
+
+        // 🔥 FETCH PATIENT NAMES
+        const patientIds = [...new Set(appts.map((a: any) => a.patientId))] as (number | string)[];
+
+        if (patientIds.length > 0) {
+          const patients = await getPatientsByIds(patientIds);
+
+          const map: Record<number, string> = {};
+          patients.forEach((p: any) => {
+            map[p.id] = p.name;
+          });
+
+          setPatientMap(map);
+        }
+
       } catch (err) {
-        console.error(err);
+        console.error("Doctor detail error:", err);
+        setAppointments([]);
       } finally {
         setLoading(false);
       }
@@ -35,7 +60,9 @@ export default function DoctorDetail() {
   if (!doctor)
     return <DashboardLayout><div>Doctor not found</div></DashboardLayout>;
 
-  const totalPatients = new Set(appointments.map(a => a.patientId)).size;
+  const totalPatients = new Set(
+    (appointments || []).map(a => a.patientId)
+  ).size;
 
   return (
     <DashboardLayout>
@@ -113,10 +140,13 @@ export default function DoctorDetail() {
                 >
                   <div>
                     <div className="font-medium">
-                      Patient #{a.patientId}
+                      {patientMap[a.patientId] || `Patient #${a.patientId}`}
                     </div>
+
                     <div className="text-sm text-gray-500">
-                      {new Date(a.dateTime).toLocaleString()}
+                      {a.dateTime
+                        ? new Date(a.dateTime).toLocaleString()
+                        : "No time"}
                     </div>
                   </div>
 

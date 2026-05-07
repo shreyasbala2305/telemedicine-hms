@@ -7,7 +7,7 @@ import { createPrescription } from "../../../services/prescriptionService";
 import DoctorLayout from "../../../layouts/DoctorLayout";
 import MedicineRow from "../../../components/ui/MedicineRow";
 
-export default function NewPrescription() {
+export default function DoctorPrescriptionNew() {
   const navigate = useNavigate();
   const [search] = useSearchParams();
   const appointmentIdParam = search.get("appointment");

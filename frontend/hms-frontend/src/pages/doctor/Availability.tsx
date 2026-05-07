@@ -1,11 +1,11 @@
 // src/pages/doctor/Availability.tsx
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import DoctorLayout from "../../layouts/DoctorLayout";
 import { getSavedAvailability, saveAvailability } from "../../services/availabilityService";
 import { useAuth } from "../../context/AuthContext";
 import toast from "react-hot-toast";
 
-export default function DoctorAvailability() {
+export default function DoctorAvailabilityPage() {
   const { token } = useAuth();
   const [form, setForm] = useState<any>({ startTime: "09:00", endTime: "17:00", slotMinutes: 30, weekdays: [1,2,3,4,5] });
   const [loading, setLoading] = useState(false);

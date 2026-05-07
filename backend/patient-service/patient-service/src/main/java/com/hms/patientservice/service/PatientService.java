@@ -47,6 +47,7 @@ public class PatientService {
             req.setEmail(dto.getEmail());
             req.setPassword("Temp@123");
             req.setRole("PATIENT");
+            req.setName(dto.getName());
 
             AuthResponse res = authClient.register(req);
 
@@ -120,6 +121,11 @@ public class PatientService {
 	    }
 
 	    return patientRepository.findAll(pageable);
+	}
+	
+	public Patient getByUserId(Long userId) {
+	    return patientRepository.findByUserId(userId)
+	        .orElseThrow(() -> new RuntimeException("Patient not found"));
 	}
 
 }

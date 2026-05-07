@@ -9,6 +9,7 @@ export interface Doctor {
   contact?: string;
   speciality?: string;
   qualification?: string;
+  userId?: number;
   availability?: string[]; // e.g. "Mon-Fri 9-5"
 }
 
@@ -33,11 +34,16 @@ export const getDoctor = async (id: number): Promise<Doctor> => {
   return res.data;
 };
 
+export const getDoctorByUserId = async (userId: number) => {
+  const res = await api.get(`${base}/user/${userId}`);
+  return res.data;
+};
+
 export const createDoctor = async (payload: Doctor) => {
   if (MOCK_MODE) {
     return Promise.resolve({ ...payload, id: Math.floor(Math.random() * 1000) });
   }
-  const res = await api.post(`${base}`, payload);
+  const res = await api.post(`${base}/register`, payload);
   return res.data;
 };
 

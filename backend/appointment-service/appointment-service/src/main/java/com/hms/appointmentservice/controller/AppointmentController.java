@@ -8,6 +8,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -44,6 +45,7 @@ public class AppointmentController {
 		return appointmentService.getByDoctor(doctorId);
 	}
 	
+	@PreAuthorize("hasRole('RECEPTIONIST')")
 	@PutMapping("/{id}/status")
 	public ResponseEntity<Appointment> updateStatus(@PathVariable Long id, @RequestBody Map<String, String> body){
 		return ResponseEntity.ok(appointmentService.updateStatus(id, body.get("status")));
@@ -66,6 +68,14 @@ public class AppointmentController {
 	        @RequestParam(defaultValue = "10") int size
 	) {
 	    return appointmentService.getAllPaged(page, size);
+	}
+	
+	@GetMapping("/doctor/{doctorId}/slots")
+	public List<String> getAvailableSlots(
+	    @PathVariable Long doctorId,
+	    @RequestParam String date
+	) {
+	    return appointmentService.getAvailableSlots(doctorId, date);
 	}
 
 }

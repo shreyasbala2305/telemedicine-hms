@@ -39,7 +39,7 @@ const appointmentFilters = [
     type: "select" as const,
     options: [
       { label: "CONFIRMED", value: "CONFIRMED" },
-      { label: "SCHEDULED", value: "SCHEDULED" },
+      { label: "PENDING", value: "PENDING" },
       { label: "COMPLETED", value: "COMPLETED" },
       { label: "CANCELLED", value: "CANCELLED" },
     ],
@@ -65,28 +65,77 @@ const appointmentFilters = [
 
         const list = data.content || [];
 
-        setAppointments(list);
+        // 🔥 SORT DESC
+        let sorted = list.sort(
+          (a: any, b: any) =>
+            new Date(b.dateTime || b.appointmentDate).getTime() -
+            new Date(a.dateTime || a.appointmentDate).getTime()
+        );
+
+        // 🔥 PATIENT MAP
+        const patientIds = [...new Set(list.map((a: any) => a.patientId))] as (number | string)[];
+        const patients = await getPatientsByIds(patientIds);
+        const pMap: Record<number, string> = {};
+        patients.forEach((p: any) => (pMap[p.id] = p.name));
+        setPatientMap(pMap);
+
+        // 🔥 DOCTOR MAP
+        const doctors = await getDoctors();
+        const dMap: Record<number, string> = {};
+        doctors.forEach((d: any) => (dMap[d.id] = d.name));
+        setDoctorMap(dMap);
+
+        // 🔥 APPLY FILTERS AFTER MAP READY
+        let filtered = sorted;
+
+        if (query) {
+          filtered = filtered.filter((a: any) =>
+            (pMap[a.patientId] || "")
+              .toLowerCase()
+              .includes(query.toLowerCase())
+          );
+        }
+
+        if (filters.status) {
+          filtered = filtered.filter((a: any) => a.status === filters.status);
+        }
+
+        if (filters.dateFrom) {
+          filtered = filtered.filter(
+            (a: any) =>
+              new Date(a.dateTime) >= new Date(filters.dateFrom)
+          );
+        }
+
+        if (filters.dateTo) {
+          filtered = filtered.filter(
+            (a: any) =>
+              new Date(a.dateTime) <= new Date(filters.dateTo)
+          );
+        }
+
+        setAppointments(filtered);
         setTotalAppointments(data.totalElements || 0);
 
         // ✅ Extract IDs
-        const patientIds = [...new Set(list.map((a: any) => a.patientId))] as (number | string)[];
-        const doctorIds = [...new Set(list.map((a: any) => a.doctorId))] as (number | string)[];
+        // const patientIds = [...new Set(list.map((a: any) => a.patientId))] as (number | string)[];
+        // const doctorIds = [...new Set(list.map((a: any) => a.doctorId))] as (number | string)[];
 
-        // ✅ Fetch patients
-        const patients = await getPatientsByIds(patientIds);
-        const pMap: Record<number, string> = {};
-        patients.forEach((p: any) => {
-          pMap[p.id] = p.name;
-        });
-        setPatientMap(pMap);
+        // // ✅ Fetch patients
+        // const patients = await getPatientsByIds(patientIds);
+        // const pMap: Record<number, string> = {};
+        // patients.forEach((p: any) => {
+        //   pMap[p.id] = p.name;
+        // });
+        // setPatientMap(pMap);
 
-        // ✅ Fetch doctors
-        const doctors = await getDoctors();
-        const dMap: Record<number, string> = {};
-        doctors.forEach((d: any) => {
-          dMap[d.id] = d.name;
-        });
-        setDoctorMap(dMap);
+        // // ✅ Fetch doctors
+        // const doctors = await getDoctors();
+        // const dMap: Record<number, string> = {};
+        // doctors.forEach((d: any) => {
+        //   dMap[d.id] = d.name;
+        // });
+        // setDoctorMap(dMap);
 
       } catch (err) {
         console.error("Failed to load appointments", err);
@@ -136,12 +185,12 @@ const appointmentFilters = [
             Export CSV
           </button>
 
-          <Link
+          {/* <Link
             to="/admin/appointments/new"
             className="bg-primary text-white px-4 py-2 rounded"
           >
             + New
-          </Link>
+          </Link> */}
         </div>
       </div>
 

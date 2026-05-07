@@ -19,7 +19,7 @@ export default function PatientPrescriptionDetail() {
     <PatientLayout>
       <h1 className="text-2xl font-bold mb-4">Prescription #{pres.id}</h1>
       <div className="bg-white p-6 rounded-2xl shadow max-w-3xl">
-        <div><strong>Doctor:</strong> #{pres.doctorId}</div>
+        <div><strong>Doctor:</strong>{" "}{pres.doctorName || `Doctor #${pres.doctorId}`}</div>
         <div className="mt-2"><strong>Diagnosis:</strong> {pres.diagnosis}</div>
         <div className="mt-3"><strong>Medicines:</strong>
           <ul className="list-disc ml-6 mt-2">{pres.medicines.map((m:any,i:number)=><li key={i}>{m.name} — {m.dose} — {m.frequency} — {m.duration}</li>)}</ul>

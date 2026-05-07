@@ -50,11 +50,13 @@ public class Doctor {
 	private String speciality;
 	
 	@NotBlank(message = "Qualification is required")
-    @Size(min = 5, max = 100, message = "Qualification must be descriptive (5-100 characters)")
+    @Size(min = 1, max = 100, message = "Qualification must be descriptive (5-100 characters)")
 	private String qualification;
 	
+	@Column(name = "user_id")
+	private Long userId;
+	
 	@ElementCollection
-	@NotEmpty(message = "Availability must contain at least one entry")
 	private List<@Pattern(
 	        regexp = "^(Monday|Tuesday|Wednesday|Thursday|Friday|Saturday|Sunday)\\s\\d{2}:\\d{2}-\\d{2}:\\d{2}$",
 	        message = "Availability must be in format 'Day HH:MM-HH:MM'")

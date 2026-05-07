@@ -30,10 +30,11 @@ public class JwtUtil {
 
     private static final long EXPIRATION_TIME = 24 * 60 * 60 * 1000;
 
-    public String generateToken(String email, Role role, String name) {
+    // ✅ FIX: store role as STRING
+    public String generateToken(Long userId, String email, Role role, String name) {
         return Jwts.builder()
                 .setSubject(email)
-                .claim("role", role)
+                .claim("userId", userId)               .claim("role", role.name()) // 🔥 IMPORTANT FIX
                 .claim("name", name)
                 .setIssuedAt(new Date())
                 .setExpiration(new Date(System.currentTimeMillis() + EXPIRATION_TIME))
@@ -47,7 +48,6 @@ public class JwtUtil {
                 .setSigningKey(key)
                 .build()
                 .parseClaimsJws(token);
-            System.out.println("JWT valid: " + token);
             return true;
         } catch (JwtException | IllegalArgumentException e) {
             System.out.println("JWT invalid: " + e.getMessage());
@@ -55,22 +55,18 @@ public class JwtUtil {
         }
     }
 
-    
     public String getUsernameFromToken(String token) {
         return getClaims(token).getSubject();
     }
 
-    
     public String getUserRole(String token) {
         return getClaims(token).get("role", String.class);
     }
 
-    
     public String getNameFromToken(String token) {
         return getClaims(token).get("name", String.class);
     }
 
-    
     private Claims getClaims(String token) {
         return Jwts.parserBuilder()
                 .setSigningKey(key)
@@ -79,4 +75,3 @@ public class JwtUtil {
                 .getBody();
     }
 }
-

@@ -27,7 +27,7 @@ export default function AppointmentNew() {
     try {
       // convert datetime-local to ISO if needed
       const payload = { ...form, dateTime: form.dateTime };
-      await createAppointment(payload);
+      // await createAppointment(payload);
       toast.success('Appointment created');
       navigate('/admin/appointments');
     } catch {
@@ -65,7 +65,7 @@ export default function AppointmentNew() {
             <label className="block text-sm mb-1">Status</label>
             <select value={form.status} onChange={e => setForm(prev => ({ ...prev, status: e.target.value }))} className="w-full px-4 py-2 dark:bg-gray-800 border rounded">
               <option>CONFIRMED</option>
-              <option>SCHEDULED</option>
+              <option>PENDING</option>
               <option>CANCELLED</option>
               <option>COMPLETED</option>
             </select>

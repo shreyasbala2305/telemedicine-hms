@@ -85,3 +85,8 @@ export async function getPatientsPaged(params: {
     total: res.data.totalElements
   };
 }
+
+export const getPatientByUserId = async (userId: string | number) => {
+  const res = await api.get(`/patient-service/patients/user/${userId}`);
+  return res.data;
+};

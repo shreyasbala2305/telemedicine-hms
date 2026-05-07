@@ -26,10 +26,19 @@ public class DoctorController {
 	@Autowired
 	private DoctorService doctorService;
 	
-	@PostMapping
+	@PostMapping("/register")
 	public ResponseEntity<DoctorDTO> createDoctor(@Valid @RequestBody DoctorDTO dto){
 		DoctorDTO created = doctorService.createDoctor(dto);
 	    return new ResponseEntity<>(created, HttpStatus.CREATED);
+	}
+	
+	@PutMapping("/{id}")
+	public ResponseEntity<Doctor> update(
+	        @PathVariable Long id,
+	        @RequestBody DoctorDTO dto
+	) {
+	    Doctor updated = doctorService.update(id, dto);
+	    return ResponseEntity.ok(updated);
 	}
 	
 	@GetMapping
@@ -40,6 +49,11 @@ public class DoctorController {
 	@GetMapping("/{id}")
 	public Doctor getDoctorById(@PathVariable Long id){
 		return doctorService.getDoctorById(id);
+	}
+	
+	@GetMapping("/user/{userId}")
+	public Doctor getByUserId(@PathVariable Long userId) {
+	    return doctorService.getByUserId(userId);
 	}
 	
 	@GetMapping("/speciality/{speciality}")

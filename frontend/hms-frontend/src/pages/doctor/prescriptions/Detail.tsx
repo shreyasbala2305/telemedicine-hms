@@ -1,10 +1,10 @@
 // src/pages/doctor/prescriptions/Detail.tsx
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import { getPrescription } from "../../../services/prescriptionService";
 import DoctorLayout from "../../../layouts/DoctorLayout";
 
-export default function PrescriptionDetail() {
+export default function DoctorPrescriptionDetail() {
   const { id } = useParams<{ id: string }>();
   const [pres, setPres] = useState<any | null>(null);
 

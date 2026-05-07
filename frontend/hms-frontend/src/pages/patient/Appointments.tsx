@@ -3,6 +3,7 @@ import PatientLayout from "../../layouts/PatientLayout";
 import { getAppointmentsByPatient, updateAppointment} from "../../services/appointmentService";
 import { useAuth } from "../../context/AuthContext";
 import toast from "react-hot-toast";
+import { getPatientByUserId } from "../../services/patientService";
 
 export default function PatientAppointments() {
   const { token } = useAuth();
@@ -11,7 +12,7 @@ export default function PatientAppointments() {
 
   const getUserIdFromToken = () => {
     if (!token) return null;
-    try { const payload = JSON.parse(atob(token.split(".")[1])); return payload.sub || payload.userId || payload.id || null; } catch { return null; }
+    try { const payload = JSON.parse(atob(token.split(".")[1])); return payload.userId || payload.id || null; } catch { return null; }
   };
 
   const cancelAppointment = async (id: number) => {
@@ -31,14 +32,25 @@ export default function PatientAppointments() {
       try{
         setLoading(true);
         const userId = getUserIdFromToken();
-        if (!userId) { setAppointments([]); setLoading(false); return; }
-        // const all = await getAppointments();
-        // const mine = all.filter((a: { patientId: any; }) => String(a.patientId) === String(userId));
-        const data = await getAppointmentsByPatient(userId);
-        setAppointments(data);
-      }catch(err){
-        console.error("Failed to load appointment",err);
-        setAppointments([]);
+
+        if (!userId) {
+          setAppointments([]);
+          setLoading(false);
+          return;
+        }
+
+        // 🔥 get current patient by email/user
+        const patient = await getPatientByUserId(userId);
+
+        if (!patient) {
+          setAppointments([]);
+          return;
+        }
+
+        // 🔥 fetch appointments using REAL patient id
+        const data = await getAppointmentsByPatient(patient.id);
+
+        setAppointments(data || []);
       }finally{
         setLoading(false);
       }

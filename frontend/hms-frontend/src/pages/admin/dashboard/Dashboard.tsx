@@ -1,9 +1,9 @@
 import React, { useEffect, useState } from "react";
-import DashboardLayout from "../../layouts/DashboardLayout";
+import DashboardLayout from "../../../layouts/DashboardLayout";
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer } from "recharts";
-import { getAppointmentsPaged } from "../../services/appointmentService";
-import { getPatients } from "../../services/patientService";
-import DataTable from "../../components/ui/DataTable";
+import { getAppointmentsPaged } from "../../../services/appointmentService";
+import { getPatients } from "../../../services/patientService";
+import DataTable from "../../../components/ui/DataTable";
 
 export default function AdminDashboard() {
   const [appointments, setAppointments] = useState<any[]>([]);

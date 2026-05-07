@@ -1,9 +1,10 @@
 package com.hms.authservice.security;
 
-import java.util.Collections;
+import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
@@ -13,7 +14,6 @@ import org.springframework.web.filter.OncePerRequestFilter;
 import com.hms.authservice.util.JwtUtil;
 
 import io.jsonwebtoken.JwtException;
-import io.jsonwebtoken.io.IOException;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -29,9 +29,11 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     protected void doFilterInternal(HttpServletRequest request,
                                     HttpServletResponse response,
                                     FilterChain filterChain)
-            throws ServletException, IOException, java.io.IOException {
-    	
-    	String path = request.getServletPath();
+            throws ServletException, java.io.IOException {
+
+        String path = request.getServletPath();
+
+        // ✅ Skip auth endpoints
         if (path.equals("/auth/login") || path.equals("/auth/register")) {
             filterChain.doFilter(request, response);
             return;
@@ -48,20 +50,28 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
         try {
             if (jwtUtil.validateToken(token)) {
+
                 String username = jwtUtil.getUsernameFromToken(token);
                 String role = jwtUtil.getUserRole(token);
 
+                // 🔥 FIX: Attach ROLE to authorities
+                List<SimpleGrantedAuthority> authorities =
+                        List.of(new SimpleGrantedAuthority("ROLE_" + role));
+
                 UsernamePasswordAuthenticationToken authentication =
                         new UsernamePasswordAuthenticationToken(
-                                new User(username, "", Collections.emptyList()),
+                                new User(username, "", authorities),
                                 null,
-                                Collections.emptyList()
+                                authorities
                         );
 
-                authentication.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
+                authentication.setDetails(
+                        new WebAuthenticationDetailsSource().buildDetails(request)
+                );
 
                 SecurityContextHolder.getContext().setAuthentication(authentication);
             }
+
         } catch (JwtException e) {
             System.out.println("JWT validation failed: " + e.getMessage());
         }

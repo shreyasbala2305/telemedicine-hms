@@ -32,6 +32,7 @@ public class Appointment {
 	public enum Status{
 		PENDING, 
 		CONFIRMED,
+		COMPLETED,
 		CANCELLED
 	}
 	

@@ -1,10 +1,10 @@
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import toast from "react-hot-toast";
-import DoctorLayout from "../../layouts/DoctorLayout";
-import { getAppointmentsByDoctor, updateAppointment } from "../../services/appointmentService";
-import { useAuth } from "../../context/AuthContext";
-import StatusBadge from "../../components/ui/StatusBadge";
 import { Link } from "react-router-dom";
+import { useAuth } from "../../../context/AuthContext";
+import DoctorLayout from "../../../layouts/DoctorLayout";
+import { getAppointmentsByDoctor, updateAppointment } from "../../../services/appointmentService";
+import { getDoctorByUserId } from "../../../services/doctorService";
 
 export default function DoctorAppointments() {
   const { token } = useAuth();
@@ -20,24 +20,33 @@ export default function DoctorAppointments() {
   };
 
   const load = async () => {
-    try {
-      setLoading(true);
-      const docId = getDoctorIdFromToken();
+  try {
+    setLoading(true);
 
-      if (!docId) {
-        setAppointments([]);
-        return;
-      }
+    if (!token) return;
 
-      const data = await getAppointmentsByDoctor(docId);
-      setAppointments(data || []);
-    } catch (err) {
-      console.error("Failed to load doctor appointments", err);
+    const payload = JSON.parse(atob(token.split(".")[1]));
+    const userId = payload.userId || payload.id;
+
+    const doctor = await getDoctorByUserId(userId);
+
+    if (!doctor?.id) {
       setAppointments([]);
-    } finally {
-      setLoading(false);
+      return;
     }
-  };
+
+    const res = await getAppointmentsByDoctor(doctor.id);
+    const list = res?.content || res || [];
+
+    setAppointments(list);
+
+  } catch (err) {
+    console.error("Failed to load doctor appointments", err);
+    setAppointments([]);
+  } finally {
+    setLoading(false);
+  }
+};
 
   useEffect(() => { load(); }, [token]);
 
@@ -96,7 +105,9 @@ export default function DoctorAppointments() {
                 {/* LEFT */}
                 <div>
                   <div className="font-semibold text-gray-800">
-                    {new Date(a.dateTime).toLocaleString()}
+                    {a.dateTime
+                      ? new Date(a.dateTime).toLocaleString()
+                      : "No time"}
                   </div>
 
                   <div className="text-sm text-gray-500 mt-1">

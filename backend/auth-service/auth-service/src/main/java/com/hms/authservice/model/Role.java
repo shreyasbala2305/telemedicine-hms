@@ -1,5 +1,10 @@
 package com.hms.authservice.model;
 
 public enum Role {
-	PATIENT, DOCTOR, ADMIN
+	ADMIN,
+    RECEPTIONIST,
+    DOCTOR,
+    PATIENT,
+    BILLING,
+    INVENTORY
 }

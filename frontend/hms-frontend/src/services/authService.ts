@@ -9,3 +9,8 @@ export const registerUser = async (payload: { name: string; email: string; passw
   const res = await api.post("/auth-service/auth/register", payload);
   return res.data;
 };
+
+export const getUsersByRole = async (role: string) => {
+  const res = await api.get(`/auth-service/auth/users/by-role?role=${role}`);
+  return res.data;
+};

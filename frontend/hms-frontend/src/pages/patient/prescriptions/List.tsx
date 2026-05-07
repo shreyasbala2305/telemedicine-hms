@@ -4,6 +4,7 @@ import { Link } from "react-router-dom";
 import { useAuth } from "../../../context/AuthContext";
 import PatientLayout from "../../../layouts/PatientLayout";
 import { getPrescriptionsByPatient } from "../../../services/prescriptionService";
+import { getPatientByUserId } from "../../../services/patientService";
 
 export default function PatientPrescriptions() {
   const { token } = useAuth();
@@ -17,11 +18,35 @@ export default function PatientPrescriptions() {
 
   useEffect(() => {
     (async () => {
-      setLoading(true);
-      const userId = getUserIdFromToken();
-      const res = await getPrescriptionsByPatient(userId || "");
-      setList(res || []);
-      setLoading(false);
+      try {
+        setLoading(true);
+
+        if (!token) return;
+
+        const payload = JSON.parse(atob(token.split(".")[1]));
+
+        // 🔥 REAL USER ID
+        const userId = payload.userId || payload.id;
+
+        if (!userId) {
+          setList([]);
+          return;
+        }
+
+        // 🔥 FETCH PATIENT
+        const patient = await getPatientByUserId(userId);
+
+        // 🔥 FETCH PRESCRIPTIONS
+        const res = await getPrescriptionsByPatient(patient.id);
+
+        setList(res || []);
+
+      } catch (err) {
+        console.error(err);
+        setList([]);
+      } finally {
+        setLoading(false);
+      }
     })();
   }, [token]);
 
@@ -47,7 +72,12 @@ export default function PatientPrescriptions() {
             {list.map(it=>(
               <div key={it.id} className="p-3 border rounded flex justify-between items-center">
                 <div>
-                  <div className="font-medium">Prescription #{it.id}</div>
+                  <div className="font-medium">
+                    {it.diagnosis || "General Prescription"}
+                  </div>
+                  <div className="text-sm text-gray-500">
+                    Dr. {it.doctorName || it.doctorId}
+                  </div>
                   <div className="text-sm text-gray-500">{it.diagnosis}</div>
                 </div>
                 <div><Link to={`/patient/prescriptions/${it.id}`} className="text-blue-600">View</Link></div>

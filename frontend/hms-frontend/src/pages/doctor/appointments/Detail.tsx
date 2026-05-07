@@ -1,11 +1,11 @@
-import React, { useEffect, useState } from "react";
-import DoctorLayout from "../../layouts/DoctorLayout";
-import { getAppointment, updateAppointment } from "../../services/appointmentService";
+import { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import StatusBadge from "../../components/ui/StatusBadge";
 import toast from "react-hot-toast";
+import StatusBadge from "../../../components/ui/StatusBadge";
+import DoctorLayout from "../../../layouts/DoctorLayout";
+import { getAppointment, updateAppointment } from "../../../services/appointmentService";
 
-export default function AppointmentDetail() {
+export default function DoctorAppointmentDetail() {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const [appointment, setAppointment] = useState<any>(null);
