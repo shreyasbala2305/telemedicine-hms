@@ -1,243 +1,197 @@
-// // src/pages/patient/book/BookDoctor.tsx
-// import React, { useEffect, useState } from "react";
-// import PatientLayout from "../../../layouts/PatientLayout";
-// import { useParams, useNavigate } from "react-router-dom";
-// import { getAvailability, createBooking } from "../../../services/availabilityService";
-// import SlotButton from "../../../components/ui/SlotButton";
-// import toast from "react-hot-toast";
-// import { useAuth } from "../../../context/AuthContext";
-
-// export default function BookDoctor() {
-//   const { doctorId } = useParams<{ doctorId: string }>();
-//   const navigate = useNavigate();
-//   const { token } = useAuth();
-//   // user id extraction helper — adapt to your JWT structure
-//   const getUserIdFromToken = () => {
-//     if (!token) return null;
-//     try { const p = JSON.parse(atob(token.split(".")[1])); return p.sub || p.userId || p.id || null; } catch { return null; }
-//   };
-
-//   const [date, setDate] = useState<string>(() => {
-//     const d = new Date();
-//     return d.toISOString().slice(0,10); // YYYY-MM-DD
-//   });
-//   const [slots, setSlots] = useState<{ time:string; iso:string; available:boolean }[]>([]);
-//   const [loading, setLoading] = useState(false);
-//   const [selected, setSelected] = useState<string | null>(null);
-//   const [booking, setBooking] = useState(false);
-
-//   const loadSlots = async () => {
-//     if (!doctorId) return;
-//     setLoading(true);
-//     const list = await getAvailability(Number(doctorId), date);
-//     setSlots(list || []);
-//     setSelected(null);
-//     setLoading(false);
-//   };
-
-//   useEffect(() => { loadSlots(); }, [doctorId, date]);
-
-//   const handleBook = async () => {
-//     if (!selected || !doctorId) {
-//       toast.error("Select a time slot first");
-//       return;
-//     }
-//     const patientId = getUserIdFromToken();
-//     if (!patientId) {
-//       toast.error("Unable to determine patient id from token. Please login.");
-//       return;
-//     }
-//     setBooking(true);
-//     try {
-//       const iso = selected.includes("T") ? selected : `${date}T${selected}:00`;
-//       await createBooking({ patientId: String(patientId), doctorId: Number(doctorId), dateTime: iso, status: "CONFIRMED" });
-//       toast.success("Appointment booked");
-//       navigate("/patient/appointments");
-//     } catch (err) {
-//       toast.error("Booking failed");
-//     } finally {
-//       setBooking(false);
-//     }
-//   };
-
-//   return (
-//     <PatientLayout>
-//       <div className="max-w-4xl mx-auto space-y-6">
-
-//         {/* HEADER */}
-//         <div className="flex items-center justify-between">
-//           <div>
-//             <h1 className="text-3xl font-bold">
-//               Book Appointment
-//             </h1>
-//             <p className="text-gray-500 text-sm">
-//               Select date and preferred time slot
-//             </p>
-//           </div>
-//         </div>
-
-//         {/* DOCTOR CARD */}
-//         <div className="bg-white p-5 rounded-2xl shadow-sm border flex items-center gap-4">
-//           <div className="w-14 h-14 rounded-full bg-blue-100 text-blue-600 flex items-center justify-center font-bold text-lg">
-//             D
-//           </div>
-
-//           <div>
-//             <div className="font-semibold text-lg">
-//               Doctor #{doctorId}
-//             </div>
-//             <div className="text-sm text-gray-500">
-//               Specialist • Available slots
-//             </div>
-//           </div>
-//         </div>
-
-//         {/* DATE PICKER */}
-//         <div className="bg-white p-5 rounded-2xl shadow-sm border">
-//           <label className="block text-sm text-gray-600 mb-2">
-//             Select Date
-//           </label>
-
-//           <input
-//             type="date"
-//             value={date}
-//             onChange={e => setDate(e.target.value)}
-//             className="px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 outline-none"
-//           />
-//         </div>
-
-//         {/* SLOTS */}
-//         <div className="bg-white p-5 rounded-2xl shadow-sm border">
-//           <h3 className="font-semibold mb-4 text-lg">
-//             Available Slots
-//           </h3>
-
-//           {loading ? (
-//             <div className="text-gray-500">Loading slots...</div>
-//           ) : slots.length === 0 ? (
-//             <div className="text-sm text-gray-500">
-//               No slots available for this date
-//             </div>
-//           ) : (
-//             <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-6 gap-3">
-//               {slots.map(s => {
-//                 const isSelected = selected === s.iso || selected === s.time;
-
-//                 return (
-//                   <button
-//                     key={s.iso}
-//                     disabled={!s.available}
-//                     onClick={() => s.available && setSelected(s.iso || s.time)}
-//                     className={`py-2 rounded-full text-sm border transition
-//                       ${
-//                         isSelected
-//                           ? "bg-blue-600 text-white"
-//                           : s.available
-//                           ? "hover:bg-blue-50"
-//                           : "opacity-40 cursor-not-allowed"
-//                       }
-//                     `}
-//                   >
-//                     {s.time}
-//                   </button>
-//                 );
-//               })}
-//             </div>
-//           )}
-//         </div>
-
-//         {/* ACTIONS */}
-//         <div className="flex justify-between items-center">
-//           <button
-//             onClick={() => navigate("/patient/book")}
-//             className="px-4 py-2 border rounded-lg hover:bg-gray-50"
-//           >
-//             Back
-//           </button>
-
-//           <button
-//             onClick={handleBook}
-//             disabled={!selected || booking}
-//             className={`px-6 py-3 rounded-lg text-white font-semibold transition ${
-//               booking
-//                 ? "bg-blue-400"
-//                 : "bg-blue-600 hover:bg-blue-700"
-//             }`}
-//           >
-//             {booking ? "Booking..." : "Confirm Booking"}
-//           </button>
-//         </div>
-
-//       </div>
-//     </PatientLayout>
-//   );
-// }
-
-
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import PatientLayout from "../../../layouts/PatientLayout";
-import { useParams } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import { getDoctor } from "../../../services/doctorService";
-import { getAvailableSlots, createAppointment } from "../../../services/appointmentService";
+import {
+  getAvailableSlots,
+  createAppointment,
+} from "../../../services/appointmentService";
 import { useAuth } from "../../../context/AuthContext";
 import toast from "react-hot-toast";
 
-export default function DoctorBooking() {
-  const { id } = useParams<{ id: string }>();
-  const { token } = useAuth();
+const weekDays = [
+  "Sunday",
+  "Monday",
+  "Tuesday",
+  "Wednesday",
+  "Thursday",
+  "Friday",
+  "Saturday",
+];
 
+export default function DoctorBooking() {
+
+  const params = useParams();
+
+  // 🔥 IMPORTANT DEBUG
+  console.log("ROUTE PARAMS:", params);
+
+  const id = params.doctorId;
+
+  const { token } = useAuth();
+  const navigate = useNavigate();
   const [doctor, setDoctor] = useState<any>(null);
   const [selectedDate, setSelectedDate] = useState("");
   const [slots, setSlots] = useState<string[]>([]);
   const [selectedSlot, setSelectedSlot] = useState("");
   const [loadingSlots, setLoadingSlots] = useState(false);
 
+  // 🔥 patient id
   const getPatientId = () => {
+
     try {
-      const payload = JSON.parse(atob(token!.split(".")[1]));
-      return payload.id || payload.sub;
+
+      if (!token) return null;
+
+      const payload = JSON.parse(
+        atob(token.split(".")[1])
+      );
+
+      return payload.userId || payload.id || null;
+
     } catch {
+
       return null;
+
     }
   };
 
-  // 🔥 Load doctor
-  useEffect(() => {
-    if (!id) return;
-    (async () => {
-      const d = await getDoctor(Number(id));
-      setDoctor(d);
-    })();
-  }, [id]);
+  // 🔥 today
+  const todayName = new Date().toLocaleDateString(
+    "en-US",
+    {
+      weekday: "long",
+    }
+  );
 
-  // 🔥 Fetch slots
+  // 🔥 availability days
+  const availableDays = useMemo(() => {
+    console.log("DOCTOR STATE:", doctor);
+    if (!doctor?.availability) return [];
+    return doctor.availability.map(
+      (a: string) => a.split(" ")[0]
+    );
+  }, [doctor]);
+
+  // 🔥 validate day
+  const isValidDoctorDay = (date: string) => {
+    if (!date) return false;
+    const parsed = new Date(
+      date + "T00:00:00"
+    );
+    const day =
+      weekDays[parsed.getDay()];
+    return availableDays.includes(day);
+  };
+
+  // 🔥 load doctor
   useEffect(() => {
+    console.log("BOOK PAGE MOUNTED");
+    if (!id) {
+      console.error("NO DOCTOR ID FOUND");
+      return;
+    }
+
+    (async () => {
+      try {
+        console.log("FETCHING DOCTOR:", id);
+        const d = await getDoctor(Number(id));
+        console.log("DOCTOR RESPONSE:", d);
+        setDoctor(d);
+        // 🔥 auto-select today
+        if (
+          d?.availability?.some(
+            (a: string) =>
+              a.startsWith(todayName)
+          )
+        ) {
+          setSelectedDate(
+            new Date()
+              .toISOString()
+              .split("T")[0]
+          );
+        }
+      } catch (err) {
+        console.error(
+          "DOCTOR FETCH FAILED:",
+          err
+        );
+      }
+    })();
+  }, [id, todayName]);
+
+  // 🔥 fetch slots
+  useEffect(() => {
+
     if (!id || !selectedDate) return;
 
+    if (!isValidDoctorDay(selectedDate)) {
+
+      setSlots([]);
+
+      return;
+    }
+
     (async () => {
-      setLoadingSlots(true);
-      const data = await getAvailableSlots(Number(id), selectedDate);
-      setSlots(data || []);
-      setLoadingSlots(false);
+      try {
+        setLoadingSlots(true);
+        console.log(
+          "FETCHING SLOTS:",
+          selectedDate
+        );
+        const data =
+          await getAvailableSlots(
+            Number(id),
+            selectedDate
+          );
+        console.log(
+          "SLOTS RESPONSE:",
+          data
+        );
+        setSlots(data || []);
+      } catch (err) {
+        console.error(
+          "SLOT FETCH FAILED:",
+          err
+        );
+        setSlots([]);
+      } finally {
+        setLoadingSlots(false);
+      }
     })();
   }, [id, selectedDate]);
 
+  // 🔥 book
   const book = async () => {
-    if (!selectedSlot) return toast.error("Select a slot");
+    if (!selectedSlot) {
+      return toast.error("Select a slot");
+    }
 
     const patientId = getPatientId();
-    if (!patientId) return toast.error("Login required");
+    if (!patientId) {
+      return toast.error("Login required");
+    }
 
     try {
       await createAppointment({
         patientId,
         doctorId: Number(id),
         dateTime: `${selectedDate}T${selectedSlot}`,
-        status: "PENDING", // 🔥 patient → pending
+        status: "PENDING",
       });
 
-      toast.success("Appointment requested");
+      toast.success(
+        `Appointment booked with ${doctor?.name} on ${selectedDate} at ${selectedSlot}`,
+        {
+          duration: 5000,
+        }
+      );
+
       setSelectedSlot("");
+      setTimeout(() => {
+        navigate("/patient/appointments");
+      }, 1200);
+
     } catch {
       toast.error("Booking failed");
     }
@@ -246,65 +200,185 @@ export default function DoctorBooking() {
   return (
     <PatientLayout>
 
-      {/* DOCTOR CARD */}
-      <div className="bg-white rounded-2xl p-6 shadow mb-6">
-        <h1 className="text-xl font-bold">{doctor?.name}</h1>
-        <p className="text-gray-500">{doctor?.speciality}</p>
-      </div>
+      <div className="max-w-5xl mx-auto">
 
-      {/* DATE SELECT */}
-      <div className="mb-6">
-        <label className="block text-sm mb-2">Select Date</label>
-        <input
-          type="date"
-          min={new Date().toISOString().split("T")[0]}
-          value={selectedDate}
-          onChange={(e) => {
-            setSelectedDate(e.target.value);
-            setSelectedSlot("");
-          }}
-          className="px-4 py-2 border rounded"
-        />
-      </div>
+        <div className="bg-white rounded-3xl shadow-lg p-8 space-y-8">
 
-      {/* SLOTS */}
-      <div className="bg-white rounded-2xl p-6 shadow">
+          {/* DOCTOR */}
+          <div>
 
-        <h2 className="font-semibold mb-3">Available Slots</h2>
+            <h1 className="text-3xl font-bold">
+              {doctor?.name || "Loading..."}
+            </h1>
 
-        {loadingSlots ? (
-          <div>Loading...</div>
-        ) : slots.length === 0 ? (
-          <div className="text-gray-500">No slots available</div>
-        ) : (
-          <div className="grid grid-cols-3 gap-3">
-            {slots.map((slot) => (
-              <button
-                key={slot}
-                onClick={() => setSelectedSlot(slot)}
-                className={`py-2 border rounded-lg ${
-                  selectedSlot === slot
-                    ? "bg-blue-600 text-white"
-                    : "hover:bg-gray-100"
-                }`}
-              >
-                {slot}
-              </button>
-            ))}
+            <p className="text-gray-500 mt-1">
+              {doctor?.speciality}
+            </p>
+
+            {/* AVAILABILITY */}
+            <div className="mt-5">
+
+              {availableDays.length === 0 ? (
+
+                <div className="text-gray-400">
+                  No availability configured
+                </div>
+
+              ) : (
+
+                <div className="flex flex-wrap gap-2">
+
+                  {availableDays.map(
+                    (day: string) => (
+
+                    <span
+                      key={day}
+                      className={`px-3 py-1 rounded-full text-sm font-medium ${
+                        day === todayName
+                          ? "bg-green-100 text-green-700"
+                          : "bg-yellow-100 text-yellow-700"
+                      }`}
+                    >
+                      {day === todayName
+                        ? "🟢 Available Today"
+                        : day}
+                    </span>
+
+                  ))}
+
+                </div>
+
+              )}
+
+            </div>
+
           </div>
-        )}
 
-      </div>
+          {/* DATE */}
+          <div>
 
-      {/* BOOK BUTTON */}
-      <div className="mt-6">
-        <button
-          onClick={book}
-          disabled={!selectedSlot}
-          className="bg-blue-600 text-white px-6 py-2 rounded-lg"
-        >
-          Book Appointment
-        </button>
+            <label className="block text-sm font-medium mb-2">
+              Select Appointment Date
+            </label>
+
+            <input
+              type="date"
+              min={
+                new Date()
+                  .toISOString()
+                  .split("T")[0]
+              }
+              value={selectedDate}
+              onChange={(e) => {
+
+                setSelectedDate(
+                  e.target.value
+                );
+
+                setSelectedSlot("");
+
+              }}
+              className="px-4 py-3 border rounded-xl"
+            />
+
+            {selectedDate &&
+              !isValidDoctorDay(
+                selectedDate
+              ) && (
+
+              <div className="text-red-500 text-sm mt-3">
+                Doctor unavailable on selected day
+              </div>
+
+            )}
+
+          </div>
+
+          {/* SLOTS */}
+          <div>
+
+            <h2 className="font-semibold text-lg mb-4">
+              Available Slots
+            </h2>
+
+            {loadingSlots ? (
+
+              <div>
+                Loading slots...
+              </div>
+
+            ) : !selectedDate ? (
+
+              <div className="text-gray-500">
+                Select a date first
+              </div>
+
+            ) : !isValidDoctorDay(
+                selectedDate
+              ) ? (
+
+              <div className="text-gray-500">
+                No slots for this day
+              </div>
+
+            ) : slots.length === 0 ? (
+
+              <div className="text-gray-500">
+                No slots available
+              </div>
+
+            ) : (
+
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+
+                {slots.map((slot) => (
+
+                  <button
+                    key={slot}
+                    onClick={() =>
+                      setSelectedSlot(slot)
+                    }
+                    className={`py-3 rounded-xl border transition ${
+                      selectedSlot === slot
+                        ? "bg-blue-600 text-white border-blue-600"
+                        : "hover:bg-gray-100"
+                    }`}
+                  >
+                    {slot}
+                  </button>
+
+                ))}
+
+              </div>
+
+            )}
+
+          </div>
+
+          {/* BUTTON */}
+          <div className="flex items-center gap-4">
+            <button
+              onClick={() => navigate(-1)}
+              className="px-6 py-3 rounded-xl border border-gray-300 hover:bg-gray-100 transition"
+            >
+              Cancel
+            </button>
+
+            <button
+              disabled={!selectedSlot}
+              onClick={book}
+              className={`px-6 py-3 rounded-xl text-white font-medium transition ${
+                selectedSlot
+                  ? "bg-blue-600 hover:bg-blue-700"
+                  : "bg-gray-400 cursor-not-allowed"
+              }`}
+            >
+              Book Appointment
+            </button>
+
+          </div>
+        </div>
+
       </div>
 
     </PatientLayout>

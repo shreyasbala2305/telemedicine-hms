@@ -8,41 +8,85 @@ export default function PatientDoctorSearch() {
   const [filtered, setFiltered] = useState<any[]>([]);
   const [search, setSearch] = useState("");
   const navigate = useNavigate();
+
   const [speciality, setSpeciality] = useState("");
   const [availableOnly, setAvailableOnly] = useState(false);
   const [maxFee, setMaxFee] = useState(1000);
 
+  // 🔥 current weekday
+  const todayName = new Date().toLocaleDateString("en-US", {
+    weekday: "long",
+  });
+
+  // 🔥 extract days from availability
+  const getAvailableDays = (availability: string[] = []) => {
+    return availability.map((a) => a.split(" ")[0]);
+  };
+
+  // 🔥 check if available today
+  const isAvailableToday = (availability: string[] = []) => {
+    return getAvailableDays(availability).includes(todayName);
+  };
+
+  // 🔥 fetch doctors
   useEffect(() => {
     (async () => {
-      const data = await getDoctors();
-      setDoctors(data);
-      setFiltered(data);
+      try {
+        const data = await getDoctors();
+        setDoctors(data || []);
+      } catch (err) {
+        console.error("Failed to load doctors", err);
+        setDoctors([]);
+      }
     })();
   }, []);
 
+  // 🔥 filter + sort
   useEffect(() => {
+
     const s = search.toLowerCase();
 
-    let result = doctors.filter(d =>
-        d.name.toLowerCase().includes(s) ||
-        d.speciality?.toLowerCase().includes(s)
+    let result = doctors.filter((d: any) =>
+      d.name?.toLowerCase().includes(s) ||
+      d.speciality?.toLowerCase().includes(s)
     );
 
+    // speciality filter
     if (speciality) {
-        result = result.filter(d =>
+      result = result.filter((d: any) =>
         d.speciality?.toLowerCase() === speciality.toLowerCase()
-        );
+      );
     }
 
+    // available today filter
     if (availableOnly) {
-        // assuming all are available (mock)
-        result = result.filter(() => true);
+      result = result.filter((d: any) =>
+        isAvailableToday(d.availability)
+      );
     }
 
-    result = result.filter(d => (d.fee || 500) <= maxFee);
+    // fee filter
+    result = result.filter(
+      (d: any) => (d.fee || 500) <= maxFee
+    );
+
+    // 🔥 SORTING
+    result.sort((a: any, b: any) => {
+
+      const aAvailable = isAvailableToday(a.availability);
+      const bAvailable = isAvailableToday(b.availability);
+
+      // available today first
+      if (aAvailable && !bAvailable) return -1;
+      if (!aAvailable && bAvailable) return 1;
+
+      // alphabetical
+      return a.name.localeCompare(b.name);
+    });
 
     setFiltered(result);
-    }, [search, doctors, speciality, availableOnly, maxFee]);
+
+  }, [search, doctors, speciality, availableOnly, maxFee]);
 
   return (
     <PatientLayout>
@@ -50,7 +94,10 @@ export default function PatientDoctorSearch() {
 
         {/* HEADER */}
         <div>
-          <h1 className="text-3xl font-bold">Find a Doctor 👨‍⚕️</h1>
+          <h1 className="text-3xl font-bold">
+            Find a Doctor 👨‍⚕️
+          </h1>
+
           <p className="text-gray-500 text-sm">
             Search by name or specialty
           </p>
@@ -61,71 +108,81 @@ export default function PatientDoctorSearch() {
           type="text"
           placeholder="Search doctor or specialty..."
           value={search}
-          onChange={e => setSearch(e.target.value)}
+          onChange={(e) => setSearch(e.target.value)}
           className="w-full px-4 py-3 border rounded-xl focus:ring-2 focus:ring-blue-500 outline-none"
         />
 
+        {/* FILTERS */}
         <div className="bg-white p-5 rounded-2xl shadow flex flex-col md:flex-row gap-4">
 
-        {/* SPECIALITY */}
-        <select
+          {/* SPECIALITY */}
+          <select
             value={speciality}
-            onChange={e => setSpeciality(e.target.value)}
+            onChange={(e) => setSpeciality(e.target.value)}
             className="px-3 py-2 border rounded-lg"
-        >
+          >
             <option value="">All Specialities</option>
             <option value="Cardiology">Cardiology</option>
             <option value="Orthopedic">Orthopedic</option>
             <option value="Dermatology">Dermatology</option>
-        </select>
+          </select>
 
-        {/* AVAILABILITY */}
-        <label className="flex items-center gap-2 text-sm">
+          {/* AVAILABLE */}
+          <label className="flex items-center gap-2 text-sm">
             <input
-            type="checkbox"
-            checked={availableOnly}
-            onChange={e => setAvailableOnly(e.target.checked)}
+              type="checkbox"
+              checked={availableOnly}
+              onChange={(e) => setAvailableOnly(e.target.checked)}
             />
             Available Today
-        </label>
+          </label>
 
-        {/* FEE */}
-        <div className="flex items-center gap-2">
+          {/* FEE */}
+          <div className="flex items-center gap-2">
             <span className="text-sm">Max Fee:</span>
+
             <input
-            type="range"
-            min="100"
-            max="1000"
-            step="100"
-            value={maxFee}
-            onChange={e => setMaxFee(Number(e.target.value))}
+              type="range"
+              min="100"
+              max="1000"
+              step="100"
+              value={maxFee}
+              onChange={(e) => setMaxFee(Number(e.target.value))}
             />
-            <span className="text-sm font-medium">₹{maxFee}</span>
-        </div>
-        
-        <button
+
+            <span className="text-sm font-medium">
+              ₹{maxFee}
+            </span>
+          </div>
+
+          {/* CLEAR */}
+          <button
             onClick={() => {
-                setSpeciality("");
-                setAvailableOnly(false);
-                setMaxFee(1000);
-                setSearch("");
+              setSpeciality("");
+              setAvailableOnly(false);
+              setMaxFee(1000);
+              setSearch("");
             }}
             className="text-sm text-blue-600 underline"
-            >
+          >
             Clear Filters
-        </button>
+          </button>
+
         </div>
 
         {/* LIST */}
         <div className="space-y-4">
 
           {filtered.length === 0 ? (
+
             <div className="text-center text-gray-500 py-10">
               No doctors found
             </div>
+
           ) : (
 
-            filtered.map(d => (
+            filtered.map((d) => (
+
               <div
                 key={d.id}
                 className="bg-white p-5 rounded-2xl shadow flex flex-col md:flex-row md:justify-between md:items-center"
@@ -134,12 +191,18 @@ export default function PatientDoctorSearch() {
                 {/* LEFT */}
                 <div className="flex gap-4">
 
+                  {/* AVATAR */}
                   <div className="w-14 h-14 rounded-full bg-blue-100 text-blue-600 flex items-center justify-center font-bold text-lg">
                     {d.name?.charAt(0)}
                   </div>
 
+                  {/* INFO */}
                   <div>
-                    <div className="font-semibold text-lg">{d.name}</div>
+
+                    <div className="font-semibold text-lg">
+                      {d.name}
+                    </div>
+
                     <div className="text-sm text-gray-500">
                       {d.speciality || "General"}
                     </div>
@@ -149,8 +212,9 @@ export default function PatientDoctorSearch() {
                     </div>
 
                     <div className="text-sm text-gray-600 mt-1">
-                        ₹{d.fee || 500} Consultation
+                      ₹{d.fee || 500} Consultation
                     </div>
+
                   </div>
 
                 </div>
@@ -158,12 +222,24 @@ export default function PatientDoctorSearch() {
                 {/* RIGHT */}
                 <div className="mt-3 md:mt-0 flex flex-col items-end gap-2">
 
-                  <div className="text-green-600 text-sm font-medium">
-                    Available Today
-                  </div>
+                  {isAvailableToday(d.availability) ? (
+
+                    <div className="text-green-600 text-sm font-medium">
+                      Available Today
+                    </div>
+
+                  ) : (
+
+                    <div className="text-yellow-600 text-sm font-medium">
+                      {getAvailableDays(d.availability).join(", ")}
+                    </div>
+
+                  )}
 
                   <button
-                    onClick={() => navigate(`/patient/doctors/${d.id}`)}
+                    onClick={() =>
+                      navigate(`/patient/doctors/${d.id}`)
+                    }
                     className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
                   >
                     Book Appointment
@@ -172,11 +248,13 @@ export default function PatientDoctorSearch() {
                 </div>
 
               </div>
+
             ))
 
           )}
 
         </div>
+
       </div>
     </PatientLayout>
   );

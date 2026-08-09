@@ -28,33 +28,73 @@ export default function PatientAppointments() {
   };
 
   useEffect(() => {
+
     (async () => {
-      try{
+
+      try {
+
         setLoading(true);
+
         const userId = getUserIdFromToken();
 
         if (!userId) {
+
           setAppointments([]);
-          setLoading(false);
+
           return;
         }
 
-        // 🔥 get current patient by email/user
-        const patient = await getPatientByUserId(userId);
+        // 🔥 fetch current patient
+        const patient =
+          await getPatientByUserId(userId);
 
-        if (!patient) {
+        console.log("PATIENT:", patient);
+
+        if (!patient?.id) {
+
           setAppointments([]);
+
           return;
         }
 
-        // 🔥 fetch appointments using REAL patient id
-        const data = await getAppointmentsByPatient(patient.id);
+        // 🔥 fetch appointments
+        const data =
+          await getAppointmentsByPatient(
+            patient.id
+          );
 
-        setAppointments(data || []);
-      }finally{
+        console.log(
+          "PATIENT APPOINTMENTS:",
+          data
+        );
+
+        // 🔥 latest first
+        const sorted =
+          (data || []).sort(
+            (a: any, b: any) =>
+              new Date(b.dateTime).getTime() -
+              new Date(a.dateTime).getTime()
+          );
+
+        setAppointments(sorted);
+
+      } catch (err) {
+
+        console.error(
+          "FAILED TO LOAD APPOINTMENTS",
+          err
+        );
+
+        setAppointments([]);
+
+      } finally {
+
         setLoading(false);
+
       }
+
     })();
+
   }, [token]);
 
   return (
@@ -115,17 +155,27 @@ export default function PatientAppointments() {
                   <span
                     className={`px-3 py-1 text-xs rounded-full font-medium ${
                       a.status === "CONFIRMED"
-                        ? "bg-green-100 text-green-600"
+                        ? "bg-green-100 text-green-700"
+
+                        : a.status === "PENDING"
+                        ? "bg-yellow-100 text-yellow-700"
+
                         : a.status === "CANCELLED"
-                        ? "bg-red-100 text-red-600"
-                        : "bg-gray-100 text-gray-600"
+                        ? "bg-red-100 text-red-700"
+
+                        : a.status === "COMPLETED"
+                        ? "bg-blue-100 text-blue-700"
+
+                        : "bg-gray-100 text-gray-700"
                     }`}
                   >
                     {a.status}
                   </span>
 
                   <button
-                    disabled={a.status === "CANCELLED"}
+                    disabled={
+                      a.status === "CANCELLED" || a.status === "COMPLETED"
+                    }
                     onClick={() => cancelAppointment(a.id)}
                     className="ml-3 px-3 py-1 text-xs bg-red-500 text-white rounded"
                   >
