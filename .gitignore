@@ -12,7 +12,7 @@ Thumbs.db
 *.iml
 *.ipr
 *.iws
-/.metadata/
+.metadata/
 
 # ===============================
 # 🧱 MAVEN BUILD OUTPUT
