@@ -14,46 +14,80 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.hms.authservice.common.response.ApiResponse;
 import com.hms.authservice.dto.AuthRequest;
 import com.hms.authservice.dto.AuthResponse;
 import com.hms.authservice.dto.RegisterRequest;
-import com.hms.authservice.model.User;
+import com.hms.authservice.dto.UserResponseDTO;
 import com.hms.authservice.service.AuthService;
 
 @RestController
 @RequestMapping("/auth")
-//@CrossOrigin(origins = "http://localhost:5173")	
 public class AuthController {
 
-	@Autowired 
-	private AuthService authService;
-	
-//	@PostMapping("/register")
-//	public ResponseEntity<User> register(@RequestBody UserDTO dto){
-//		return new ResponseEntity<>(authService.register(dto), HttpStatus.CREATED);
-//	}
-	
-	@PostMapping("/register")
-	public ResponseEntity<User> register(@RequestBody RegisterRequest request) {
-	    User savedUser = authService.register(request);
-	    return new ResponseEntity<>(savedUser, HttpStatus.CREATED);
-	}
-	
-	@GetMapping("/users/by-role")
-	public List<User> getUsersByRole(@RequestParam String role) {
-	    return authService.getUsersByRole(role);
-	}
+    @Autowired
+    private AuthService authService;
 
-	
-	@PostMapping("/login")
-	public ResponseEntity<AuthResponse> login(@RequestBody AuthRequest authRequest){
-			return ResponseEntity.ok(authService.login(authRequest));
-	}
-	
-	@GetMapping("/test")
-	public ResponseEntity<String> testEndpoint() {
-	    Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-	    return ResponseEntity.ok("Authenticated as: " + auth.getName());
-	}
+    @PostMapping("/register")
+    public ResponseEntity<ApiResponse<UserResponseDTO>> register(
+            @RequestBody RegisterRequest request) {
 
+        UserResponseDTO savedUser =
+                authService.register(request);
+
+        return new ResponseEntity<>(
+                ApiResponse.success(
+                        "User registered successfully",
+                        savedUser
+                ),
+                HttpStatus.CREATED
+        );
+    }
+
+    @GetMapping("/users/by-role")
+    public ResponseEntity<ApiResponse<List<UserResponseDTO>>> getUsersByRole(
+            @RequestParam String role) {
+
+        List<UserResponseDTO> users =
+                authService.getUsersByRole(role);
+
+        return ResponseEntity.ok(
+                ApiResponse.success(
+                        "Users fetched successfully",
+                        users
+                )
+        );
+    }
+
+    @PostMapping("/login")
+    public ResponseEntity<ApiResponse<AuthResponse>> login(
+            @RequestBody AuthRequest authRequest) {
+
+        AuthResponse response =
+                authService.login(authRequest);
+
+        return ResponseEntity.ok(
+                ApiResponse.success(
+                        "Login successful",
+                        response
+                )
+        );
+    }
+
+    @GetMapping("/test")
+    public ResponseEntity<ApiResponse<String>> testEndpoint() {
+
+        Authentication auth =
+                SecurityContextHolder
+                        .getContext()
+                        .getAuthentication();
+
+        return ResponseEntity.ok(
+                ApiResponse.success(
+                        "Authentication successful",
+                        "Authenticated as: "
+                                + auth.getName()
+                )
+        );
+    }
 }

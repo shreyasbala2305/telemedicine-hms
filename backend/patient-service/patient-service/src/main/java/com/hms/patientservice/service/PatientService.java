@@ -11,7 +11,7 @@ import org.springframework.stereotype.Service;
 
 import com.hms.patientservice.client.AuthClient;
 import com.hms.patientservice.client.NotificationClient;
-import com.hms.patientservice.dto.AuthResponse;
+import com.hms.patientservice.dto.AuthApiResponse;
 import com.hms.patientservice.dto.NotificationDTO;
 import com.hms.patientservice.dto.PatientDTO;
 import com.hms.patientservice.dto.PatientResponseDTO;
@@ -52,9 +52,11 @@ public class PatientService {
             req.setRole("PATIENT");
             req.setName(dto.getName());
 
-            AuthResponse res = authClient.register(req);
+            AuthApiResponse response = authClient.register(req);
 
-            patient.setUserId(res.getUserId());
+            if (response != null && response.getData() != null) {
+                patient.setUserId(response.getData().getId());
+            }
 
         } catch (Exception e) {
             log.warn(

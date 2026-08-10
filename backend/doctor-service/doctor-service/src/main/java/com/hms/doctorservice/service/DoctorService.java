@@ -7,6 +7,7 @@ import org.springframework.stereotype.Service;
 
 import com.hms.doctorservice.client.AuthClient;
 import com.hms.doctorservice.client.NotificationClient;
+import com.hms.doctorservice.dto.AuthApiResponse;
 import com.hms.doctorservice.dto.AuthResponse;
 import com.hms.doctorservice.dto.DoctorDTO;
 import com.hms.doctorservice.dto.DoctorResponseDTO;
@@ -50,19 +51,20 @@ public class DoctorService {
             req.setRole("DOCTOR");
             req.setName(dto.getName());
 
-            AuthResponse res = authClient.register(req);
+            AuthApiResponse response = authClient.register(req);
 
-            doctor.setUserId(res.getUserId());
+            if (response != null && response.getData() != null) {
 
-            log.info(
-                    "Doctor authentication account created for email: {}",
-                    dto.getEmail()
-            );
+                AuthResponse authUser = response.getData();
 
-            log.info(
-                    "Doctor userId received from auth service: {}",
-                    res.getUserId()
-            );
+                doctor.setUserId(authUser.getId());
+
+                log.info(
+                    "Auth user created successfully. userId={}, email={}",
+                    authUser.getId(),
+                    authUser.getEmail()
+                );
+            }
 
         } catch (Exception e) {
 
