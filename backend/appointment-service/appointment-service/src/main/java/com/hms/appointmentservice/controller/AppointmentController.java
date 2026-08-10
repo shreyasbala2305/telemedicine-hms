@@ -18,64 +18,146 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.hms.appointmentservice.common.response.ApiResponse;
 import com.hms.appointmentservice.dto.AppointmentDTO;
-import com.hms.appointmentservice.model.Appointment;
+import com.hms.appointmentservice.dto.AppointmentResponseDTO;
 import com.hms.appointmentservice.service.AppointmentService;
 
 @RestController
 @RequestMapping("/appointments")
 public class AppointmentController {
 
-	@Autowired
-	private AppointmentService appointmentService;
-	
-	@PostMapping
-	public ResponseEntity<AppointmentDTO> bookAppointment(@RequestBody AppointmentDTO dto){
-		AppointmentDTO bookappointment = appointmentService.bookAppointment(dto);
-	    return new ResponseEntity<>(bookappointment, HttpStatus.CREATED);
-	}
-	
-	@GetMapping("patient/{patientId}")
-	public List<Appointment> getByPatient(@PathVariable Long patientId){
-		return appointmentService.getByPatient(patientId);
-	}
-	
-	@GetMapping("doctor/{doctorId}")
-	public List<Appointment> getByDoctor(@PathVariable Long doctorId){
-		return appointmentService.getByDoctor(doctorId);
-	}
-	
-	@PreAuthorize("hasRole('RECEPTIONIST')")
-	@PutMapping("/{id}/status")
-	public ResponseEntity<Appointment> updateStatus(@PathVariable Long id, @RequestBody Map<String, String> body){
-		return ResponseEntity.ok(appointmentService.updateStatus(id, body.get("status")));
-	}
-	
-	@GetMapping("/doctor/{doctorId}/range")
-	public List<Appointment> getByDoctorAndRange(
-	        @PathVariable Long doctorId,
-	        @RequestParam("start") String start,
-	        @RequestParam("end") String end
-	) {
-	    LocalDateTime startDt = LocalDateTime.parse(start); // ISO string from frontend
-	    LocalDateTime endDt = LocalDateTime.parse(end);
-	    return appointmentService.getByDoctorAndRange(doctorId, startDt, endDt);
-	}
-	
-	@GetMapping
-	public Page<Appointment> getAll(
-	        @RequestParam(defaultValue = "0") int page,
-	        @RequestParam(defaultValue = "10") int size
-	) {
-	    return appointmentService.getAllPaged(page, size);
-	}
-	
-	@GetMapping("/doctor/{doctorId}/slots")
-	public List<String> getAvailableSlots(
-	    @PathVariable Long doctorId,
-	    @RequestParam String date
-	) {
-	    return appointmentService.getAvailableSlots(doctorId, date);
-	}
+    @Autowired
+    private AppointmentService appointmentService;
 
+    @PostMapping
+    public ResponseEntity<ApiResponse<AppointmentResponseDTO>> bookAppointment(
+            @RequestBody AppointmentDTO dto) {
+
+        AppointmentResponseDTO appointment =
+                appointmentService.bookAppointment(dto);
+
+        return new ResponseEntity<>(
+                ApiResponse.success(
+                        "Appointment booked successfully",
+                        appointment
+                ),
+                HttpStatus.CREATED
+        );
+    }
+
+    @GetMapping("/patient/{patientId}")
+    public ResponseEntity<ApiResponse<List<AppointmentResponseDTO>>> getByPatient(
+            @PathVariable Long patientId) {
+
+        List<AppointmentResponseDTO> appointments =
+                appointmentService.getByPatient(patientId);
+
+        return ResponseEntity.ok(
+                ApiResponse.success(
+                        "Patient appointments fetched successfully",
+                        appointments
+                )
+        );
+    }
+
+    @GetMapping("/doctor/{doctorId}")
+    public ResponseEntity<ApiResponse<List<AppointmentResponseDTO>>> getByDoctor(
+            @PathVariable Long doctorId) {
+
+        List<AppointmentResponseDTO> appointments =
+                appointmentService.getByDoctor(doctorId);
+
+        return ResponseEntity.ok(
+                ApiResponse.success(
+                        "Doctor appointments fetched successfully",
+                        appointments
+                )
+        );
+    }
+
+    @PreAuthorize("hasRole('RECEPTIONIST')")
+    @PutMapping("/{id}/status")
+    public ResponseEntity<ApiResponse<AppointmentResponseDTO>> updateStatus(
+            @PathVariable Long id,
+            @RequestBody Map<String, String> body) {
+
+        AppointmentResponseDTO updated =
+                appointmentService.updateStatus(
+                        id,
+                        body.get("status")
+                );
+
+        return ResponseEntity.ok(
+                ApiResponse.success(
+                        "Appointment status updated successfully",
+                        updated
+                )
+        );
+    }
+
+    @GetMapping("/doctor/{doctorId}/range")
+    public ResponseEntity<ApiResponse<List<AppointmentResponseDTO>>> getByDoctorAndRange(
+            @PathVariable Long doctorId,
+            @RequestParam("start") String start,
+            @RequestParam("end") String end) {
+
+        LocalDateTime startDt =
+                LocalDateTime.parse(start);
+
+        LocalDateTime endDt =
+                LocalDateTime.parse(end);
+
+        List<AppointmentResponseDTO> appointments =
+                appointmentService.getByDoctorAndRange(
+                        doctorId,
+                        startDt,
+                        endDt
+                );
+
+        return ResponseEntity.ok(
+                ApiResponse.success(
+                        "Doctor appointments fetched successfully",
+                        appointments
+                )
+        );
+    }
+
+    @GetMapping
+    public ResponseEntity<ApiResponse<Page<AppointmentResponseDTO>>> getAll(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size) {
+
+        Page<AppointmentResponseDTO> appointments =
+                appointmentService.getAllPaged(
+                        page,
+                        size
+                );
+
+        return ResponseEntity.ok(
+                ApiResponse.success(
+                        "Appointments fetched successfully",
+                        appointments
+                )
+        );
+    }
+
+    @GetMapping("/doctor/{doctorId}/slots")
+    public ResponseEntity<ApiResponse<List<String>>> getAvailableSlots(
+            @PathVariable Long doctorId,
+            @RequestParam String date) {
+
+        List<String> slots =
+                appointmentService.getAvailableSlots(
+                        doctorId,
+                        date
+                );
+
+        return ResponseEntity.ok(
+                ApiResponse.success(
+                        "Available slots fetched successfully",
+                        slots
+                )
+        );
+    }
 }
