@@ -1,6 +1,6 @@
 package com.hms.prescriptionservice.service;
 
-import java.util.List; 
+import java.util.List;
 import java.util.stream.Collectors;
 
 import org.springframework.stereotype.Service;
@@ -19,6 +19,9 @@ import com.hms.prescriptionservice.dto.PrescriptionDTO;
 import com.hms.prescriptionservice.model.Prescription;
 import com.hms.prescriptionservice.respository.PrescriptionRepository;
 
+import lombok.extern.slf4j.Slf4j;
+
+@Slf4j
 @Service
 public class PrescriptionService {
 
@@ -126,7 +129,7 @@ public class PrescriptionService {
         try {
             notificationClient.send(notifyEmail);
         } catch (Exception e) {
-            System.err.println("Failed to send prescription email notification: " + e.getMessage());
+        	log.error("Failed to send prescription email notification", e);
         }
 
         if (patient.getContact() != null) {
@@ -143,7 +146,7 @@ public class PrescriptionService {
             try {
                 notificationClient.send(notifySms);
             } catch (Exception e) {
-                System.err.println("Failed to send prescription SMS notification: " + e.getMessage());
+            	log.error("Failed to send prescription SMS notification", e);
             }
         }
     }

@@ -20,6 +20,9 @@ import com.hms.patientservice.repository.EHRRecordRepository;
 import com.hms.patientservice.repository.PatientRepository;
 import com.hms.patientservice.service.EHRStorageService;
 
+import lombok.extern.slf4j.Slf4j;
+
+@Slf4j
 @RestController
 @RequestMapping("/records")
 public class EHRRecordController {
@@ -31,8 +34,10 @@ public class EHRRecordController {
     public ResponseEntity<String> uploadEHR(@RequestParam MultipartFile file,
                                             @RequestParam Long patientId,
                                             @RequestParam(required = false) String notes) throws IOException {
-    	System.out.println("Received file: " + file.getOriginalFilename());
-        System.out.println("Patient ID: " + patientId);
+    	log.debug(
+    		    "EHR upload request received for patientId={}",
+    		    patientId
+    		);
         Patient patient = patientRepo.findById(patientId)
             .orElseThrow(() -> new RuntimeException("Patient not found"));
         

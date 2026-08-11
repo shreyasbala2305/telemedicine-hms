@@ -22,6 +22,9 @@ import com.twilio.Twilio;
 import com.twilio.rest.api.v2010.account.Message;
 import com.twilio.type.PhoneNumber;
 
+import lombok.extern.slf4j.Slf4j;
+
+@Slf4j
 @Service
 public class NotificationService {
 
@@ -70,9 +73,12 @@ public class NotificationService {
             request.setEndpoint("mail/send");
             request.setBody(mail.build());
             Response response = sg.api(request);
-            System.out.println("✅ Email sent: " + response.getStatusCode());
+            log.info(
+            	    "Email notification sent successfully. status={}",
+            	    response.getStatusCode()
+            	);
         } catch (Exception e) {
-            System.err.println("❌ Failed to send email: " + e.getMessage());
+        	log.error("Failed to send email notification", e);
         }
     }
 
@@ -83,7 +89,7 @@ public class NotificationService {
                 new PhoneNumber(twilioConfig.getFromNumber()),
                 content
         ).create();
-        System.out.println("✅ SMS sent: " + message.getSid());
+        log.info("SMS notification sent successfully");
     }
 
 	public List<Notification> getByRecipient(Long recipientId) {

@@ -1,4 +1,4 @@
-package com.hms.authservice.security;
+package com.hms.authservice.security; 
 
 import java.util.List;
 
@@ -18,7 +18,9 @@ import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 @Component
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
@@ -73,7 +75,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             }
 
         } catch (JwtException e) {
-            System.out.println("JWT validation failed: " + e.getMessage());
+        	log.warn("JWT validation failed", e);
         }
 
         filterChain.doFilter(request, response);
