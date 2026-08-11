@@ -5,6 +5,7 @@ import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -19,9 +20,11 @@ import com.hms.doctorservice.dto.DoctorResponseDTO;
 import com.hms.doctorservice.service.DoctorService;
 
 import jakarta.validation.Valid;
+import jakarta.validation.constraints.Pattern;
 
 @RestController
 @RequestMapping("/doctors")
+@Validated
 public class DoctorController {
 
     @Autowired
@@ -46,7 +49,7 @@ public class DoctorController {
     @PutMapping("/{id}")
     public ResponseEntity<ApiResponse<DoctorResponseDTO>> update(
             @PathVariable Long id,
-            @RequestBody DoctorDTO dto) {
+            @Valid @RequestBody DoctorDTO dto) {
 
         DoctorResponseDTO updated =
                 doctorService.update(id, dto);
@@ -121,7 +124,10 @@ public class DoctorController {
     @PutMapping("/{id}/availability")
     public ResponseEntity<ApiResponse<DoctorResponseDTO>> updateAvailability(
             @PathVariable Long id,
-            @RequestBody List<String> availability) {
+            @Valid @RequestBody List<@Pattern(
+                regexp = "^(Monday|Tuesday|Wednesday|Thursday|Friday|Saturday|Sunday)\\s\\d{2}:\\d{2}-\\d{2}:\\d{2}$",
+                message = "Availability must be in format 'Day HH:MM-HH:MM'"
+            ) String> availability) {
 
         DoctorResponseDTO updated =
                 doctorService.updateAvailability(

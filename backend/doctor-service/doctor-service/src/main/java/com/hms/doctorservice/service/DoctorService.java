@@ -13,6 +13,7 @@ import com.hms.doctorservice.dto.DoctorDTO;
 import com.hms.doctorservice.dto.DoctorResponseDTO;
 import com.hms.doctorservice.dto.EmailNotificationDTO;
 import com.hms.doctorservice.dto.RegisterRequest;
+import com.hms.doctorservice.exception.ResourceNotFoundException;
 import com.hms.doctorservice.model.Doctor;
 import com.hms.doctorservice.repository.DoctorRepository;
 
@@ -44,20 +45,26 @@ public class DoctorService {
 
         try {
 
-            RegisterRequest req = new RegisterRequest();
+            RegisterRequest req =
+                    new RegisterRequest();
 
             req.setEmail(dto.getEmail());
             req.setPassword("Temp@123");
             req.setRole("DOCTOR");
             req.setName(dto.getName());
 
-            AuthApiResponse response = authClient.register(req);
+            AuthApiResponse response =
+                    authClient.register(req);
 
-            if (response != null && response.getData() != null) {
+            if (response != null &&
+                    response.getData() != null) {
 
-                AuthResponse authUser = response.getData();
+                AuthResponse authUser =
+                        response.getData();
 
-                doctor.setUserId(authUser.getId());
+                doctor.setUserId(
+                        authUser.getId()
+                );
 
                 log.info(
                     "Auth user created successfully. userId={}, email={}",
@@ -69,18 +76,19 @@ public class DoctorService {
         } catch (Exception e) {
 
             log.warn(
-                    "Auth service failed while registering doctor: {}",
-                    dto.getEmail(),
-                    e
+                "Auth service failed while registering doctor: {}",
+                dto.getEmail(),
+                e
             );
         }
 
-        Doctor saved = doctorRepository.save(doctor);
+        Doctor saved =
+                doctorRepository.save(doctor);
 
         log.info(
-                "Doctor saved successfully. doctorId={}, userId={}",
-                saved.getId(),
-                saved.getUserId()
+            "Doctor saved successfully. doctorId={}, userId={}",
+            saved.getId(),
+            saved.getUserId()
         );
 
         try {
@@ -89,9 +97,11 @@ public class DoctorService {
                     new EmailNotificationDTO();
 
             email.setTo(dto.getEmail());
+
             email.setSubject(
                     "Welcome Dr. " + dto.getName()
             );
+
             email.setBody(
                     "Your doctor profile has been successfully created."
             );
@@ -101,9 +111,9 @@ public class DoctorService {
         } catch (Exception ex) {
 
             log.warn(
-                    "Notification service unavailable for doctor {}: {}",
-                    saved.getId(),
-                    ex.getMessage()
+                "Notification service unavailable for doctor {}: {}",
+                saved.getId(),
+                ex.getMessage()
             );
         }
 
@@ -112,7 +122,8 @@ public class DoctorService {
 
     public List<DoctorResponseDTO> getAll() {
 
-        return doctorRepository.findAll()
+        return doctorRepository
+                .findAll()
                 .stream()
                 .map(this::mapToResponseDTO)
                 .toList();
@@ -122,10 +133,13 @@ public class DoctorService {
             Long id,
             DoctorDTO dto) {
 
-        Doctor doctor = doctorRepository.findById(id)
-                .orElseThrow(() ->
-                        new RuntimeException("Doctor not found")
-                );
+        Doctor doctor =
+                doctorRepository.findById(id)
+                    .orElseThrow(() ->
+                        new ResourceNotFoundException(
+                            "Doctor not found with ID: " + id
+                        )
+                    );
 
         doctor.setName(dto.getName());
         doctor.setEmail(dto.getEmail());
@@ -134,17 +148,27 @@ public class DoctorService {
         doctor.setSpeciality(dto.getSpeciality());
         doctor.setAvailability(dto.getAvailability());
 
-        Doctor saved = doctorRepository.save(doctor);
+        Doctor saved =
+                doctorRepository.save(doctor);
+
+        log.info(
+            "Doctor updated successfully. doctorId={}",
+            saved.getId()
+        );
 
         return mapToResponseDTO(saved);
     }
 
-    public DoctorResponseDTO getDoctorById(Long id) {
+    public DoctorResponseDTO getDoctorById(
+            Long id) {
 
-        Doctor doctor = doctorRepository.findById(id)
-                .orElseThrow(() ->
-                        new RuntimeException("Doctor not found")
-                );
+        Doctor doctor =
+                doctorRepository.findById(id)
+                    .orElseThrow(() ->
+                        new ResourceNotFoundException(
+                            "Doctor not found with ID: " + id
+                        )
+                    );
 
         return mapToResponseDTO(doctor);
     }
@@ -159,12 +183,18 @@ public class DoctorService {
                 .toList();
     }
 
-    public DoctorResponseDTO getByUserId(Long userId) {
+    public DoctorResponseDTO getByUserId(
+            Long userId) {
 
-        Doctor doctor = doctorRepository.findByUserId(userId)
-                .orElseThrow(() ->
-                        new RuntimeException("Doctor not found")
-                );
+        Doctor doctor =
+                doctorRepository
+                    .findByUserId(userId)
+                    .orElseThrow(() ->
+                        new ResourceNotFoundException(
+                            "Doctor not found for user ID: "
+                            + userId
+                        )
+                    );
 
         return mapToResponseDTO(doctor);
     }
@@ -173,14 +203,25 @@ public class DoctorService {
             Long id,
             List<String> newAvailability) {
 
-        Doctor doctor = doctorRepository.findById(id)
-                .orElseThrow(() ->
-                        new RuntimeException("Doctor not found")
-                );
+        Doctor doctor =
+                doctorRepository.findById(id)
+                    .orElseThrow(() ->
+                        new ResourceNotFoundException(
+                            "Doctor not found with ID: " + id
+                        )
+                    );
 
-        doctor.setAvailability(newAvailability);
+        doctor.setAvailability(
+                newAvailability
+        );
 
-        Doctor saved = doctorRepository.save(doctor);
+        Doctor saved =
+                doctorRepository.save(doctor);
+
+        log.info(
+            "Doctor availability updated. doctorId={}",
+            saved.getId()
+        );
 
         return mapToResponseDTO(saved);
     }
@@ -198,7 +239,9 @@ public class DoctorService {
         response.setSpeciality(doctor.getSpeciality());
         response.setQualification(doctor.getQualification());
         response.setUserId(doctor.getUserId());
-        response.setAvailability(doctor.getAvailability());
+        response.setAvailability(
+                doctor.getAvailability()
+        );
 
         return response;
     }
