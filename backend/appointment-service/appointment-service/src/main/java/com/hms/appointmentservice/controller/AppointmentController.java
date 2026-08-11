@@ -23,6 +23,8 @@ import com.hms.appointmentservice.dto.AppointmentDTO;
 import com.hms.appointmentservice.dto.AppointmentResponseDTO;
 import com.hms.appointmentservice.service.AppointmentService;
 
+import jakarta.validation.Valid;
+
 @RestController
 @RequestMapping("/appointments")
 public class AppointmentController {
@@ -32,15 +34,15 @@ public class AppointmentController {
 
     @PostMapping
     public ResponseEntity<ApiResponse<AppointmentResponseDTO>> bookAppointment(
-            @RequestBody AppointmentDTO dto) {
+            @Valid @RequestBody AppointmentDTO dto) {
 
-        AppointmentResponseDTO appointment =
+        AppointmentResponseDTO booked =
                 appointmentService.bookAppointment(dto);
 
         return new ResponseEntity<>(
                 ApiResponse.success(
                         "Appointment booked successfully",
-                        appointment
+                        booked
                 ),
                 HttpStatus.CREATED
         );
@@ -50,13 +52,10 @@ public class AppointmentController {
     public ResponseEntity<ApiResponse<List<AppointmentResponseDTO>>> getByPatient(
             @PathVariable Long patientId) {
 
-        List<AppointmentResponseDTO> appointments =
-                appointmentService.getByPatient(patientId);
-
         return ResponseEntity.ok(
                 ApiResponse.success(
                         "Patient appointments fetched successfully",
-                        appointments
+                        appointmentService.getByPatient(patientId)
                 )
         );
     }
@@ -65,13 +64,10 @@ public class AppointmentController {
     public ResponseEntity<ApiResponse<List<AppointmentResponseDTO>>> getByDoctor(
             @PathVariable Long doctorId) {
 
-        List<AppointmentResponseDTO> appointments =
-                appointmentService.getByDoctor(doctorId);
-
         return ResponseEntity.ok(
                 ApiResponse.success(
                         "Doctor appointments fetched successfully",
-                        appointments
+                        appointmentService.getByDoctor(doctorId)
                 )
         );
     }
@@ -82,16 +78,13 @@ public class AppointmentController {
             @PathVariable Long id,
             @RequestBody Map<String, String> body) {
 
-        AppointmentResponseDTO updated =
-                appointmentService.updateStatus(
-                        id,
-                        body.get("status")
-                );
-
         return ResponseEntity.ok(
                 ApiResponse.success(
                         "Appointment status updated successfully",
-                        updated
+                        appointmentService.updateStatus(
+                                id,
+                                body.get("status")
+                        )
                 )
         );
     }
@@ -108,17 +101,14 @@ public class AppointmentController {
         LocalDateTime endDt =
                 LocalDateTime.parse(end);
 
-        List<AppointmentResponseDTO> appointments =
-                appointmentService.getByDoctorAndRange(
-                        doctorId,
-                        startDt,
-                        endDt
-                );
-
         return ResponseEntity.ok(
                 ApiResponse.success(
-                        "Doctor appointments fetched successfully",
-                        appointments
+                        "Appointments fetched successfully",
+                        appointmentService.getByDoctorAndRange(
+                                doctorId,
+                                startDt,
+                                endDt
+                        )
                 )
         );
     }
@@ -128,16 +118,10 @@ public class AppointmentController {
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size) {
 
-        Page<AppointmentResponseDTO> appointments =
-                appointmentService.getAllPaged(
-                        page,
-                        size
-                );
-
         return ResponseEntity.ok(
                 ApiResponse.success(
                         "Appointments fetched successfully",
-                        appointments
+                        appointmentService.getAllPaged(page, size)
                 )
         );
     }
@@ -147,16 +131,13 @@ public class AppointmentController {
             @PathVariable Long doctorId,
             @RequestParam String date) {
 
-        List<String> slots =
-                appointmentService.getAvailableSlots(
-                        doctorId,
-                        date
-                );
-
         return ResponseEntity.ok(
                 ApiResponse.success(
                         "Available slots fetched successfully",
-                        slots
+                        appointmentService.getAvailableSlots(
+                                doctorId,
+                                date
+                        )
                 )
         );
     }

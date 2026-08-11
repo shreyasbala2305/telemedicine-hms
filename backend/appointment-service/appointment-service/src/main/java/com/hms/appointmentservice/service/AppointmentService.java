@@ -24,7 +24,9 @@ import com.hms.appointmentservice.dto.DoctorDTO;
 import com.hms.appointmentservice.dto.EmailNotificationDTO;
 import com.hms.appointmentservice.dto.MessageNotificationDTO;
 import com.hms.appointmentservice.dto.PatientDTO;
+import com.hms.appointmentservice.exception.AppointmentNotFoundException;
 import com.hms.appointmentservice.exception.ResourceNotFoundException;
+import com.hms.appointmentservice.exception.SlotAlreadyBookedException;
 import com.hms.appointmentservice.model.Appointment;
 import com.hms.appointmentservice.repository.AppointmentRepository;
 
@@ -53,7 +55,7 @@ public class AppointmentService {
         Long doctorId = dto.getDoctorId();
         LocalDateTime dateTime = dto.getDateTime();
 
-        // Validate patient exists
+        // Validate patient
         PatientDTO patient =
                 patientClient.getPatientById(patientId);
 
@@ -63,7 +65,7 @@ public class AppointmentService {
             );
         }
 
-        // Validate doctor exists
+        // Validate doctor
         DoctorDTO doctor =
                 doctorClient.getDoctorById(doctorId);
 
@@ -82,7 +84,7 @@ public class AppointmentService {
                         );
 
         if (conflict) {
-            throw new RuntimeException(
+            throw new SlotAlreadyBookedException(
                     "Slot already booked for this doctor at "
                             + dateTime
             );
@@ -96,26 +98,26 @@ public class AppointmentService {
         appointment.setDateTime(dateTime);
 
         /*
-         * NOTE:
-         * Keeping the existing CONFIRMED behavior for this
-         * standardization commit.
+         * Patient booking starts as PENDING.
          *
-         * Pending -> receptionist confirmation will be fixed
-         * separately after S2-I2.
+         * Receptionist later changes:
+         *
+         * PENDING -> CONFIRMED
          */
         appointment.setStatus(
-                Appointment.Status.CONFIRMED
+                Appointment.Status.PENDING
         );
 
         Appointment saved =
                 appointmentRepository.save(appointment);
 
         log.info(
-                "Appointment created successfully. appointmentId={}, patientId={}, doctorId={}, dateTime={}",
+                "Appointment created successfully. appointmentId={}, patientId={}, doctorId={}, dateTime={}, status={}",
                 saved.getId(),
                 saved.getPatientId(),
                 saved.getDoctorId(),
-                saved.getDateTime()
+                saved.getDateTime(),
+                saved.getStatus()
         );
 
         // Email notification
@@ -123,11 +125,11 @@ public class AppointmentService {
                 new EmailNotificationDTO();
 
         email.setTo(patient.getEmail());
-        email.setSubject("Appointment Booked");
+        email.setSubject("Appointment Request Received");
         email.setBody(
-                "Your appointment with Dr. "
+                "Your appointment request with Dr. "
                         + doctor.getName()
-                        + " is confirmed."
+                        + " has been received and is pending confirmation."
         );
 
         try {
@@ -149,9 +151,9 @@ public class AppointmentService {
 
         message.setPhoneNumber(patient.getContact());
         message.setMessage(
-                "Your appointment with Dr. "
+                "Your appointment request with Dr. "
                         + doctor.getName()
-                        + " is confirmed."
+                        + " is pending confirmation."
         );
 
         try {
@@ -197,10 +199,16 @@ public class AppointmentService {
         Appointment appointment =
                 appointmentRepository.findById(id)
                         .orElseThrow(() ->
-                                new RuntimeException(
-                                        "Appointment not found"
+                                new AppointmentNotFoundException(
+                                        "Appointment not found with ID: " + id
                                 )
                         );
+
+        if (newStatus == null || newStatus.isBlank()) {
+            throw new IllegalArgumentException(
+                    "Appointment status is required"
+            );
+        }
 
         appointment.setStatus(
                 Appointment.Status.valueOf(
@@ -353,15 +361,19 @@ public class AppointmentService {
                 new AppointmentResponseDTO();
 
         response.setId(appointment.getId());
+
         response.setPatientId(
                 appointment.getPatientId()
         );
+
         response.setDoctorId(
                 appointment.getDoctorId()
         );
+
         response.setDateTime(
                 appointment.getDateTime()
         );
+
         response.setStatus(
                 appointment.getStatus()
         );
