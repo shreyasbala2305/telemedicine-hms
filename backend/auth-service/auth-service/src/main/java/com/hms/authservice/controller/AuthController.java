@@ -21,6 +21,8 @@ import com.hms.authservice.dto.RegisterRequest;
 import com.hms.authservice.dto.UserResponseDTO;
 import com.hms.authservice.service.AuthService;
 
+import jakarta.validation.Valid;
+
 @RestController
 @RequestMapping("/auth")
 public class AuthController {
@@ -30,7 +32,7 @@ public class AuthController {
 
     @PostMapping("/register")
     public ResponseEntity<ApiResponse<UserResponseDTO>> register(
-            @RequestBody RegisterRequest request) {
+            @Valid @RequestBody RegisterRequest request) {
 
         UserResponseDTO savedUser =
                 authService.register(request);
@@ -61,7 +63,7 @@ public class AuthController {
 
     @PostMapping("/login")
     public ResponseEntity<ApiResponse<AuthResponse>> login(
-            @RequestBody AuthRequest authRequest) {
+            @Valid @RequestBody AuthRequest authRequest) {
 
         AuthResponse response =
                 authService.login(authRequest);
@@ -85,8 +87,7 @@ public class AuthController {
         return ResponseEntity.ok(
                 ApiResponse.success(
                         "Authentication successful",
-                        "Authenticated as: "
-                                + auth.getName()
+                        "Authenticated as: " + auth.getName()
                 )
         );
     }

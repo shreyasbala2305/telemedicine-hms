@@ -10,7 +10,10 @@ import com.hms.authservice.client.DoctorClient;
 import com.hms.authservice.client.PatientClient;
 import com.hms.authservice.dto.AuthRequest;
 import com.hms.authservice.dto.AuthResponse;
+import com.hms.authservice.dto.RegisterRequest;
 import com.hms.authservice.dto.UserResponseDTO;
+import com.hms.authservice.exception.DuplicateEmailException;
+import com.hms.authservice.exception.InvalidCredentialsException;
 import com.hms.authservice.model.Role;
 import com.hms.authservice.model.User;
 import com.hms.authservice.repository.UserRepository;
@@ -37,23 +40,32 @@ public class AuthService {
     @Autowired
     private JwtUtil jwtUtil;
 
-    public UserResponseDTO register(
-            com.hms.authservice.dto.RegisterRequest request) {
+    public UserResponseDTO register(RegisterRequest request) {
 
-        if (userRepository.findByEmail(request.getEmail()).isPresent()) {
-            throw new RuntimeException("Email already registered");
+        if (userRepository
+                .findByEmail(request.getEmail())
+                .isPresent()) {
+
+            throw new DuplicateEmailException(
+                    "Email already registered"
+            );
         }
 
         User user = new User();
 
         user.setEmail(request.getEmail());
+
         user.setPassword(
-                passwordEncoder.encode(request.getPassword())
+                passwordEncoder.encode(
+                        request.getPassword()
+                )
         );
+
         user.setFullName(request.getName());
         user.setRole(request.getRole());
 
-        User savedUser = userRepository.save(user);
+        User savedUser =
+                userRepository.save(user);
 
         log.info(
                 "User registered successfully. userId={}, email={}, role={}",
@@ -69,19 +81,20 @@ public class AuthService {
             AuthRequest authRequest) {
 
         User user =
-                userRepository.findByEmail(authRequest.email)
+                userRepository
+                        .findByEmail(authRequest.getEmail())
                         .orElseThrow(() ->
-                                new RuntimeException(
-                                        "Invalid credentials"
+                                new InvalidCredentialsException(
+                                        "Invalid email or password"
                                 )
                         );
 
         if (!passwordEncoder.matches(
-                authRequest.password,
+                authRequest.getPassword(),
                 user.getPassword())) {
 
-            throw new RuntimeException(
-                    "Invalid credentials"
+            throw new InvalidCredentialsException(
+                    "Invalid email or password"
             );
         }
 
@@ -111,7 +124,7 @@ public class AuthService {
             String role) {
 
         return userRepository
-                .findByRole(Role.valueOf(role))
+                .findByRole(Role.valueOf(role.toUpperCase()))
                 .stream()
                 .map(this::mapToResponseDTO)
                 .toList();
