@@ -16,6 +16,7 @@ import com.hms.patientservice.dto.NotificationDTO;
 import com.hms.patientservice.dto.PatientDTO;
 import com.hms.patientservice.dto.PatientResponseDTO;
 import com.hms.patientservice.dto.RegisterRequest;
+import com.hms.patientservice.exception.ResourceNotFoundException;
 import com.hms.patientservice.model.Patient;
 import com.hms.patientservice.repository.PatientRepository;
 
@@ -45,6 +46,7 @@ public class PatientService {
         patient.setContact(dto.getContact());
 
         try {
+
             RegisterRequest req = new RegisterRequest();
 
             req.setEmail(dto.getEmail());
@@ -52,13 +54,19 @@ public class PatientService {
             req.setRole("PATIENT");
             req.setName(dto.getName());
 
-            AuthApiResponse response = authClient.register(req);
+            AuthApiResponse response =
+                    authClient.register(req);
 
-            if (response != null && response.getData() != null) {
-                patient.setUserId(response.getData().getId());
+            if (response != null &&
+                    response.getData() != null) {
+
+                patient.setUserId(
+                        response.getData().getId()
+                );
             }
 
         } catch (Exception e) {
+
             log.warn(
                 "Auth service failed while registering patient: {}",
                 dto.getEmail(),
@@ -66,23 +74,37 @@ public class PatientService {
             );
         }
 
-        Patient saved = patientRepository.save(patient);
+        Patient saved =
+                patientRepository.save(patient);
 
         try {
 
-            NotificationDTO notification = new NotificationDTO();
+            NotificationDTO notification =
+                    new NotificationDTO();
 
-            notification.setRecipientId(saved.getId());
-            notification.setRecipientEmail(saved.getEmail());
+            notification.setRecipientId(
+                    saved.getId()
+            );
 
-            String contact = saved.getContact();
+            notification.setRecipientEmail(
+                    saved.getEmail()
+            );
 
-            if (contact != null && !contact.startsWith("+")) {
+            String contact =
+                    saved.getContact();
+
+            if (contact != null &&
+                    !contact.startsWith("+")) {
+
                 contact = "+91" + contact;
             }
 
-            notification.setRecipientContact(contact);
+            notification.setRecipientContact(
+                    contact
+            );
+
             notification.setType("SMS");
+
             notification.setMessage(
                 "Welcome to our Healthcare System, "
                 + saved.getName()
@@ -99,7 +121,8 @@ public class PatientService {
             );
         }
 
-        PatientDTO response = new PatientDTO();
+        PatientDTO response =
+                new PatientDTO();
 
         response.setId(saved.getId());
         response.setUserId(saved.getUserId());
@@ -109,19 +132,31 @@ public class PatientService {
         response.setDob(saved.getDob());
         response.setContact(saved.getContact());
 
+        log.info(
+            "Patient created successfully. patientId={}, email={}",
+            saved.getId(),
+            saved.getEmail()
+        );
+
         return response;
     }
 
     public List<Patient> getAll() {
+
         return patientRepository.findAll();
     }
 
-    public PatientResponseDTO update(Long id, PatientDTO dto) {
+    public PatientResponseDTO update(
+            Long id,
+            PatientDTO dto) {
 
-        Patient patient = patientRepository.findById(id)
-                .orElseThrow(() ->
-                    new RuntimeException("Patient not found")
-                );
+        Patient patient =
+                patientRepository.findById(id)
+                    .orElseThrow(() ->
+                        new ResourceNotFoundException(
+                            "Patient not found with ID: " + id
+                        )
+                    );
 
         patient.setName(dto.getName());
         patient.setEmail(dto.getEmail());
@@ -129,17 +164,27 @@ public class PatientService {
         patient.setDob(dto.getDob());
         patient.setContact(dto.getContact());
 
-        Patient saved = patientRepository.save(patient);
+        Patient saved =
+                patientRepository.save(patient);
+
+        log.info(
+            "Patient updated successfully. patientId={}",
+            saved.getId()
+        );
 
         return mapToResponseDTO(saved);
     }
 
-    public PatientResponseDTO getPatient(Long id) {
+    public PatientResponseDTO getPatient(
+            Long id) {
 
-        Patient patient = patientRepository.findById(id)
-                .orElseThrow(() ->
-                    new RuntimeException("Patient not found")
-                );
+        Patient patient =
+                patientRepository.findById(id)
+                    .orElseThrow(() ->
+                        new ResourceNotFoundException(
+                            "Patient not found with ID: " + id
+                        )
+                    );
 
         return mapToResponseDTO(patient);
     }
@@ -158,7 +203,8 @@ public class PatientService {
 
         Page<Patient> patients;
 
-        if (search != null && !search.isEmpty()) {
+        if (search != null &&
+                !search.trim().isEmpty()) {
 
             patients =
                 patientRepository
@@ -171,18 +217,27 @@ public class PatientService {
         } else {
 
             patients =
-                patientRepository.findAll(pageable);
+                    patientRepository.findAll(
+                        pageable
+                    );
         }
 
-        return patients.map(this::mapToResponseDTO);
+        return patients.map(
+                this::mapToResponseDTO
+        );
     }
 
-    public PatientResponseDTO getByUserId(Long userId) {
+    public PatientResponseDTO getByUserId(
+            Long userId) {
 
         Patient patient =
-            patientRepository.findByUserId(userId)
+            patientRepository
+                .findByUserId(userId)
                 .orElseThrow(() ->
-                    new RuntimeException("Patient not found")
+                    new ResourceNotFoundException(
+                        "Patient not found for user ID: "
+                        + userId
+                    )
                 );
 
         return mapToResponseDTO(patient);
@@ -192,15 +247,27 @@ public class PatientService {
             Patient patient) {
 
         PatientResponseDTO response =
-            new PatientResponseDTO();
+                new PatientResponseDTO();
 
         response.setId(patient.getId());
-        response.setUserId(patient.getUserId());
-        response.setName(patient.getName());
-        response.setEmail(patient.getEmail());
-        response.setContact(patient.getContact());
-        response.setGender(patient.getGender());
-        response.setDob(patient.getDob());
+        response.setUserId(
+                patient.getUserId()
+        );
+        response.setName(
+                patient.getName()
+        );
+        response.setEmail(
+                patient.getEmail()
+        );
+        response.setContact(
+                patient.getContact()
+        );
+        response.setGender(
+                patient.getGender()
+        );
+        response.setDob(
+                patient.getDob()
+        );
 
         return response;
     }

@@ -4,6 +4,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -18,8 +19,11 @@ import com.hms.patientservice.dto.PatientDTO;
 import com.hms.patientservice.dto.PatientResponseDTO;
 import com.hms.patientservice.service.PatientService;
 
+import jakarta.validation.Valid;
+
 @RestController
 @RequestMapping("/patients")
+@Validated
 public class PatientController {
 
     @Autowired
@@ -27,7 +31,7 @@ public class PatientController {
 
     @PostMapping("/register")
     public ResponseEntity<ApiResponse<PatientDTO>> create(
-            @RequestBody PatientDTO dto) {
+            @Valid @RequestBody PatientDTO dto) {
 
         PatientDTO created =
                 patientService.create(dto);
@@ -44,7 +48,7 @@ public class PatientController {
     @PutMapping("/{id}")
     public ResponseEntity<ApiResponse<PatientResponseDTO>> update(
             @PathVariable Long id,
-            @RequestBody PatientDTO dto) {
+            @Valid @RequestBody PatientDTO dto) {
 
         PatientResponseDTO updated =
                 patientService.update(id, dto);
