@@ -3,6 +3,9 @@ package com.hms.doctorservice.controller;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
@@ -12,6 +15,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.hms.doctorservice.common.response.ApiResponse;
@@ -63,10 +67,19 @@ public class DoctorController {
     }
 
     @GetMapping
-    public ResponseEntity<ApiResponse<List<DoctorResponseDTO>>> getAll() {
+    public ResponseEntity<ApiResponse<Page<DoctorResponseDTO>>> getAll(
+            @PageableDefault(
+                    size = 10,
+                    sort = "name"
+            )
+            Pageable pageable,
+            @RequestParam(required = false) String speciality) {
 
-        List<DoctorResponseDTO> doctors =
-                doctorService.getAll();
+        Page<DoctorResponseDTO> doctors =
+                doctorService.getAll(
+                        pageable,
+                        speciality
+                );
 
         return ResponseEntity.ok(
                 ApiResponse.success(
@@ -106,20 +119,20 @@ public class DoctorController {
         );
     }
 
-    @GetMapping("/speciality/{speciality}")
-    public ResponseEntity<ApiResponse<List<DoctorResponseDTO>>> getBySpeciality(
-            @PathVariable String speciality) {
-
-        List<DoctorResponseDTO> doctors =
-                doctorService.getDoctorsBySpeciality(speciality);
-
-        return ResponseEntity.ok(
-                ApiResponse.success(
-                        "Doctors fetched successfully",
-                        doctors
-                )
-        );
-    }
+//    @GetMapping("/speciality/{speciality}")
+//    public ResponseEntity<ApiResponse<List<DoctorResponseDTO>>> getBySpeciality(
+//            @PathVariable String speciality) {
+//
+//        List<DoctorResponseDTO> doctors =
+//                doctorService.getDoctorsBySpeciality(speciality);
+//
+//        return ResponseEntity.ok(
+//                ApiResponse.success(
+//                        "Doctors fetched successfully",
+//                        doctors
+//                )
+//        );
+//    }
 
     @PutMapping("/{id}/availability")
     public ResponseEntity<ApiResponse<DoctorResponseDTO>> updateAvailability(

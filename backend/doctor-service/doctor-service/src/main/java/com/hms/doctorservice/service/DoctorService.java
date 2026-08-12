@@ -3,6 +3,8 @@ package com.hms.doctorservice.service;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import com.hms.doctorservice.client.AuthClient;
@@ -141,23 +143,42 @@ public class DoctorService {
         return mapToResponseDTO(saved);
     }
 
-    public List<DoctorResponseDTO> getAll() {
+    public Page<DoctorResponseDTO> getAll(
+            Pageable pageable,
+            String speciality) {
 
-        log.debug("Fetching all doctors");
-
-        List<DoctorResponseDTO> doctors =
-                doctorRepository
-                        .findAll()
-                        .stream()
-                        .map(this::mapToResponseDTO)
-                        .toList();
-
-        log.info(
-                "Doctors fetched successfully. count={}",
-                doctors.size()
+        log.debug(
+                "Fetching doctors. page={}, size={}, sort={}, speciality={}",
+                pageable.getPageNumber(),
+                pageable.getPageSize(),
+                pageable.getSort(),
+                speciality
         );
 
-        return doctors;
+        Page<Doctor> doctors;
+
+        if (speciality != null && !speciality.trim().isEmpty()) {
+
+            doctors =
+                    doctorRepository.findBySpecialityIgnoreCase(
+                            speciality.trim(),
+                            pageable
+                    );
+
+        } else {
+
+            doctors =
+                    doctorRepository.findAll(pageable);
+        }
+
+        log.info(
+                "Doctors fetched successfully. page={}, size={}, totalElements={}",
+                pageable.getPageNumber(),
+                pageable.getPageSize(),
+                doctors.getTotalElements()
+        );
+
+        return doctors.map(this::mapToResponseDTO);
     }
 
     public DoctorResponseDTO update(
@@ -226,29 +247,29 @@ public class DoctorService {
         return mapToResponseDTO(doctor);
     }
 
-    public List<DoctorResponseDTO> getDoctorsBySpeciality(
-            String speciality) {
-
-        log.debug(
-                "Fetching doctors by speciality. speciality={}",
-                speciality
-        );
-
-        List<DoctorResponseDTO> doctors =
-                doctorRepository
-                        .findBySpeciality(speciality)
-                        .stream()
-                        .map(this::mapToResponseDTO)
-                        .toList();
-
-        log.info(
-                "Doctors fetched by speciality. speciality={}, count={}",
-                speciality,
-                doctors.size()
-        );
-
-        return doctors;
-    }
+//    public List<DoctorResponseDTO> getDoctorsBySpeciality(
+//            String speciality) {
+//
+//        log.debug(
+//                "Fetching doctors by speciality. speciality={}",
+//                speciality
+//        );
+//
+//        List<DoctorResponseDTO> doctors =
+//                doctorRepository
+//                        .findBySpeciality(speciality)
+//                        .stream()
+//                        .map(this::mapToResponseDTO)
+//                        .toList();
+//
+//        log.info(
+//                "Doctors fetched by speciality. speciality={}, count={}",
+//                speciality,
+//                doctors.size()
+//        );
+//
+//        return doctors;
+//    }
 
     public DoctorResponseDTO getByUserId(
             Long userId) {
