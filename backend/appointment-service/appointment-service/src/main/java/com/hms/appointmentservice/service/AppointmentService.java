@@ -11,8 +11,8 @@ import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import com.hms.appointmentservice.client.DoctorClient;
@@ -205,24 +205,58 @@ public class AppointmentService {
         return mapToResponseDTO(saved);
     }
 
-    public List<AppointmentResponseDTO> getByPatient(
-            Long patientId) {
+    public Page<AppointmentResponseDTO> getByPatient(
+            Long patientId,
+            Pageable pageable) {
 
-        return appointmentRepository
-                .findByPatientId(patientId)
-                .stream()
-                .map(this::mapToResponseDTO)
-                .toList();
+        log.debug(
+                "Fetching patient appointments. patientId={}, page={}, size={}, sort={}",
+                patientId,
+                pageable.getPageNumber(),
+                pageable.getPageSize(),
+                pageable.getSort()
+        );
+
+        Page<Appointment> appointments =
+                appointmentRepository.findByPatientId(
+                        patientId,
+                        pageable
+                );
+
+        log.info(
+                "Patient appointments fetched. patientId={}, totalElements={}",
+                patientId,
+                appointments.getTotalElements()
+        );
+
+        return appointments.map(this::mapToResponseDTO);
     }
 
-    public List<AppointmentResponseDTO> getByDoctor(
-            Long doctorId) {
+    public Page<AppointmentResponseDTO> getByDoctor(
+            Long doctorId,
+            Pageable pageable) {
 
-        return appointmentRepository
-                .findByDoctorId(doctorId)
-                .stream()
-                .map(this::mapToResponseDTO)
-                .toList();
+        log.debug(
+                "Fetching doctor appointments. doctorId={}, page={}, size={}, sort={}",
+                doctorId,
+                pageable.getPageNumber(),
+                pageable.getPageSize(),
+                pageable.getSort()
+        );
+
+        Page<Appointment> appointments =
+                appointmentRepository.findByDoctorId(
+                        doctorId,
+                        pageable
+                );
+
+        log.info(
+                "Doctor appointments fetched. doctorId={}, totalElements={}",
+                doctorId,
+                appointments.getTotalElements()
+        );
+
+        return appointments.map(this::mapToResponseDTO);
     }
 
     public AppointmentResponseDTO updateStatus(
@@ -285,15 +319,101 @@ public class AppointmentService {
     }
 
     public Page<AppointmentResponseDTO> getAllPaged(
-            int page,
-            int size) {
+            Pageable pageable,
+            String status,
+            Long patientId,
+            Long doctorId) {
 
-        Pageable pageable =
-                PageRequest.of(page, size);
+        log.debug(
+                "Fetching appointments. page={}, size={}, sort={}, status={}, patientId={}, doctorId={}",
+                pageable.getPageNumber(),
+                pageable.getPageSize(),
+                pageable.getSort(),
+                status,
+                patientId,
+                doctorId
+        );
 
-        return appointmentRepository
-                .findAll(pageable)
-                .map(this::mapToResponseDTO);
+        Page<Appointment> appointments;
+
+        if (status != null && !status.trim().isEmpty()) {
+
+            Appointment.Status appointmentStatus;
+
+            try {
+
+                appointmentStatus =
+                        Appointment.Status.valueOf(
+                                status.trim().toUpperCase()
+                        );
+
+            } catch (IllegalArgumentException ex) {
+
+                throw new IllegalArgumentException(
+                        "Invalid appointment status: " + status
+                );
+            }
+
+            if (patientId != null) {
+
+                appointments =
+                        appointmentRepository
+                                .findByPatientIdAndStatus(
+                                        patientId,
+                                        appointmentStatus,
+                                        pageable
+                                );
+
+            } else if (doctorId != null) {
+
+                appointments =
+                        appointmentRepository
+                                .findByDoctorIdAndStatus(
+                                        doctorId,
+                                        appointmentStatus,
+                                        pageable
+                                );
+
+            } else {
+
+                appointments =
+                        appointmentRepository.findByStatus(
+                                appointmentStatus,
+                                pageable
+                        );
+            }
+
+        } else if (patientId != null) {
+
+            appointments =
+                    appointmentRepository.findByPatientId(
+                            patientId,
+                            pageable
+                    );
+
+        } else if (doctorId != null) {
+
+            appointments =
+                    appointmentRepository.findByDoctorId(
+                            doctorId,
+                            pageable
+                    );
+
+        } else {
+
+            appointments =
+                    appointmentRepository.findAll(pageable);
+        }
+
+        log.info(
+                "Appointments fetched successfully. results={}, totalElements={}",
+                appointments.getNumberOfElements(),
+                appointments.getTotalElements()
+        );
+
+        return appointments.map(
+                this::mapToResponseDTO
+        );
     }
 
     public List<String> getAvailableSlots(

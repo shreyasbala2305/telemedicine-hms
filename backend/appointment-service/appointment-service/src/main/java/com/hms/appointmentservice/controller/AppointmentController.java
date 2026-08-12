@@ -22,6 +22,9 @@ import com.hms.appointmentservice.common.response.ApiResponse;
 import com.hms.appointmentservice.dto.AppointmentDTO;
 import com.hms.appointmentservice.dto.AppointmentResponseDTO;
 import com.hms.appointmentservice.service.AppointmentService;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.web.PageableDefault;
 
 import jakarta.validation.Valid;
 
@@ -49,25 +52,43 @@ public class AppointmentController {
     }
 
     @GetMapping("/patient/{patientId}")
-    public ResponseEntity<ApiResponse<List<AppointmentResponseDTO>>> getByPatient(
-            @PathVariable Long patientId) {
+    public ResponseEntity<ApiResponse<Page<AppointmentResponseDTO>>> getByPatient(
+            @PathVariable Long patientId,
+            @PageableDefault(
+                    size = 10,
+                    sort = "dateTime",
+                    direction = Sort.Direction.DESC
+            )
+            Pageable pageable) {
 
         return ResponseEntity.ok(
                 ApiResponse.success(
                         "Patient appointments fetched successfully",
-                        appointmentService.getByPatient(patientId)
+                        appointmentService.getByPatient(
+                                patientId,
+                                pageable
+                        )
                 )
         );
     }
 
     @GetMapping("/doctor/{doctorId}")
-    public ResponseEntity<ApiResponse<List<AppointmentResponseDTO>>> getByDoctor(
-            @PathVariable Long doctorId) {
+    public ResponseEntity<ApiResponse<Page<AppointmentResponseDTO>>> getByDoctor(
+            @PathVariable Long doctorId,
+            @PageableDefault(
+                    size = 10,
+                    sort = "dateTime",
+                    direction = Sort.Direction.DESC
+            )
+            Pageable pageable) {
 
         return ResponseEntity.ok(
                 ApiResponse.success(
                         "Doctor appointments fetched successfully",
-                        appointmentService.getByDoctor(doctorId)
+                        appointmentService.getByDoctor(
+                                doctorId,
+                                pageable
+                        )
                 )
         );
     }
@@ -115,13 +136,25 @@ public class AppointmentController {
 
     @GetMapping
     public ResponseEntity<ApiResponse<Page<AppointmentResponseDTO>>> getAll(
-            @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "10") int size) {
+            @PageableDefault(
+                    size = 10,
+                    sort = "dateTime",
+                    direction = Sort.Direction.DESC
+            )
+            Pageable pageable,
+            @RequestParam(required = false) String status,
+            @RequestParam(required = false) Long patientId,
+            @RequestParam(required = false) Long doctorId) {
 
         return ResponseEntity.ok(
                 ApiResponse.success(
                         "Appointments fetched successfully",
-                        appointmentService.getAllPaged(page, size)
+                        appointmentService.getAllPaged(
+                                pageable,
+                                status,
+                                patientId,
+                                doctorId
+                        )
                 )
         );
     }
