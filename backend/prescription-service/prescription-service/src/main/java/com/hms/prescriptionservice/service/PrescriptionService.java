@@ -31,10 +31,12 @@ public class PrescriptionService {
     private final NotificationClient notificationClient;
     private final ObjectMapper mapper = new ObjectMapper();
 
-    public PrescriptionService(PrescriptionRepository repo,
-                               PatientClient patientClient,
-                               DoctorClient doctorClient,
-                               NotificationClient notificationClient) {
+    public PrescriptionService(
+            PrescriptionRepository repo,
+            PatientClient patientClient,
+            DoctorClient doctorClient,
+            NotificationClient notificationClient) {
+
         this.repo = repo;
         this.patientClient = patientClient;
         this.doctorClient = doctorClient;
@@ -43,110 +45,374 @@ public class PrescriptionService {
 
     @Transactional
     public PrescriptionDTO create(PrescriptionDTO dto) {
+
+        log.info(
+                "Prescription creation requested. patientId={}, doctorId={}, appointmentId={}",
+                dto.getPatientId(),
+                dto.getDoctorId(),
+                dto.getAppointmentId()
+        );
+
         // Validate patient
-        PatientDTO patient = patientClient.getPatientById(dto.getPatientId());
+        log.debug(
+                "Validating patient through Patient Service. patientId={}",
+                dto.getPatientId()
+        );
+
+        PatientDTO patient =
+                patientClient.getPatientById(
+                        dto.getPatientId()
+                );
+
         if (patient == null) {
-            throw new RuntimeException("Patient not found: " + dto.getPatientId());
+
+            log.warn(
+                    "Prescription creation failed. Patient not found. patientId={}",
+                    dto.getPatientId()
+            );
+
+            throw new RuntimeException(
+                    "Patient not found: " + dto.getPatientId()
+            );
         }
 
         // Validate doctor
-        DoctorDTO doctor = doctorClient.getDoctorById(dto.getDoctorId());
+        log.debug(
+                "Validating doctor through Doctor Service. doctorId={}",
+                dto.getDoctorId()
+        );
+
+        DoctorDTO doctor =
+                doctorClient.getDoctorById(
+                        dto.getDoctorId()
+                );
+
         if (doctor == null) {
-            throw new RuntimeException("Doctor not found: " + dto.getDoctorId());
+
+            log.warn(
+                    "Prescription creation failed. Doctor not found. doctorId={}",
+                    dto.getDoctorId()
+            );
+
+            throw new RuntimeException(
+                    "Doctor not found: " + dto.getDoctorId()
+            );
         }
 
         Prescription entity = new Prescription();
-        entity.setAppointmentId(dto.getAppointmentId());
-        entity.setPatientId(dto.getPatientId());
-        entity.setDoctorId(dto.getDoctorId());
-        entity.setSymptoms(dto.getSymptoms());
-        entity.setDiagnosis(dto.getDiagnosis());
+
+        entity.setAppointmentId(
+                dto.getAppointmentId()
+        );
+
+        entity.setPatientId(
+                dto.getPatientId()
+        );
+
+        entity.setDoctorId(
+                dto.getDoctorId()
+        );
+
+        entity.setSymptoms(
+                dto.getSymptoms()
+        );
+
+        entity.setDiagnosis(
+                dto.getDiagnosis()
+        );
 
         try {
-            entity.setMedicinesJson(mapper.writeValueAsString(dto.getMedicines()));
+
+            entity.setMedicinesJson(
+                    mapper.writeValueAsString(
+                            dto.getMedicines()
+                    )
+            );
+
         } catch (Exception e) {
-            throw new RuntimeException("Failed to serialize medicines", e);
+
+            log.error(
+                    "Failed to serialize prescription medicines. patientId={}, doctorId={}",
+                    dto.getPatientId(),
+                    dto.getDoctorId(),
+                    e
+            );
+
+            throw new RuntimeException(
+                    "Failed to serialize medicines",
+                    e
+            );
         }
 
-        entity.setFollowUpDate(dto.getFollowUpDate());
-        entity.setNotes(dto.getNotes());
+        entity.setFollowUpDate(
+                dto.getFollowUpDate()
+        );
 
-        Prescription saved = repo.save(entity);
+        entity.setNotes(
+                dto.getNotes()
+        );
 
-        // Send notification (EMAIL + SMS via notification-service)
-        sendNotifications(patient, doctor, saved);
+        Prescription saved =
+                repo.save(entity);
+
+        log.info(
+                "Prescription created successfully. prescriptionId={}, patientId={}, doctorId={}",
+                saved.getId(),
+                saved.getPatientId(),
+                saved.getDoctorId()
+        );
+
+        // Send notification
+        sendNotifications(
+                patient,
+                doctor,
+                saved
+        );
 
         return toDto(saved);
     }
 
     public PrescriptionDTO getById(Long id) {
-        Prescription entity = repo.findById(id)
-                .orElseThrow(() -> new RuntimeException("Prescription not found: " + id));
+
+        log.debug(
+                "Fetching prescription. prescriptionId={}",
+                id
+        );
+
+        Prescription entity =
+                repo.findById(id)
+                        .orElseThrow(() -> {
+
+                            log.warn(
+                                    "Prescription not found. prescriptionId={}",
+                                    id
+                            );
+
+                            return new RuntimeException(
+                                    "Prescription not found: " + id
+                            );
+                        });
+
         return toDto(entity);
     }
 
-    public List<PrescriptionDTO> getByPatient(Long patientId) {
-        return repo.findByPatientId(patientId)
-                .stream().map(this::toDto).collect(Collectors.toList());
+    public List<PrescriptionDTO> getByPatient(
+            Long patientId) {
+
+        log.debug(
+                "Fetching prescriptions for patient. patientId={}",
+                patientId
+        );
+
+        List<PrescriptionDTO> prescriptions =
+                repo.findByPatientId(patientId)
+                        .stream()
+                        .map(this::toDto)
+                        .collect(Collectors.toList());
+
+        log.info(
+                "Prescriptions fetched for patient. patientId={}, count={}",
+                patientId,
+                prescriptions.size()
+        );
+
+        return prescriptions;
     }
 
-    public List<PrescriptionDTO> getByDoctor(Long doctorId) {
-        return repo.findByDoctorId(doctorId)
-                .stream().map(this::toDto).collect(Collectors.toList());
+    public List<PrescriptionDTO> getByDoctor(
+            Long doctorId) {
+
+        log.debug(
+                "Fetching prescriptions for doctor. doctorId={}",
+                doctorId
+        );
+
+        List<PrescriptionDTO> prescriptions =
+                repo.findByDoctorId(doctorId)
+                        .stream()
+                        .map(this::toDto)
+                        .collect(Collectors.toList());
+
+        log.info(
+                "Prescriptions fetched for doctor. doctorId={}, count={}",
+                doctorId,
+                prescriptions.size()
+        );
+
+        return prescriptions;
     }
 
-    private PrescriptionDTO toDto(Prescription entity) {
-        PrescriptionDTO dto = new PrescriptionDTO();
+    private PrescriptionDTO toDto(
+            Prescription entity) {
+
+        PrescriptionDTO dto =
+                new PrescriptionDTO();
+
         dto.setId(entity.getId());
-        dto.setAppointmentId(entity.getAppointmentId());
-        dto.setPatientId(entity.getPatientId());
-        dto.setDoctorId(entity.getDoctorId());
-        dto.setSymptoms(entity.getSymptoms());
-        dto.setDiagnosis(entity.getDiagnosis());
-        dto.setFollowUpDate(entity.getFollowUpDate());
-        dto.setNotes(entity.getNotes());
+        dto.setAppointmentId(
+                entity.getAppointmentId()
+        );
+        dto.setPatientId(
+                entity.getPatientId()
+        );
+        dto.setDoctorId(
+                entity.getDoctorId()
+        );
+        dto.setSymptoms(
+                entity.getSymptoms()
+        );
+        dto.setDiagnosis(
+                entity.getDiagnosis()
+        );
+        dto.setFollowUpDate(
+                entity.getFollowUpDate()
+        );
+        dto.setNotes(
+                entity.getNotes()
+        );
 
         try {
-            List<MedicineDTO> meds = mapper.readValue(
-                    entity.getMedicinesJson() == null ? "[]" : entity.getMedicinesJson(),
-                    new TypeReference<List<MedicineDTO>>() {}
-            );
+
+            List<MedicineDTO> meds =
+                    mapper.readValue(
+                            entity.getMedicinesJson() == null
+                                    ? "[]"
+                                    : entity.getMedicinesJson(),
+                            new TypeReference<List<MedicineDTO>>() {}
+                    );
+
             dto.setMedicines(meds);
+
         } catch (Exception e) {
-            dto.setMedicines(List.of());
+
+            log.error(
+                    "Failed to deserialize prescription medicines. prescriptionId={}",
+                    entity.getId(),
+                    e
+            );
+
+            dto.setMedicines(
+                    List.of()
+            );
         }
+
         return dto;
     }
 
-    private void sendNotifications(PatientDTO patient, DoctorDTO doctor, Prescription saved) {
-        NotificationDTO notifyEmail = new NotificationDTO();
-        notifyEmail.setRecipientId(patient.getId());
-        notifyEmail.setRecipientEmail(patient.getEmail());
-        notifyEmail.setRecipientContact(null);
-        notifyEmail.setType("EMAIL");
-        notifyEmail.setMessage("New prescription created by Dr. " +
-                doctor.getName() + ". Login to HMS to view details.");
+    private void sendNotifications(
+            PatientDTO patient,
+            DoctorDTO doctor,
+            Prescription saved) {
+
+        log.debug(
+                "Sending prescription notifications. prescriptionId={}, patientId={}",
+                saved.getId(),
+                patient.getId()
+        );
+
+        // EMAIL
+        NotificationDTO notifyEmail =
+                new NotificationDTO();
+
+        notifyEmail.setRecipientId(
+                patient.getId()
+        );
+
+        notifyEmail.setRecipientEmail(
+                patient.getEmail()
+        );
+
+        notifyEmail.setRecipientContact(
+                null
+        );
+
+        notifyEmail.setType(
+                "EMAIL"
+        );
+
+        notifyEmail.setMessage(
+                "New prescription created by Dr. "
+                + doctor.getName()
+                + ". Login to HMS to view details."
+        );
+
         try {
-            notificationClient.send(notifyEmail);
+
+            notificationClient.send(
+                    notifyEmail
+            );
+
+            log.info(
+                    "Prescription email notification sent successfully. prescriptionId={}, patientId={}",
+                    saved.getId(),
+                    patient.getId()
+            );
+
         } catch (Exception e) {
-        	log.error("Failed to send prescription email notification", e);
+
+            log.error(
+                    "Failed to send prescription email notification. prescriptionId={}, patientId={}",
+                    saved.getId(),
+                    patient.getId(),
+                    e
+            );
         }
 
+        // SMS
         if (patient.getContact() != null) {
-            String contact = patient.getContact();
+
+            String contact =
+                    patient.getContact();
+
             if (!contact.startsWith("+")) {
                 contact = "+91" + contact;
             }
-            NotificationDTO notifySms = new NotificationDTO();
-            notifySms.setRecipientId(patient.getId());
-            notifySms.setRecipientContact(contact);
-            notifySms.setRecipientEmail(null);
-            notifySms.setType("SMS");
-            notifySms.setMessage("New prescription from Dr. " + doctor.getName() + " has been created.");
+
+            NotificationDTO notifySms =
+                    new NotificationDTO();
+
+            notifySms.setRecipientId(
+                    patient.getId()
+            );
+
+            notifySms.setRecipientContact(
+                    contact
+            );
+
+            notifySms.setRecipientEmail(
+                    null
+            );
+
+            notifySms.setType(
+                    "SMS"
+            );
+
+            notifySms.setMessage(
+                    "New prescription from Dr. "
+                    + doctor.getName()
+                    + " has been created."
+            );
+
             try {
-                notificationClient.send(notifySms);
+
+                notificationClient.send(
+                        notifySms
+                );
+
+                log.info(
+                        "Prescription SMS notification sent successfully. prescriptionId={}, patientId={}",
+                        saved.getId(),
+                        patient.getId()
+                );
+
             } catch (Exception e) {
-            	log.error("Failed to send prescription SMS notification", e);
+
+                log.error(
+                        "Failed to send prescription SMS notification. prescriptionId={}, patientId={}",
+                        saved.getId(),
+                        patient.getId(),
+                        e
+                );
             }
         }
     }

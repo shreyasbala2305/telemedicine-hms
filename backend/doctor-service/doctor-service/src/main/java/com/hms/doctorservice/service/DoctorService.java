@@ -34,6 +34,12 @@ public class DoctorService {
 
     public DoctorResponseDTO createDoctor(DoctorDTO dto) {
 
+        log.info(
+                "Doctor registration requested. email={}, speciality={}",
+                dto.getEmail(),
+                dto.getSpeciality()
+        );
+
         Doctor doctor = new Doctor();
 
         doctor.setName(dto.getName());
@@ -42,6 +48,11 @@ public class DoctorService {
         doctor.setSpeciality(dto.getSpeciality());
         doctor.setQualification(dto.getQualification());
         doctor.setAvailability(dto.getAvailability());
+
+        log.debug(
+                "Calling Auth Service to create doctor user. email={}",
+                dto.getEmail()
+        );
 
         try {
 
@@ -67,18 +78,18 @@ public class DoctorService {
                 );
 
                 log.info(
-                    "Auth user created successfully. userId={}, email={}",
-                    authUser.getId(),
-                    authUser.getEmail()
+                        "Auth user created successfully. userId={}, email={}",
+                        authUser.getId(),
+                        authUser.getEmail()
                 );
             }
 
         } catch (Exception e) {
 
             log.warn(
-                "Auth service failed while registering doctor: {}",
-                dto.getEmail(),
-                e
+                    "Auth service failed while registering doctor. email={}",
+                    dto.getEmail(),
+                    e
             );
         }
 
@@ -86,9 +97,14 @@ public class DoctorService {
                 doctorRepository.save(doctor);
 
         log.info(
-            "Doctor saved successfully. doctorId={}, userId={}",
-            saved.getId(),
-            saved.getUserId()
+                "Doctor created successfully. doctorId={}, userId={}",
+                saved.getId(),
+                saved.getUserId()
+        );
+
+        log.debug(
+                "Sending doctor registration notification. doctorId={}",
+                saved.getId()
         );
 
         try {
@@ -108,12 +124,17 @@ public class DoctorService {
 
             notificationClient.sendEmail(email);
 
+            log.info(
+                    "Doctor registration notification sent successfully. doctorId={}",
+                    saved.getId()
+            );
+
         } catch (Exception ex) {
 
             log.warn(
-                "Notification service unavailable for doctor {}: {}",
-                saved.getId(),
-                ex.getMessage()
+                    "Notification service unavailable for doctor. doctorId={}",
+                    saved.getId(),
+                    ex
             );
         }
 
@@ -122,24 +143,45 @@ public class DoctorService {
 
     public List<DoctorResponseDTO> getAll() {
 
-        return doctorRepository
-                .findAll()
-                .stream()
-                .map(this::mapToResponseDTO)
-                .toList();
+        log.debug("Fetching all doctors");
+
+        List<DoctorResponseDTO> doctors =
+                doctorRepository
+                        .findAll()
+                        .stream()
+                        .map(this::mapToResponseDTO)
+                        .toList();
+
+        log.info(
+                "Doctors fetched successfully. count={}",
+                doctors.size()
+        );
+
+        return doctors;
     }
 
     public DoctorResponseDTO update(
             Long id,
             DoctorDTO dto) {
 
+        log.info(
+                "Doctor update requested. doctorId={}",
+                id
+        );
+
         Doctor doctor =
                 doctorRepository.findById(id)
-                    .orElseThrow(() ->
-                        new ResourceNotFoundException(
-                            "Doctor not found with ID: " + id
-                        )
-                    );
+                    .orElseThrow(() -> {
+
+                        log.warn(
+                                "Doctor update failed. Doctor not found. doctorId={}",
+                                id
+                        );
+
+                        return new ResourceNotFoundException(
+                                "Doctor not found with ID: " + id
+                        );
+                    });
 
         doctor.setName(dto.getName());
         doctor.setEmail(dto.getEmail());
@@ -152,8 +194,8 @@ public class DoctorService {
                 doctorRepository.save(doctor);
 
         log.info(
-            "Doctor updated successfully. doctorId={}",
-            saved.getId()
+                "Doctor updated successfully. doctorId={}",
+                saved.getId()
         );
 
         return mapToResponseDTO(saved);
@@ -162,13 +204,24 @@ public class DoctorService {
     public DoctorResponseDTO getDoctorById(
             Long id) {
 
+        log.debug(
+                "Fetching doctor. doctorId={}",
+                id
+        );
+
         Doctor doctor =
                 doctorRepository.findById(id)
-                    .orElseThrow(() ->
-                        new ResourceNotFoundException(
-                            "Doctor not found with ID: " + id
-                        )
-                    );
+                    .orElseThrow(() -> {
+
+                        log.warn(
+                                "Doctor not found. doctorId={}",
+                                id
+                        );
+
+                        return new ResourceNotFoundException(
+                                "Doctor not found with ID: " + id
+                        );
+                    });
 
         return mapToResponseDTO(doctor);
     }
@@ -176,25 +229,50 @@ public class DoctorService {
     public List<DoctorResponseDTO> getDoctorsBySpeciality(
             String speciality) {
 
-        return doctorRepository
-                .findBySpeciality(speciality)
-                .stream()
-                .map(this::mapToResponseDTO)
-                .toList();
+        log.debug(
+                "Fetching doctors by speciality. speciality={}",
+                speciality
+        );
+
+        List<DoctorResponseDTO> doctors =
+                doctorRepository
+                        .findBySpeciality(speciality)
+                        .stream()
+                        .map(this::mapToResponseDTO)
+                        .toList();
+
+        log.info(
+                "Doctors fetched by speciality. speciality={}, count={}",
+                speciality,
+                doctors.size()
+        );
+
+        return doctors;
     }
 
     public DoctorResponseDTO getByUserId(
             Long userId) {
 
+        log.debug(
+                "Fetching doctor by userId. userId={}",
+                userId
+        );
+
         Doctor doctor =
                 doctorRepository
                     .findByUserId(userId)
-                    .orElseThrow(() ->
-                        new ResourceNotFoundException(
-                            "Doctor not found for user ID: "
-                            + userId
-                        )
-                    );
+                    .orElseThrow(() -> {
+
+                        log.warn(
+                                "Doctor not found for userId={}",
+                                userId
+                        );
+
+                        return new ResourceNotFoundException(
+                                "Doctor not found for user ID: "
+                                + userId
+                        );
+                    });
 
         return mapToResponseDTO(doctor);
     }
@@ -203,13 +281,24 @@ public class DoctorService {
             Long id,
             List<String> newAvailability) {
 
+        log.info(
+                "Doctor availability update requested. doctorId={}",
+                id
+        );
+
         Doctor doctor =
                 doctorRepository.findById(id)
-                    .orElseThrow(() ->
-                        new ResourceNotFoundException(
-                            "Doctor not found with ID: " + id
-                        )
-                    );
+                    .orElseThrow(() -> {
+
+                        log.warn(
+                                "Availability update failed. Doctor not found. doctorId={}",
+                                id
+                        );
+
+                        return new ResourceNotFoundException(
+                                "Doctor not found with ID: " + id
+                        );
+                    });
 
         doctor.setAvailability(
                 newAvailability
@@ -219,8 +308,8 @@ public class DoctorService {
                 doctorRepository.save(doctor);
 
         log.info(
-            "Doctor availability updated. doctorId={}",
-            saved.getId()
+                "Doctor availability updated successfully. doctorId={}",
+                saved.getId()
         );
 
         return mapToResponseDTO(saved);

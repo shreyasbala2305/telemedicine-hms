@@ -54,28 +54,55 @@ public class AppointmentService {
         Long patientId = dto.getPatientId();
         Long doctorId = dto.getDoctorId();
         LocalDateTime dateTime = dto.getDateTime();
+        
+        log.info(
+                "Appointment booking requested. patientId={}, doctorId={}, dateTime={}",
+                patientId,
+                doctorId,
+                dateTime
+        );
 
         // Validate patient
         PatientDTO patient =
                 patientClient.getPatientById(patientId);
 
         if (patient == null) {
+        	log.warn(
+                    "Appointment booking rejected. Patient not found. patientId={}",
+                    patientId
+            );
             throw new ResourceNotFoundException(
                     "Patient not found with ID: " + patientId
             );
         }
 
         // Validate doctor
+        log.debug(
+                "Validating doctor. doctorId={}",
+                doctorId
+        );
+        
         DoctorDTO doctor =
                 doctorClient.getDoctorById(doctorId);
 
         if (doctor == null) {
+        	log.warn(
+                    "Appointment booking rejected. Doctor not found. doctorId={}",
+                    doctorId
+            );
+        	
             throw new ResourceNotFoundException(
                     "Doctor not found with ID: " + doctorId
             );
         }
 
         // Prevent double booking
+        log.debug(
+                "Checking appointment slot availability. doctorId={}, dateTime={}",
+                doctorId,
+                dateTime
+        );
+        
         boolean conflict =
                 appointmentRepository
                         .existsByDoctorIdAndDateTime(
@@ -84,6 +111,12 @@ public class AppointmentService {
                         );
 
         if (conflict) {
+        	log.warn(
+                    "Appointment booking rejected because slot is already booked. doctorId={}, dateTime={}",
+                    doctorId,
+                    dateTime
+            );
+        	
             throw new SlotAlreadyBookedException(
                     "Slot already booked for this doctor at "
                             + dateTime
@@ -203,6 +236,13 @@ public class AppointmentService {
                                         "Appointment not found with ID: " + id
                                 )
                         );
+        
+        log.info(
+                "Appointment status change requested. appointmentId={}, currentStatus={}, requestedStatus={}",
+                id,
+                appointment.getStatus(),
+                newStatus
+        );
 
         if (newStatus == null || newStatus.isBlank()) {
             throw new IllegalArgumentException(

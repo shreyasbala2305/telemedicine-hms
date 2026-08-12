@@ -42,9 +42,20 @@ public class AuthService {
 
     public UserResponseDTO register(RegisterRequest request) {
 
+        log.info(
+                "User registration requested. email={}, role={}",
+                request.getEmail(),
+                request.getRole()
+        );
+
         if (userRepository
                 .findByEmail(request.getEmail())
                 .isPresent()) {
+
+            log.warn(
+                    "User registration rejected because email already exists. email={}",
+                    request.getEmail()
+            );
 
             throw new DuplicateEmailException(
                     "Email already registered"
@@ -80,18 +91,34 @@ public class AuthService {
     public AuthResponse login(
             AuthRequest authRequest) {
 
+        log.info(
+                "User login requested. email={}",
+                authRequest.getEmail()
+        );
+
         User user =
                 userRepository
                         .findByEmail(authRequest.getEmail())
-                        .orElseThrow(() ->
-                                new InvalidCredentialsException(
-                                        "Invalid email or password"
-                                )
-                        );
+                        .orElseThrow(() -> {
+
+                            log.warn(
+                                    "Login failed. User not found for email={}",
+                                    authRequest.getEmail()
+                            );
+
+                            return new InvalidCredentialsException(
+                                    "Invalid email or password"
+                            );
+                        });
 
         if (!passwordEncoder.matches(
                 authRequest.getPassword(),
                 user.getPassword())) {
+
+            log.warn(
+                    "Login failed due to invalid credentials. email={}",
+                    authRequest.getEmail()
+            );
 
             throw new InvalidCredentialsException(
                     "Invalid email or password"
@@ -122,6 +149,11 @@ public class AuthService {
 
     public List<UserResponseDTO> getUsersByRole(
             String role) {
+
+        log.debug(
+                "Fetching users by role. role={}",
+                role
+        );
 
         return userRepository
                 .findByRole(Role.valueOf(role.toUpperCase()))
