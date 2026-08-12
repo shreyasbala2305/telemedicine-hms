@@ -4,9 +4,9 @@ import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
+
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
+
 import org.springframework.stereotype.Service;
 
 import com.hms.patientservice.client.AuthClient;
@@ -252,55 +252,54 @@ public class PatientService {
     }
 
     public Page<PatientResponseDTO> getAllPaged(
-            int page,
-            int size,
-            String search) {
+            Pageable pageable,
+            String search,
+            String email) {
 
         log.debug(
-                "Fetching patients. page={}, size={}, searchProvided={}",
-                page,
-                size,
-                search != null && !search.trim().isEmpty()
+                "Fetching patients. page={}, size={}, sort={}, searchProvided={}, emailProvided={}",
+                pageable.getPageNumber(),
+                pageable.getPageSize(),
+                pageable.getSort(),
+                search != null && !search.trim().isEmpty(),
+                email != null && !email.trim().isEmpty()
         );
-
-        Pageable pageable =
-                PageRequest.of(
-                        page,
-                        size,
-                        Sort.by("id").descending()
-                );
 
         Page<Patient> patients;
 
-        if (search != null &&
-                !search.trim().isEmpty()) {
+        if (email != null && !email.trim().isEmpty()) {
+
+            patients =
+                    patientRepository.findByEmailIgnoreCase(
+                            email.trim(),
+                            pageable
+                    );
+
+        } else if (search != null && !search.trim().isEmpty()) {
 
             patients =
                     patientRepository
-                        .findByNameContainingIgnoreCaseOrEmailContainingIgnoreCase(
-                                search,
-                                search,
-                                pageable
-                        );
+                            .findByNameContainingIgnoreCaseOrEmailContainingIgnoreCase(
+                                    search.trim(),
+                                    search.trim(),
+                                    pageable
+                            );
 
         } else {
 
             patients =
-                    patientRepository.findAll(
-                            pageable
-                    );
+                    patientRepository.findAll(pageable);
         }
 
         log.info(
-                "Patient search completed. page={}, size={}, results={}",
-                page,
-                size,
-                patients.getNumberOfElements()
+                "Patients fetched successfully. page={}, size={}, results={}, totalElements={}",
+                pageable.getPageNumber(),
+                pageable.getPageSize(),
+                patients.getNumberOfElements(),
+                patients.getTotalElements()
         );
 
-        return patients.map(
-                this::mapToResponseDTO
-        );
+        return patients.map(this::mapToResponseDTO);
     }
 
     public PatientResponseDTO getByUserId(

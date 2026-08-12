@@ -8,12 +8,20 @@ import org.springframework.data.jpa.repository.JpaRepository;
 
 import com.hms.patientservice.model.Patient;
 
-public interface PatientRepository extends JpaRepository<Patient, Long>{
-	Optional<Patient> findByUserId(Long userId);
-	
-	Page<Patient> findByNameContainingIgnoreCaseOrEmailContainingIgnoreCase(
-		    String name,
-		    String email,
-		    Pageable pageable
-		);
+public interface PatientRepository
+        extends JpaRepository<Patient, Long> {
+
+    Optional<Patient> findByUserId(Long userId);
+
+    Page<Patient>
+    findByNameContainingIgnoreCaseOrEmailContainingIgnoreCase(
+            String name,
+            String email,
+            Pageable pageable
+    );
+
+    Page<Patient> findByEmailIgnoreCase(
+            String email,
+            Pageable pageable
+    );
 }

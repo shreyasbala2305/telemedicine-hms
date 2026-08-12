@@ -2,6 +2,9 @@ package com.hms.patientservice.controller;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
@@ -63,15 +66,20 @@ public class PatientController {
 
     @GetMapping
     public ResponseEntity<ApiResponse<Page<PatientResponseDTO>>> getAll(
-            @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "10") int size,
-            @RequestParam(required = false) String search) {
+            @PageableDefault(
+                    size = 10,
+                    sort = "id",
+                    direction = Sort.Direction.DESC
+            )
+            Pageable pageable,
+            @RequestParam(required = false) String search,
+            @RequestParam(required = false) String email) {
 
         Page<PatientResponseDTO> patients =
                 patientService.getAllPaged(
-                        page,
-                        size,
-                        search
+                        pageable,
+                        search,
+                        email
                 );
 
         return ResponseEntity.ok(
