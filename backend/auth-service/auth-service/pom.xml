@@ -11,7 +11,6 @@
 	<groupId>com.hms</groupId>
 	<artifactId>auth-service</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
-	<packaging>war</packaging>
 	<name>Auth Service</name>
 	<description>Service for managing authentication of user in HMS</description>
 	<url/>

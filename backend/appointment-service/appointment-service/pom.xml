@@ -11,7 +11,6 @@
 	<groupId>com.hms</groupId>
 	<artifactId>appointment-service</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
-	<packaging>war</packaging>
 	<name>Appointment Service</name>
 	<description>Service for managing appointments by patients in HMS</description>
 	<url/>

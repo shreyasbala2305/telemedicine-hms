@@ -11,7 +11,6 @@
 	<groupId>com.hms</groupId>
 	<artifactId>patient-service</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
-	<packaging>war</packaging>
 	<name>Patient Service</name>
 	<description>Service for managing patient records in HMS</description>
 	<url/>
