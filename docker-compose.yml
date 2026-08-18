@@ -7,19 +7,27 @@ services:
   postgres:
     image: postgres:16
     container_name: hms-postgres
+
     environment:
-      POSTGRES_DB: hmsdb
-      POSTGRES_USER: hmsuser
-      POSTGRES_PASSWORD: HmsP@ssw0rd
-    ports:
-      - "5432:5432"
-    volumes:
-      - postgres_data:/var/lib/postgresql/data
+      POSTGRES_DB: ${POSTGRES_DB}
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U hmsuser -d hmsdb"]
+      test:
+        [
+          "CMD-SHELL",
+          "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}"
+        ]
       interval: 10s
       timeout: 5s
       retries: 5
+
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+    ports:
+      - "5432:5432"
 
 
   mongodb:
@@ -34,7 +42,6 @@ services:
       interval: 10s
       timeout: 5s
       retries: 5
-
 
   # ============================================================
   # EUREKA

@@ -56,6 +56,7 @@ nohup.out
 .env.*
 *.env
 **/.env
+!.env.example
 
 # Secret credentials / tokens / keys
 **/secrets.yml
