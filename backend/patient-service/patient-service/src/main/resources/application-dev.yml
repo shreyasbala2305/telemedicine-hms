@@ -1,12 +1,12 @@
 server:
-  port: 8082
+    port: 8082
 
 spring:
   application:
     name: patient-service
 
   datasource:
-    url: jdbc:postgresql://localhost:5432/hmsdb
+    url: jdbc:postgresql://postgres:5432/hmsdb
     username: hmsuser
     password: HmsP@ssw0rd
     driver-class-name: org.postgresql.Driver
@@ -19,6 +19,7 @@ spring:
       hibernate:
         dialect: org.hibernate.dialect.PostgreSQLDialect
         format_sql: true
+
   jackson:
     serialization:
       INDENT_OUTPUT: true
@@ -35,9 +36,13 @@ aws:
     enabled: false
 
 eureka:
+  instance:
+    prefer-ip-address: true
   client:
     service-url:
-      defaultZone: http://localhost:8761/eureka
+      defaultZone: http://eureka-server:8761/eureka/
+    register-with-eureka: true
+    fetch-registry: true
 
 springdoc:
   api-docs:
@@ -46,5 +51,4 @@ springdoc:
     path: /swagger-ui.html
 
 jwt:
-  #  secret: "9vi2a=A2(L!bm#=0tedk%fq1~!u^q+aF"
   secret: "2354da8ebd54655ec06ae826cecaf1d2b7bc377f1c765f12383e95853a3b78d2"
