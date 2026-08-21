@@ -36,6 +36,7 @@ public class AppointmentController {
     private AppointmentService appointmentService;
 
     @PostMapping
+    @PreAuthorize("hasAnyRole('PATIENT', 'RECEPTIONIST', 'ADMIN')")
     public ResponseEntity<ApiResponse<AppointmentResponseDTO>> bookAppointment(
             @Valid @RequestBody AppointmentDTO dto) {
 
@@ -52,6 +53,7 @@ public class AppointmentController {
     }
 
     @GetMapping("/patient/{patientId}")
+    @PreAuthorize("hasAnyRole('PATIENT', 'RECEPTIONIST', 'ADMIN')")
     public ResponseEntity<ApiResponse<Page<AppointmentResponseDTO>>> getByPatient(
             @PathVariable Long patientId,
             @PageableDefault(
@@ -73,6 +75,7 @@ public class AppointmentController {
     }
 
     @GetMapping("/doctor/{doctorId}")
+    @PreAuthorize("hasAnyRole('DOCTOR', 'RECEPTIONIST', 'ADMIN')")
     public ResponseEntity<ApiResponse<Page<AppointmentResponseDTO>>> getByDoctor(
             @PathVariable Long doctorId,
             @PageableDefault(
@@ -111,6 +114,7 @@ public class AppointmentController {
     }
 
     @GetMapping("/doctor/{doctorId}/range")
+    @PreAuthorize("hasAnyRole('DOCTOR', 'RECEPTIONIST', 'ADMIN')")
     public ResponseEntity<ApiResponse<List<AppointmentResponseDTO>>> getByDoctorAndRange(
             @PathVariable Long doctorId,
             @RequestParam("start") String start,
@@ -135,6 +139,7 @@ public class AppointmentController {
     }
 
     @GetMapping
+    @PreAuthorize("hasAnyRole('RECEPTIONIST', 'ADMIN')")
     public ResponseEntity<ApiResponse<Page<AppointmentResponseDTO>>> getAll(
             @PageableDefault(
                     size = 10,
@@ -160,6 +165,7 @@ public class AppointmentController {
     }
 
     @GetMapping("/doctor/{doctorId}/slots")
+    @PreAuthorize("hasAnyRole('PATIENT', 'DOCTOR', 'RECEPTIONIST', 'ADMIN')")
     public ResponseEntity<ApiResponse<List<String>>> getAvailableSlots(
             @PathVariable Long doctorId,
             @RequestParam String date) {

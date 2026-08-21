@@ -4,6 +4,7 @@ import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -25,27 +26,32 @@ public class InventoryController {
 	private InventoryService inventoryService;
 	
 	@PostMapping("/use/{name}/{amount}")
+	@PreAuthorize("hasAnyRole('ADMIN', 'RECEPTIONIST')")
     public ResponseEntity<Void> reduceItem(@PathVariable String name, @PathVariable int amount) {
         inventoryService.reduceStock(name, amount);
         return ResponseEntity.ok().build();
     }
 	
 	@PostMapping
+	@PreAuthorize("hasRole('ADMIN')")
 	public ResponseEntity<InventoryItem> create(@RequestBody InventoryDTO dto){
 		return ResponseEntity.ok(inventoryService.createItem(dto));
 	}
 	
 	@GetMapping
+	@PreAuthorize("hasAnyRole('ADMIN', 'RECEPTIONIST')")
 	public ResponseEntity<List<InventoryItem>> allItems(){
 		return ResponseEntity.ok(inventoryService.getAll());
 	}
 	
 	@GetMapping("/{id}/quantity")
+	@PreAuthorize("hasAnyRole('ADMIN', 'RECEPTIONIST')")
 	public ResponseEntity<InventoryItem> updateQuantity(@PathVariable String id, @RequestParam int quantity){
 		return ResponseEntity.ok(inventoryService.updateQuantity(id, quantity));
 	}
 	
 	@DeleteMapping("/{id}")
+	@PreAuthorize("hasRole('ADMIN')")
 	public ResponseEntity<Void> deleteItem(@PathVariable String id){
 		inventoryService.deleteItem(id);
 		return ResponseEntity.noContent().build();

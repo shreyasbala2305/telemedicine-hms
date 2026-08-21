@@ -16,6 +16,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.security.access.prepost.PreAuthorize;
 
 import com.hms.patientservice.common.response.ApiResponse;
 import com.hms.patientservice.dto.PatientDTO;
@@ -33,6 +34,7 @@ public class PatientController {
     private PatientService patientService;
 
     @PostMapping("/register")
+    @PreAuthorize("hasAnyRole('ADMIN', 'RECEPTIONIST')")
     public ResponseEntity<ApiResponse<PatientDTO>> create(
             @Valid @RequestBody PatientDTO dto) {
 
@@ -49,6 +51,7 @@ public class PatientController {
     }
 
     @PutMapping("/{id}")
+    @PreAuthorize("hasAnyRole('PATIENT', 'ADMIN')")
     public ResponseEntity<ApiResponse<PatientResponseDTO>> update(
             @PathVariable Long id,
             @Valid @RequestBody PatientDTO dto) {
@@ -65,6 +68,7 @@ public class PatientController {
     }
 
     @GetMapping
+    @PreAuthorize("hasAnyRole('RECEPTIONIST', 'ADMIN', 'DOCTOR')")
     public ResponseEntity<ApiResponse<Page<PatientResponseDTO>>> getAll(
             @PageableDefault(
                     size = 10,
@@ -91,6 +95,7 @@ public class PatientController {
     }
 
     @GetMapping("/{id}")
+    @PreAuthorize("hasAnyRole('PATIENT', 'DOCTOR', 'RECEPTIONIST', 'ADMIN')")
     public ResponseEntity<ApiResponse<PatientResponseDTO>> getById(
             @PathVariable Long id) {
 
@@ -106,6 +111,7 @@ public class PatientController {
     }
 
     @GetMapping("/user/{userId}")
+    @PreAuthorize("hasAnyRole('PATIENT', 'DOCTOR', 'RECEPTIONIST', 'ADMIN')")
     public ResponseEntity<ApiResponse<PatientResponseDTO>> getByUserId(
             @PathVariable Long userId) {
 

@@ -4,6 +4,7 @@ import java.util.List;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -26,27 +27,32 @@ public class PrescriptionController {
     }
 
     @PostMapping
+    @PreAuthorize("hasAnyRole('DOCTOR', 'ADMIN')")
     public ResponseEntity<PrescriptionDTO> create(@RequestBody PrescriptionDTO dto) {
         PrescriptionDTO created = service.create(dto);
         return new ResponseEntity<>(created, HttpStatus.CREATED);
     }
 
     @GetMapping("/{id}")
+    @PreAuthorize("hasAnyRole('PATIENT', 'DOCTOR', 'ADMIN')")
     public PrescriptionDTO getById(@PathVariable Long id) {
         return service.getById(id);
     }
 
     @GetMapping("/patient/{patientId}")
+    @PreAuthorize("hasAnyRole('PATIENT', 'DOCTOR', 'ADMIN')")
     public List<PrescriptionDTO> getByPatient(@PathVariable Long patientId) {
         return service.getByPatient(patientId);
     }
 
     @GetMapping("/doctor/{doctorId}")
+    @PreAuthorize("hasAnyRole('DOCTOR', 'ADMIN')")
     public List<PrescriptionDTO> getByDoctor(@PathVariable Long doctorId) {
         return service.getByDoctor(doctorId);
     }
     
     @GetMapping
+    @PreAuthorize("hasAnyRole('DOCTOR', 'ADMIN')")
     public List<PrescriptionDTO> search(
             @RequestParam(required = false) Long patientId,
             @RequestParam(required = false) Long doctorId

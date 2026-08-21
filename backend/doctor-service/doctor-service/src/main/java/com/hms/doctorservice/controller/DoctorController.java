@@ -17,6 +17,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.security.access.prepost.PreAuthorize;
 
 import com.hms.doctorservice.common.response.ApiResponse;
 import com.hms.doctorservice.dto.DoctorDTO;
@@ -35,6 +36,7 @@ public class DoctorController {
     private DoctorService doctorService;
 
     @PostMapping("/register")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<ApiResponse<DoctorResponseDTO>> createDoctor(
             @Valid @RequestBody DoctorDTO dto) {
 
@@ -51,6 +53,7 @@ public class DoctorController {
     }
 
     @PutMapping("/{id}")
+    @PreAuthorize("hasAnyRole('ADMIN', 'DOCTOR')")
     public ResponseEntity<ApiResponse<DoctorResponseDTO>> update(
             @PathVariable Long id,
             @Valid @RequestBody DoctorDTO dto) {
@@ -67,6 +70,7 @@ public class DoctorController {
     }
 
     @GetMapping
+    @PreAuthorize("hasAnyRole('PATIENT', 'DOCTOR', 'RECEPTIONIST', 'ADMIN')")
     public ResponseEntity<ApiResponse<Page<DoctorResponseDTO>>> getAll(
             @PageableDefault(
                     size = 10,
@@ -90,6 +94,7 @@ public class DoctorController {
     }
 
     @GetMapping("/{id}")
+    @PreAuthorize("hasAnyRole('PATIENT', 'DOCTOR', 'RECEPTIONIST', 'ADMIN')")
     public ResponseEntity<ApiResponse<DoctorResponseDTO>> getDoctorById(
             @PathVariable Long id) {
 
@@ -105,6 +110,7 @@ public class DoctorController {
     }
 
     @GetMapping("/user/{userId}")
+    @PreAuthorize("hasAnyRole('DOCTOR', 'ADMIN')")
     public ResponseEntity<ApiResponse<DoctorResponseDTO>> getByUserId(
             @PathVariable Long userId) {
 
@@ -135,6 +141,7 @@ public class DoctorController {
 //    }
 
     @PutMapping("/{id}/availability")
+    @PreAuthorize("hasAnyRole('DOCTOR', 'ADMIN')")
     public ResponseEntity<ApiResponse<DoctorResponseDTO>> updateAvailability(
             @PathVariable Long id,
             @Valid @RequestBody List<@Pattern(

@@ -5,6 +5,7 @@ import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -24,11 +25,13 @@ public class NotificationController {
 	private NotificationService notificationService;
 	
 	@PostMapping
+	@PreAuthorize("hasAnyRole('ADMIN', 'DOCTOR', 'RECEPTIONIST')")
 	public ResponseEntity<Notification> send(@RequestBody NotificationDTO dto){
 		return new ResponseEntity<>(notificationService.send(dto), HttpStatus.CREATED);
 	}
 	
 	@GetMapping("/{recipientId}")
+	@PreAuthorize("hasAnyRole('PATIENT', 'DOCTOR', 'RECEPTIONIST', 'ADMIN')")
 	public List<Notification> getByRecipient(@PathVariable Long recipientId) {
 	    return notificationService.getByRecipient(recipientId);
 	}
