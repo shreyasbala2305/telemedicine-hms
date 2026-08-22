@@ -4,9 +4,10 @@ import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
-
 import org.springframework.data.domain.Pageable;
-
+import org.springframework.security.access.AccessDeniedException;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 import com.hms.patientservice.client.AuthClient;
@@ -197,17 +198,41 @@ public class PatientService {
 
         Patient patient =
                 patientRepository.findById(id)
-                    .orElseThrow(() -> {
+                        .orElseThrow(() -> {
+                            log.warn(
+                                    "Patient update failed. Patient not found. patientId={}",
+                                    id
+                            );
 
-                        log.warn(
-                                "Patient update failed. Patient not found. patientId={}",
-                                id
-                        );
+                            return new ResourceNotFoundException(
+                                    "Patient not found with ID: " + id
+                            );
+                        });
 
-                        return new ResourceNotFoundException(
-                                "Patient not found with ID: " + id
-                        );
-                    });
+        Authentication authentication =
+                SecurityContextHolder
+                        .getContext()
+                        .getAuthentication();
+
+        boolean isPatient = authentication.getAuthorities()
+                .stream()
+                .anyMatch(a ->
+                        a.getAuthority().equals("ROLE_PATIENT")
+                );
+
+        if (isPatient) {
+
+            Long loggedInUserId =
+                    (Long) authentication.getPrincipal();
+
+            if (patient.getUserId() == null ||
+                    !loggedInUserId.equals(patient.getUserId())) {
+
+                throw new AccessDeniedException(
+                        "Patients can only update their own record"
+                );
+            }
+        }
 
         patient.setName(dto.getName());
         patient.setEmail(dto.getEmail());
@@ -237,16 +262,36 @@ public class PatientService {
         Patient patient =
                 patientRepository.findById(id)
                     .orElseThrow(() -> {
-
                         log.warn(
-                                "Patient not found. patientId={}",
-                                id
+                                "Patient not found. patientId={}", id
                         );
 
                         return new ResourceNotFoundException(
                                 "Patient not found with ID: " + id
                         );
                     });
+        Authentication authentication =
+                SecurityContextHolder
+                        .getContext()
+                        .getAuthentication();
+
+        boolean isPatient = authentication.getAuthorities()
+                .stream()
+                .anyMatch(a -> a.getAuthority().equals("ROLE_PATIENT"));
+
+        if (isPatient) {
+
+            Long loggedInUserId =
+                    (Long) authentication.getPrincipal();
+
+            if (patient.getUserId() == null ||
+                    !loggedInUserId.equals(patient.getUserId())) {
+
+                throw new AccessDeniedException(
+                        "Patients can only access their own record"
+                );
+            }
+        }
 
         return mapToResponseDTO(patient);
     }
