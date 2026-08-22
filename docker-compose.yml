@@ -118,6 +118,11 @@ services:
     ports:
       - "8082:8082"
     environment:
+      JWT_SECRET: ${JWT_SECRET}
+      DB_URL: jdbc:postgresql://postgres:5432/${POSTGRES_DB}
+      DB_USERNAME: ${POSTGRES_USER}
+      DB_PASSWORD: ${POSTGRES_PASSWORD}
+      EUREKA_URL: http://eureka-server:8761/eureka/
       SPRING_PROFILES_ACTIVE: dev
     depends_on:
       postgres:
@@ -137,6 +142,12 @@ services:
     container_name: hms-doctor
     ports:
       - "8083:8083"
+    environment:
+      JWT_SECRET: ${JWT_SECRET}
+      DB_URL: jdbc:postgresql://postgres:5432/${POSTGRES_DB}
+      DB_USERNAME: ${POSTGRES_USER}
+      DB_PASSWORD: ${POSTGRES_PASSWORD}
+      EUREKA_URL: http://eureka-server:8761/eureka/
     depends_on:
       postgres:
         condition: service_healthy
