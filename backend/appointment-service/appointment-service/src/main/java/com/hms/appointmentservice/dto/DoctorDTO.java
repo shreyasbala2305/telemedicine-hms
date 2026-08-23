@@ -6,7 +6,8 @@ import lombok.Data;
 
 @Data
 public class DoctorDTO {
-	private Long id;
-	private String name;
-	private List<String> availability;
+    private Long id;
+    private String name;
+    private Long userId;
+    private List<String> availability;
 }

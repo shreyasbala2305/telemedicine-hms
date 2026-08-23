@@ -29,6 +29,7 @@ import com.hms.appointmentservice.exception.ResourceNotFoundException;
 import com.hms.appointmentservice.exception.SlotAlreadyBookedException;
 import com.hms.appointmentservice.model.Appointment;
 import com.hms.appointmentservice.repository.AppointmentRepository;
+import com.hms.appointmentservice.security.SecurityUtils;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -61,6 +62,10 @@ public class AppointmentService {
                 doctorId,
                 dateTime
         );
+        
+        if (SecurityUtils.hasRole("PATIENT")) {
+            validatePatientAccess(dto.getPatientId());
+        }
 
         // Validate patient
         PatientDTO patient =
@@ -209,6 +214,8 @@ public class AppointmentService {
             Long patientId,
             Pageable pageable) {
 
+        validatePatientAccess(patientId);
+
         log.debug(
                 "Fetching patient appointments. patientId={}, page={}, size={}, sort={}",
                 patientId,
@@ -223,18 +230,14 @@ public class AppointmentService {
                         pageable
                 );
 
-        log.info(
-                "Patient appointments fetched. patientId={}, totalElements={}",
-                patientId,
-                appointments.getTotalElements()
-        );
-
         return appointments.map(this::mapToResponseDTO);
     }
 
     public Page<AppointmentResponseDTO> getByDoctor(
             Long doctorId,
             Pageable pageable) {
+
+        validateDoctorAccess(doctorId);
 
         log.debug(
                 "Fetching doctor appointments. doctorId={}, page={}, size={}, sort={}",
@@ -249,12 +252,6 @@ public class AppointmentService {
                         doctorId,
                         pageable
                 );
-
-        log.info(
-                "Doctor appointments fetched. doctorId={}, totalElements={}",
-                doctorId,
-                appointments.getTotalElements()
-        );
 
         return appointments.map(this::mapToResponseDTO);
     }
@@ -306,6 +303,8 @@ public class AppointmentService {
             Long doctorId,
             LocalDateTime start,
             LocalDateTime end) {
+    	
+    	validateDoctorAccess(doctorId);
 
         return appointmentRepository
                 .findByDoctorIdAndDateTimeBetween(
@@ -323,6 +322,14 @@ public class AppointmentService {
             String status,
             Long patientId,
             Long doctorId) {
+    	
+    	if (patientId != null) {
+    	    validatePatientAccess(patientId);
+    	}
+
+    	if (doctorId != null) {
+    	    validateDoctorAccess(doctorId);
+    	}
 
         log.debug(
                 "Fetching appointments. page={}, size={}, sort={}, status={}, patientId={}, doctorId={}",
@@ -512,6 +519,74 @@ public class AppointmentService {
         }
 
         return slots;
+    }
+    
+    private void validatePatientAccess(Long patientId) {
+
+        if (SecurityUtils.hasRole("ADMIN") ||
+                SecurityUtils.hasRole("RECEPTIONIST")) {
+            return;
+        }
+
+        if (!SecurityUtils.hasRole("PATIENT")) {
+            throw new org.springframework.security.access.AccessDeniedException(
+                    "Patients only"
+            );
+        }
+
+        PatientDTO patient =
+                patientClient.getPatientById(patientId);
+
+        if (patient == null) {
+            throw new ResourceNotFoundException(
+                    "Patient not found with ID: " + patientId
+            );
+        }
+
+        Long currentUserId =
+                SecurityUtils.getCurrentUserId();
+
+        if (patient.getUserId() == null ||
+                !patient.getUserId().equals(currentUserId)) {
+
+            throw new org.springframework.security.access.AccessDeniedException(
+                    "Patients can only access their own appointments"
+            );
+        }
+    }
+    
+    private void validateDoctorAccess(Long doctorId) {
+
+        if (SecurityUtils.hasRole("ADMIN") ||
+                SecurityUtils.hasRole("RECEPTIONIST")) {
+            return;
+        }
+
+        if (!SecurityUtils.hasRole("DOCTOR")) {
+            throw new org.springframework.security.access.AccessDeniedException(
+                    "Doctors only"
+            );
+        }
+
+        DoctorDTO doctor =
+                doctorClient.getDoctorById(doctorId);
+
+        if (doctor == null) {
+            throw new ResourceNotFoundException(
+                    "Doctor not found with ID: " + doctorId
+            );
+        }
+
+        Long currentUserId =
+                SecurityUtils.getCurrentUserId();
+
+        if (doctor.getUserId() == null ||
+                !doctor.getUserId().equals(currentUserId)) {
+
+            throw new org.springframework.security.access.AccessDeniedException(
+                    "Doctors can only access their own appointments"
+            );
+        }
     }
 
     private AppointmentResponseDTO mapToResponseDTO(

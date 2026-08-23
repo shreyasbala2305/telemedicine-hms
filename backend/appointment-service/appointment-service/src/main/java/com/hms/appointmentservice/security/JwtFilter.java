@@ -2,7 +2,7 @@ package com.hms.appointmentservice.security;
 
 import java.io.IOException;
 import java.security.Key;
-import java.util.List;
+import java.util.Collections;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
@@ -60,20 +60,25 @@ public class JwtFilter extends OncePerRequestFilter {
                     .getBody();
 
             String username = claims.getSubject();
+            Long userId = claims.get("userId", Long.class);
             String role = claims.get("role", String.class);
 
-            List<SimpleGrantedAuthority> authorities =
-                    List.of(new SimpleGrantedAuthority("ROLE_" + role));
+            if (username == null || userId == null || role == null) {
+                response.setStatus(HttpStatus.UNAUTHORIZED.value());
+                response.getWriter().write("Invalid JWT claims");
+                return;
+            }
 
             UsernamePasswordAuthenticationToken authentication =
                     new UsernamePasswordAuthenticationToken(
-                            username,
+                            userId,
                             null,
-                            authorities
+                            Collections.singletonList(
+                                    new SimpleGrantedAuthority("ROLE_" + role)
+                            )
                     );
 
-            SecurityContextHolder
-                    .getContext()
+            SecurityContextHolder.getContext()
                     .setAuthentication(authentication);
 
             request.setAttribute("claims", claims);

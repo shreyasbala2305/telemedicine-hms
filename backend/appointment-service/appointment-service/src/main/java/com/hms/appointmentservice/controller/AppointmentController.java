@@ -96,7 +96,7 @@ public class AppointmentController {
         );
     }
 
-    @PreAuthorize("hasRole('RECEPTIONIST')")
+    @PreAuthorize("hasAnyRole('RECEPTIONIST', 'ADMIN')")
     @PutMapping("/{id}/status")
     public ResponseEntity<ApiResponse<AppointmentResponseDTO>> updateStatus(
             @PathVariable Long id,
