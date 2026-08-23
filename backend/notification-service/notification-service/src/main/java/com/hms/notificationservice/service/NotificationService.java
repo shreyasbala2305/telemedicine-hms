@@ -4,6 +4,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 
 import com.hms.notificationservice.config.SendGridConfig;
@@ -11,6 +12,7 @@ import com.hms.notificationservice.config.TwilioConfig;
 import com.hms.notificationservice.dto.NotificationDTO;
 import com.hms.notificationservice.model.Notification;
 import com.hms.notificationservice.repository.NotificationRepository;
+import com.hms.notificationservice.security.SecurityUtils;
 import com.sendgrid.Method;
 import com.sendgrid.Request;
 import com.sendgrid.Response;
@@ -222,6 +224,19 @@ public class NotificationService {
 
     public List<Notification> getByRecipient(
             Long recipientId) {
+
+        if (SecurityUtils.hasRole("PATIENT")) {
+
+            Long currentUserId =
+                    SecurityUtils.getCurrentUserId();
+
+            if (!currentUserId.equals(recipientId)) {
+
+                throw new AccessDeniedException(
+                        "Patients can only access their own notifications"
+                );
+            }
+        }
 
         log.debug(
                 "Fetching notifications. recipientId={}",

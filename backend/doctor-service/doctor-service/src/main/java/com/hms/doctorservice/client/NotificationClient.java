@@ -7,8 +7,9 @@ import org.springframework.web.bind.annotation.RequestBody;
 import com.hms.doctorservice.config.FeignConfig;
 import com.hms.doctorservice.dto.EmailNotificationDTO;
 
-@FeignClient(name = "notification-service", url = "http://localhost:8087", configuration = FeignConfig.class)
+@FeignClient(name = "notification-service")
 public interface NotificationClient {
-	@PostMapping("/notifications/email")
-    void sendEmail(@RequestBody EmailNotificationDTO dto);
+
+    @PostMapping("/notifications/email")
+    void sendEmail(@RequestBody EmailNotificationDTO request);
 }

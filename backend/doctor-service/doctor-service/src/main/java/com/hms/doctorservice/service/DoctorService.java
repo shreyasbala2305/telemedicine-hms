@@ -56,57 +56,66 @@ public class DoctorService {
                 dto.getEmail()
         );
 
+        RegisterRequest req = new RegisterRequest();
+
+        req.setEmail(dto.getEmail());
+        req.setPassword("Temp@123");
+        req.setRole("DOCTOR");
+        req.setName(dto.getName());
+
+        AuthApiResponse response;
+
         try {
 
-            RegisterRequest req =
-                    new RegisterRequest();
-
-            req.setEmail(dto.getEmail());
-            req.setPassword("Temp@123");
-            req.setRole("DOCTOR");
-            req.setName(dto.getName());
-
-            AuthApiResponse response =
-                    authClient.register(req);
-
-            if (response != null &&
-                    response.getData() != null) {
-
-                AuthResponse authUser =
-                        response.getData();
-
-                doctor.setUserId(
-                        authUser.getId()
-                );
-
-                log.info(
-                        "Auth user created successfully. userId={}, email={}",
-                        authUser.getId(),
-                        authUser.getEmail()
-                );
-            }
+            response = authClient.register(req);
 
         } catch (Exception e) {
 
-            log.warn(
-                    "Auth service failed while registering doctor. email={}",
+            log.error(
+                    "Auth Service failed while registering doctor. email={}",
                     dto.getEmail(),
                     e
             );
+
+            throw new IllegalStateException(
+                    "Unable to create doctor account. Auth Service registration failed."
+            );
         }
 
-        Doctor saved =
-                doctorRepository.save(doctor);
+        /*
+         * Auth Service must return a valid user.
+         */
+        if (response == null ||
+                !response.isSuccess() ||
+                response.getData() == null ||
+                response.getData().getId() == null) {
+
+            log.error(
+                    "Auth Service returned invalid response while registering doctor. email={}",
+                    dto.getEmail()
+            );
+
+            throw new IllegalStateException(
+                    "Unable to create doctor account. Invalid Auth Service response."
+            );
+        }
+
+        AuthResponse authUser = response.getData();
+
+        doctor.setUserId(authUser.getId());
+
+        log.info(
+                "Auth user created successfully. userId={}, email={}",
+                authUser.getId(),
+                authUser.getEmail()
+        );
+
+        Doctor saved = doctorRepository.save(doctor);
 
         log.info(
                 "Doctor created successfully. doctorId={}, userId={}",
                 saved.getId(),
                 saved.getUserId()
-        );
-
-        log.debug(
-                "Sending doctor registration notification. doctorId={}",
-                saved.getId()
         );
 
         try {
