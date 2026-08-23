@@ -30,8 +30,9 @@ public class SecurityConfig {
         http
                 .csrf(csrf -> csrf.disable()) // ✅ disable CSRF for non-browser clients
                 .authorizeHttpRequests(auth -> auth
-                                .requestMatchers("/auth/register", "/auth/login", "/auth/test").permitAll() // allow register/login
-                                .anyRequest().authenticated()
+                		.requestMatchers("/auth/register", "/auth/login")
+                		.permitAll()
+                		.anyRequest().authenticated()
                 ).addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
         return http.build();
     }
