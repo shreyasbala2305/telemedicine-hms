@@ -18,6 +18,7 @@ import com.hms.prescriptionservice.dto.PatientDTO;
 import com.hms.prescriptionservice.dto.PrescriptionDTO;
 import com.hms.prescriptionservice.model.Prescription;
 import com.hms.prescriptionservice.respository.PrescriptionRepository;
+import com.hms.prescriptionservice.security.SecurityUtils;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -81,6 +82,12 @@ public class PrescriptionService {
                 "Validating doctor through Doctor Service. doctorId={}",
                 dto.getDoctorId()
         );
+        
+        String role =
+                SecurityUtils.getCurrentRole();
+
+        Long currentUserId =
+                SecurityUtils.getCurrentUserId();
 
         DoctorDTO doctor =
                 doctorClient.getDoctorById(
@@ -97,6 +104,17 @@ public class PrescriptionService {
             throw new RuntimeException(
                     "Doctor not found: " + dto.getDoctorId()
             );
+        }
+        
+        if ("ROLE_DOCTOR".equals(role)) {
+
+            if (doctor.getUserId() == null
+                    || !doctor.getUserId().equals(currentUserId)) {
+
+                throw new org.springframework.security.access.AccessDeniedException(
+                        "Doctors can only create prescriptions for themselves"
+                );
+            }
         }
 
         Prescription entity = new Prescription();
@@ -181,17 +199,12 @@ public class PrescriptionService {
 
         Prescription entity =
                 repo.findById(id)
-                        .orElseThrow(() -> {
+                        .orElseThrow(() ->
+                                new RuntimeException(
+                                        "Prescription not found: " + id
+                                ));
 
-                            log.warn(
-                                    "Prescription not found. prescriptionId={}",
-                                    id
-                            );
-
-                            return new RuntimeException(
-                                    "Prescription not found: " + id
-                            );
-                        });
+        authorizePrescriptionAccess(entity);
 
         return toDto(entity);
     }
@@ -204,19 +217,36 @@ public class PrescriptionService {
                 patientId
         );
 
-        List<PrescriptionDTO> prescriptions =
-                repo.findByPatientId(patientId)
-                        .stream()
-                        .map(this::toDto)
-                        .collect(Collectors.toList());
+        String role =
+                SecurityUtils.getCurrentRole();
 
-        log.info(
-                "Prescriptions fetched for patient. patientId={}, count={}",
-                patientId,
-                prescriptions.size()
-        );
+        Long currentUserId =
+                SecurityUtils.getCurrentUserId();
 
-        return prescriptions;
+        if ("ROLE_PATIENT".equals(role)) {
+
+            PatientDTO patient =
+                    patientClient.getPatientById(patientId);
+            
+            if (patient == null) {
+                throw new RuntimeException(
+                        "Patient not found: " + patientId
+                );
+            }
+
+            if (patient.getUserId() == null
+                    || !patient.getUserId().equals(currentUserId)) {
+
+                throw new org.springframework.security.access.AccessDeniedException(
+                        "Patients can only access their own prescriptions"
+                );
+            }
+        }
+
+        return repo.findByPatientId(patientId)
+                .stream()
+                .map(this::toDto)
+                .collect(Collectors.toList());
     }
 
     public List<PrescriptionDTO> getByDoctor(
@@ -227,19 +257,90 @@ public class PrescriptionService {
                 doctorId
         );
 
-        List<PrescriptionDTO> prescriptions =
-                repo.findByDoctorId(doctorId)
-                        .stream()
-                        .map(this::toDto)
-                        .collect(Collectors.toList());
+        String role =
+                SecurityUtils.getCurrentRole();
 
-        log.info(
-                "Prescriptions fetched for doctor. doctorId={}, count={}",
-                doctorId,
-                prescriptions.size()
+        Long currentUserId =
+                SecurityUtils.getCurrentUserId();
+
+        if ("ROLE_DOCTOR".equals(role)) {
+
+            DoctorDTO doctor =
+                    doctorClient.getDoctorById(doctorId);
+            
+            if (doctor == null) {
+                throw new RuntimeException(
+                        "Doctor not found: " + doctorId
+                );
+            }
+
+            if (doctor.getUserId() == null
+                    || !doctor.getUserId().equals(currentUserId)) {
+
+                throw new org.springframework.security.access.AccessDeniedException(
+                        "Doctors can only access their own prescriptions"
+                );
+            }
+        }
+
+        return repo.findByDoctorId(doctorId)
+                .stream()
+                .map(this::toDto)
+                .collect(Collectors.toList());
+    }
+    
+    private void authorizePrescriptionAccess(
+            Prescription prescription) {
+
+        String role =
+                SecurityUtils.getCurrentRole();
+
+        Long currentUserId =
+                SecurityUtils.getCurrentUserId();
+
+        if ("ROLE_ADMIN".equals(role)) {
+            return;
+        }
+
+        if ("ROLE_PATIENT".equals(role)) {
+
+            PatientDTO patient =
+                    patientClient.getPatientById(
+                            prescription.getPatientId()
+                    );
+
+            if (patient.getUserId() == null
+                    || !patient.getUserId().equals(currentUserId)) {
+
+                throw new org.springframework.security.access.AccessDeniedException(
+                        "Patients can only access their own prescriptions"
+                );
+            }
+
+            return;
+        }
+
+        if ("ROLE_DOCTOR".equals(role)) {
+
+            DoctorDTO doctor =
+                    doctorClient.getDoctorById(
+                            prescription.getDoctorId()
+                    );
+
+            if (doctor.getUserId() == null
+                    || !doctor.getUserId().equals(currentUserId)) {
+
+                throw new org.springframework.security.access.AccessDeniedException(
+                        "Doctors can only access their own prescriptions"
+                );
+            }
+
+            return;
+        }
+
+        throw new org.springframework.security.access.AccessDeniedException(
+                "Access denied"
         );
-
-        return prescriptions;
     }
 
     private PrescriptionDTO toDto(
