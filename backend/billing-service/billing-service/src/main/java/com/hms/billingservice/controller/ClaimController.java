@@ -17,12 +17,17 @@ import com.hms.billingservice.service.InsuranceClaimService;
 @RequestMapping("/claims")
 public class ClaimController {
 
-	@Autowired
-	private InsuranceClaimService insureanClaimService;
-	
-	@PostMapping
-	@PreAuthorize("hasAnyRole('PATIENT', 'RECEPTIONIST', 'ADMIN')")
-	public ResponseEntity<InsuranceClaim> submit(@RequestBody InsuranceClaimDTO dto){
-		return new ResponseEntity<>(insureanClaimService.submitClaim(dto), HttpStatus.CREATED);
-	}
+    @Autowired
+    private InsuranceClaimService insuranceClaimService;
+
+    @PostMapping
+    @PreAuthorize("hasAnyRole('PATIENT', 'RECEPTIONIST', 'ADMIN')")
+    public ResponseEntity<InsuranceClaim> submit(
+            @RequestBody InsuranceClaimDTO dto) {
+
+        return new ResponseEntity<>(
+                insuranceClaimService.submitClaim(dto),
+                HttpStatus.CREATED
+        );
+    }
 }

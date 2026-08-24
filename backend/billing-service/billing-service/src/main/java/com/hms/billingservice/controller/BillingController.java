@@ -20,19 +20,28 @@ import com.hms.billingservice.service.BillingService;
 @RestController
 @RequestMapping("/bills")
 public class BillingController {
-	
-	@Autowired
-	private BillingService billingService;
-	
-	@PostMapping
-	@PreAuthorize("hasAnyRole('RECEPTIONIST', 'ADMIN')")
-	public ResponseEntity<Invoice> create(@RequestBody InvoiceDTO dto){
-		return new ResponseEntity<>(billingService.generateInvoice(dto), HttpStatus.CREATED);
-	}
-	
-	@GetMapping("/{patientId}")
-	@PreAuthorize("hasAnyRole('PATIENT', 'RECEPTIONIST', 'ADMIN')")
-	public ResponseEntity<List<Invoice>> getByPatient(@PathVariable Long patientId){
-		return ResponseEntity.ok(billingService.getInvoiceByPatient(patientId));
-	}
+
+    @Autowired
+    private BillingService billingService;
+
+    @PostMapping
+    @PreAuthorize("hasAnyRole('RECEPTIONIST', 'ADMIN')")
+    public ResponseEntity<Invoice> create(
+            @RequestBody InvoiceDTO dto) {
+
+        return new ResponseEntity<>(
+                billingService.generateInvoice(dto),
+                HttpStatus.CREATED
+        );
+    }
+
+    @GetMapping("/{patientId}")
+    @PreAuthorize("hasAnyRole('PATIENT', 'RECEPTIONIST', 'ADMIN')")
+    public ResponseEntity<List<Invoice>> getByPatient(
+            @PathVariable Long patientId) {
+
+        return ResponseEntity.ok(
+                billingService.getInvoiceByPatient(patientId)
+        );
+    }
 }
