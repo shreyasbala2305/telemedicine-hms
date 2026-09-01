@@ -1,5 +1,10 @@
 package com.hms.aiintelligence.service;
 
+import java.util.ArrayList;
+import java.util.List;
+
+import org.springframework.stereotype.Service;
+
 import com.hms.aiintelligence.dto.CareGapDTO;
 import com.hms.aiintelligence.dto.HealthScoreDTO;
 import com.hms.aiintelligence.dto.HealthScoreFactorDTO;
@@ -9,11 +14,6 @@ import com.hms.aiintelligence.dto.PatientHealthContextDTO;
 
 import lombok.extern.slf4j.Slf4j;
 
-import org.springframework.stereotype.Service;
-
-import java.util.ArrayList;
-import java.util.List;
-
 @Slf4j
 @Service
 public class HealthScoreService {
@@ -21,12 +21,15 @@ public class HealthScoreService {
     private final HealthProfileAnalyzer analyzer;
     private final HealthTimelineService timelineService;
     private final TemporalHealthAnalyzer temporalAnalyzer;
+    private final PatientContextService patientContextService;
 
     public HealthScoreService(
             HealthProfileAnalyzer analyzer,
             HealthTimelineService timelineService,
-            TemporalHealthAnalyzer temporalAnalyzer) {
+            TemporalHealthAnalyzer temporalAnalyzer,
+            PatientContextService patientContextService) {
 
+    	this.patientContextService = patientContextService;
         this.analyzer = analyzer;
         this.timelineService = timelineService;
         this.temporalAnalyzer = temporalAnalyzer;
@@ -35,10 +38,18 @@ public class HealthScoreService {
     public HealthScoreDTO calculateScore(
             Long patientId) {
 
-        throw new UnsupportedOperationException(
-                "Use calculateScore(PatientHealthContextDTO) "
-                        + "to avoid rebuilding patient context."
-        );
+        if (patientId == null || patientId <= 0) {
+
+            throw new IllegalArgumentException(
+                    "Patient ID must be a positive value"
+            );
+        }
+
+        PatientHealthContextDTO context =
+                patientContextService
+                        .buildPatientContext(patientId);
+
+        return calculateScore(context);
     }
 
     public HealthScoreDTO calculateScore(

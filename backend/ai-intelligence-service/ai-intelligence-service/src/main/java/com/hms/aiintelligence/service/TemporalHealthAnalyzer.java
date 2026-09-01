@@ -21,6 +21,13 @@ public class TemporalHealthAnalyzer {
     public List<HealthTrendDTO> analyze(
             HealthTimelineDTO timeline) {
 
+        if (timeline == null
+                || timeline.getEvents() == null
+                || timeline.getEvents().isEmpty()) {
+
+            return List.of();
+        }
+
         Map<String, Integer> diagnosisFrequency =
                 new HashMap<>();
 
@@ -30,7 +37,10 @@ public class TemporalHealthAnalyzer {
         for (HealthTimelineEventDTO event :
                 timeline.getEvents()) {
 
-            if (event.getDiagnoses() == null) {
+            if (event == null
+                    || event.getTimestamp() == null
+                    || event.getDiagnoses() == null) {
+
                 continue;
             }
 
@@ -39,12 +49,12 @@ public class TemporalHealthAnalyzer {
 
                 if (diagnosis == null
                         || diagnosis.isBlank()) {
+
                     continue;
                 }
 
                 String normalized =
-                        diagnosis.trim()
-                                .toLowerCase();
+                        normalize(diagnosis);
 
                 diagnosisFrequency.merge(
                         normalized,
@@ -90,13 +100,13 @@ public class TemporalHealthAnalyzer {
 
                     long daysSince =
                             latest == null
-                                    || latest.equals(
-                                            LocalDateTime.MIN
-                                    )
                                     ? -1
-                                    : ChronoUnit.DAYS.between(
-                                            latest,
-                                            LocalDateTime.now()
+                                    : Math.max(
+                                            0,
+                                            ChronoUnit.DAYS.between(
+                                                    latest,
+                                                    LocalDateTime.now()
+                                            )
                                     );
 
                     HealthTrendDTO trend =
@@ -108,8 +118,8 @@ public class TemporalHealthAnalyzer {
 
                     trend.setDescription(
                             "The clinical pattern '" +
-                            diagnosis +
-                            "' has appeared repeatedly in the patient's recorded history."
+                                    diagnosis +
+                                    "' has appeared repeatedly in the patient's recorded history."
                     );
 
                     trend.setOccurrenceCount(
@@ -126,9 +136,10 @@ public class TemporalHealthAnalyzer {
                     trend.setEvidence(
                             List.of(
                                     "Occurrences: " +
-                                    frequency,
+                                            frequency,
+
                                     "Days since latest recorded occurrence: " +
-                                    daysSince
+                                            daysSince
                             )
                     );
 
@@ -154,5 +165,13 @@ public class TemporalHealthAnalyzer {
         }
 
         return "LOW";
+    }
+
+    private String normalize(
+            String value) {
+
+        return value
+                .trim()
+                .toLowerCase();
     }
 }

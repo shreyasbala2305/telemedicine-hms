@@ -1,10 +1,10 @@
 package com.hms.aiintelligence.service;
 
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Objects;
 
 import org.springframework.stereotype.Service;
 
@@ -84,9 +84,7 @@ public class HealthTimelineService {
         HealthTimelineDTO timeline =
                 new HealthTimelineDTO();
 
-        timeline.setPatientId(
-                patientId
-        );
+        timeline.setPatientId(patientId);
 
         timeline.setPatientName(
                 context.getPatient().getName()
@@ -106,18 +104,14 @@ public class HealthTimelineService {
             HealthTimelineEventDTO last =
                     events.get(events.size() - 1);
 
-            if (first.getTimestamp() != null
-                    && !first.getTimestamp()
-                    .equals(LocalDateTime.MIN)) {
+            if (isValidTimestamp(first.getTimestamp())) {
 
                 timeline.setEarliestEvent(
                         first.getTimestamp().toString()
                 );
             }
 
-            if (last.getTimestamp() != null
-                    && !last.getTimestamp()
-                    .equals(LocalDateTime.MIN)) {
+            if (isValidTimestamp(last.getTimestamp())) {
 
                 timeline.setLatestEvent(
                         last.getTimestamp().toString()
@@ -147,9 +141,7 @@ public class HealthTimelineService {
                     new HealthTimelineEventDTO();
 
             event.setTimestamp(
-                    resolveAppointmentTimestamp(
-                            appointment
-                    )
+                    appointment.getDateTime()
             );
 
             event.setEventType(
@@ -166,9 +158,17 @@ public class HealthTimelineService {
                     )
             );
 
-            event.setSymptoms(List.of());
-            event.setDiagnoses(List.of());
-            event.setMedications(List.of());
+            event.setSymptoms(
+                    List.of()
+            );
+
+            event.setDiagnoses(
+                    List.of()
+            );
+
+            event.setMedications(
+                    List.of()
+            );
 
             event.setAppointmentId(
                     appointment.getId()
@@ -196,9 +196,19 @@ public class HealthTimelineService {
             HealthTimelineEventDTO event =
                     new HealthTimelineEventDTO();
 
+            /*
+             * PrescriptionDTO currently does not expose
+             * createdAt/issuedAt.
+             *
+             * Therefore we use the appointment timestamp
+             * associated with the prescription instead of
+             * incorrectly treating followUpDate as the
+             * clinical event timestamp.
+             */
             event.setTimestamp(
                     resolvePrescriptionTimestamp(
-                            prescription
+                            prescription,
+                            context
                     )
             );
 
@@ -246,47 +256,40 @@ public class HealthTimelineService {
         }
     }
 
-    private LocalDateTime resolveAppointmentTimestamp(
-            AppointmentDTO appointment) {
+    private LocalDateTime resolvePrescriptionTimestamp(
+            PrescriptionDTO prescription,
+            PatientHealthContextDTO context) {
 
-        if (appointment.getDateTime() != null) {
-            return appointment.getDateTime();
+        if (prescription.getAppointmentId() == null
+                || context.getAppointments() == null) {
+
+            return null;
         }
 
-        return LocalDateTime.MIN;
+        return context.getAppointments()
+                .stream()
+                .filter(Objects::nonNull)
+                .filter(
+                        appointment ->
+                                prescription
+                                        .getAppointmentId()
+                                        .equals(
+                                                appointment.getId()
+                                        )
+                )
+                .map(AppointmentDTO::getDateTime)
+                .filter(Objects::nonNull)
+                .findFirst()
+                .orElse(null);
     }
 
-    private LocalDateTime resolvePrescriptionTimestamp(
-            PrescriptionDTO prescription) {
+    private boolean isValidTimestamp(
+            LocalDateTime timestamp) {
 
-        /*
-         * Prescription service currently exposes followUpDate
-         * rather than createdAt.
-         *
-         * This is a temporary temporal fallback.
-         */
-        if (prescription.getFollowUpDate() != null
-                && !prescription.getFollowUpDate().isBlank()) {
-
-            try {
-
-                LocalDate date =
-                        LocalDate.parse(
-                                prescription.getFollowUpDate()
-                        );
-
-                return date.atStartOfDay();
-
-            } catch (Exception ignored) {
-
-                log.debug(
-                        "Unable to parse prescription follow-up date: {}",
-                        prescription.getFollowUpDate()
+        return timestamp != null
+                && !timestamp.equals(
+                        LocalDateTime.MIN
                 );
-            }
-        }
-
-        return LocalDateTime.MIN;
     }
 
     private String buildAppointmentDescription(
@@ -295,7 +298,9 @@ public class HealthTimelineService {
         String status =
                 appointment.getStatus();
 
-        if (status == null || status.isBlank()) {
+        if (status == null
+                || status.isBlank()) {
+
             status = "UNKNOWN";
         }
 
@@ -348,13 +353,14 @@ public class HealthTimelineService {
 
         return prescription.getMedicines()
                 .stream()
-                .filter(java.util.Objects::nonNull)
+                .filter(Objects::nonNull)
                 .map(MedicineDTO::getName)
                 .filter(
                         name ->
                                 name != null
                                         && !name.isBlank()
                 )
+                .map(String::trim)
                 .distinct()
                 .toList();
     }
@@ -368,6 +374,6 @@ public class HealthTimelineService {
             return List.of();
         }
 
-        return List.of(value);
+        return List.of(value.trim());
     }
 }

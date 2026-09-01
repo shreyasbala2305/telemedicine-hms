@@ -35,9 +35,7 @@ public class AIIntelligenceController {
     
     private final DoctorHealthBriefService doctorHealthBriefService;
     
-    private final PredictionService predictionService;
-    
-    private final FeatureEngineeringService featureEngineeringService;
+    private final PredictionService predictionService;    
 
     public AIIntelligenceController(
             PatientContextService patientContextService,
@@ -45,7 +43,6 @@ public class AIIntelligenceController {
             DoctorHealthBriefService doctorHealthBriefService,
             HealthTimelineService healthTimelineService,
             HealthScoreService healthScoreService,
-            FeatureEngineeringService featureEngineeringService,
             PredictionService predictionService) {
         this.patientContextService = patientContextService;
         this.healthIntelligenceService = healthIntelligenceService;
@@ -53,7 +50,6 @@ public class AIIntelligenceController {
         this.healthTimelineService = healthTimelineService;
         this.healthScoreService = healthScoreService;
         this.predictionService = predictionService;
-        this.featureEngineeringService = featureEngineeringService;
     }
 
     @GetMapping("/patients/{patientId}/context")

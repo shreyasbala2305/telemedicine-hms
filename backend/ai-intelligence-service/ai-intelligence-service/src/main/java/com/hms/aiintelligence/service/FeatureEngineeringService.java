@@ -33,8 +33,12 @@ public class FeatureEngineeringService {
             TemporalHealthAnalyzer temporalAnalyzer) {
 
         this.analyzer = analyzer;
-        this.timelineService = timelineService;
-        this.temporalAnalyzer = temporalAnalyzer;
+
+        this.timelineService =
+                timelineService;
+
+        this.temporalAnalyzer =
+                temporalAnalyzer;
     }
 
     public PatientFeatureVectorDTO buildFeatures(
@@ -80,9 +84,6 @@ public class FeatureEngineeringService {
                         context
                 );
 
-        /*
-         * Temporal analysis remains a separate signal.
-         */
         List<HealthTrendDTO> temporalTrends =
                 temporalAnalyzer.analyze(
                         timeline
@@ -116,7 +117,9 @@ public class FeatureEngineeringService {
         );
 
         features.setUniqueDiagnoses(
-                countUniqueDiagnoses(timeline)
+                countUniqueDiagnoses(
+                        timeline
+                )
         );
 
         features.setRecurringDiagnosisCount(
@@ -152,7 +155,9 @@ public class FeatureEngineeringService {
         );
 
         features.setRecentClinicalEvents(
-                countRecentEvents(timeline)
+                countRecentEvents(
+                        timeline
+                )
         );
 
         features.setRecentPrescriptions(
@@ -193,21 +198,20 @@ public class FeatureEngineeringService {
         features.setCareGapRate(
                 calculateRatio(
                         careGaps.size(),
-                        Math.max(
-                                1,
-                                context.getTotalAppointments()
-                        )
+                        context.getTotalAppointments()
                 )
         );
 
         /*
-         * Temporal trends are intentionally calculated here
-         * so the ML feature pipeline has access to temporal
-         * intelligence. The current v1 vector does not expose
-         * a separate temporal feature yet.
+         * Temporal intelligence is intentionally included
+         * in the feature-generation pipeline.
+         *
+         * The current DTO does not yet expose all temporal
+         * signals. Those will be added when we define the
+         * Java <-> Python ML contract.
          */
         log.debug(
-                "Temporal trends detected for feature engineering. patientId={}, count={}",
+                "Temporal features prepared. patientId={}, temporalPatterns={}",
                 patientId,
                 temporalTrends.size()
         );
@@ -218,12 +222,15 @@ public class FeatureEngineeringService {
     private int calculateAge(
             PatientHealthContextDTO context) {
 
-        if (context.getPatient().getDob() == null) {
+        LocalDate dob =
+                context.getPatient().getDob();
+
+        if (dob == null) {
             return 0;
         }
 
         return Period.between(
-                context.getPatient().getDob(),
+                dob,
                 LocalDate.now()
         ).getYears();
     }
@@ -231,18 +238,21 @@ public class FeatureEngineeringService {
     private int countUniqueDiagnoses(
             HealthTimelineDTO timeline) {
 
-        Set<String> diagnoses =
-                new HashSet<>();
+        if (timeline == null
+                || timeline.getEvents() == null) {
 
-        if (timeline.getEvents() == null) {
             return 0;
         }
+
+        Set<String> diagnoses =
+                new HashSet<>();
 
         for (HealthTimelineEventDTO event :
                 timeline.getEvents()) {
 
             if (event == null
                     || event.getDiagnoses() == null) {
+
                 continue;
             }
 
@@ -254,7 +264,10 @@ public class FeatureEngineeringService {
                                             && !diagnosis.isBlank()
                     )
                     .map(
-                            String::toLowerCase
+                            diagnosis ->
+                                    diagnosis
+                                            .trim()
+                                            .toLowerCase()
                     )
                     .forEach(
                             diagnoses::add
@@ -267,6 +280,10 @@ public class FeatureEngineeringService {
     private int countRecurringCategories(
             List<HealthTrendDTO> trends,
             String category) {
+
+        if (trends == null) {
+            return 0;
+        }
 
         return (int) trends.stream()
                 .filter(
@@ -283,6 +300,10 @@ public class FeatureEngineeringService {
             List<CareGapDTO> gaps,
             String type) {
 
+        if (gaps == null) {
+            return 0;
+        }
+
         return (int) gaps.stream()
                 .filter(
                         gap ->
@@ -297,15 +318,15 @@ public class FeatureEngineeringService {
     private int countRecentEvents(
             HealthTimelineDTO timeline) {
 
-        if (timeline.getEvents() == null) {
+        if (timeline == null
+                || timeline.getEvents() == null) {
+
             return 0;
         }
 
         return (int) timeline.getEvents()
                 .stream()
-                .filter(
-                        this::isRecent
-                )
+                .filter(this::isRecent)
                 .count();
     }
 
@@ -313,7 +334,9 @@ public class FeatureEngineeringService {
             HealthTimelineDTO timeline,
             String type) {
 
-        if (timeline.getEvents() == null) {
+        if (timeline == null
+                || timeline.getEvents() == null) {
+
             return 0;
         }
 
@@ -326,9 +349,7 @@ public class FeatureEngineeringService {
                                         event.getEventType()
                                 )
                 )
-                .filter(
-                        this::isRecent
-                )
+                .filter(this::isRecent)
                 .count();
     }
 
@@ -336,11 +357,7 @@ public class FeatureEngineeringService {
             HealthTimelineEventDTO event) {
 
         if (event == null
-                || event.getTimestamp() == null
-                || event.getTimestamp()
-                .equals(
-                        java.time.LocalDateTime.MIN
-                )) {
+                || event.getTimestamp() == null) {
 
             return false;
         }
