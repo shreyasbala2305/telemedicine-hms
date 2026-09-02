@@ -1,0 +1,26 @@
+__pycache__/
+*.py[cod]
+*$py.class
+
+.venv/
+venv/
+env/
+
+.env
+
+.pytest_cache/
+.mypy_cache/
+
+*.log
+
+.ipynb_checkpoints/
+
+# Generated ML artifacts
+model/*.joblib
+model/*.pkl
+model/*.pickle
+
+# Local datasets
+training/data/
+*.csv
+*.parquet
