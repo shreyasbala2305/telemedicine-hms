@@ -1,8 +1,19 @@
+from contextlib import asynccontextmanager
+
 from fastapi import FastAPI
 
 from app.schemas.prediction_request import PredictionRequest
 from app.schemas.prediction_response import PredictionResponse
-from app.services.prediction_service import generate_prediction
+from app.services.prediction_service import (
+    generate_prediction,
+    load_model,
+)
+
+
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    load_model()
+    yield
 
 
 app = FastAPI(
@@ -12,6 +23,7 @@ app = FastAPI(
         "Telemedicine Hospital Management System."
     ),
     version="0.1.0",
+    lifespan=lifespan,
 )
 
 
@@ -27,5 +39,7 @@ def health():
     "/predict",
     response_model=PredictionResponse,
 )
-def predict(request: PredictionRequest):
+def predict(
+    request: PredictionRequest,
+):
     return generate_prediction(request)
