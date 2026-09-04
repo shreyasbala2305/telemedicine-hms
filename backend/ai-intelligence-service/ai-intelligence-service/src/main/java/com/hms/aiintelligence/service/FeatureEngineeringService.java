@@ -11,7 +11,9 @@ import lombok.extern.slf4j.Slf4j;
 
 import org.springframework.stereotype.Service;
 
+import java.time.Duration;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.Period;
 import java.util.HashSet;
 import java.util.List;
@@ -96,10 +98,16 @@ public class FeatureEngineeringService {
                 patientId
         );
 
+        /*
+         * Patient demographics.
+         */
         features.setAge(
                 calculateAge(context)
         );
 
+        /*
+         * Appointment history.
+         */
         features.setTotalAppointments(
                 context.getTotalAppointments()
         );
@@ -112,10 +120,16 @@ public class FeatureEngineeringService {
                 context.getCancelledAppointments()
         );
 
+        /*
+         * Prescription history.
+         */
         features.setTotalPrescriptions(
                 context.getTotalPrescriptions()
         );
 
+        /*
+         * Diagnosis features.
+         */
         features.setUniqueDiagnoses(
                 countUniqueDiagnoses(
                         timeline
@@ -129,10 +143,28 @@ public class FeatureEngineeringService {
                 )
         );
 
+        /*
+         * Symptom features.
+         */
+        features.setSymptomCount(
+                countUniqueSymptoms(
+                        timeline
+                )
+        );
+
         features.setRecurringSymptomCount(
                 countRecurringCategories(
                         trends,
                         "RECURRING_SYMPTOMS"
+                )
+        );
+
+        /*
+         * Medication features.
+         */
+        features.setMedicationCount(
+                countUniqueMedications(
+                        timeline
                 )
         );
 
@@ -143,6 +175,36 @@ public class FeatureEngineeringService {
                 )
         );
 
+        /*
+         * Active medications and specialist visits cannot
+         * currently be derived reliably from the available
+         * PatientHealthContextDTO / HealthTimelineEventDTO
+         * contract.
+         *
+         * Keep these explicitly neutral until their actual
+         * domain semantics are exposed.
+         */
+        features.setActiveMedicationCount(
+                0
+        );
+
+        features.setSpecialistVisitCount(
+                0
+        );
+
+        /*
+         * Chronic conditions also require an explicit
+         * chronic-condition classification from the domain
+         * model. Do not infer chronicity merely from the
+         * number of diagnoses.
+         */
+        features.setChronicConditionCount(
+                0
+        );
+
+        /*
+         * Care-gap features.
+         */
         features.setOverdueFollowUpCount(
                 countCareGaps(
                         careGaps,
@@ -154,26 +216,71 @@ public class FeatureEngineeringService {
                 careGaps.size()
         );
 
+        /*
+         * Recent clinical activity.
+         */
         features.setRecentClinicalEvents(
                 countRecentEvents(
                         timeline
                 )
         );
 
+        /*
+         * Keep the existing 90-day recent fields for the
+         * broader Java feature vector.
+         */
         features.setRecentPrescriptions(
-                countRecentEventsByType(
+                countEventsByTypeWithinDays(
                         timeline,
-                        "PRESCRIPTION"
+                        "PRESCRIPTION",
+                        90
                 )
         );
 
         features.setRecentAppointments(
-                countRecentEventsByType(
+                countEventsByTypeWithinDays(
                         timeline,
-                        "APPOINTMENT"
+                        "APPOINTMENT",
+                        90
                 )
         );
 
+        /*
+         * Exact temporal features used by patient-health-v1.
+         */
+        features.setAppointmentsLast30Days(
+                countEventsByTypeWithinDays(
+                        timeline,
+                        "APPOINTMENT",
+                        30
+                )
+        );
+
+        features.setAppointmentsLast90Days(
+                countEventsByTypeWithinDays(
+                        timeline,
+                        "APPOINTMENT",
+                        90
+                )
+        );
+
+        features.setPrescriptionsLast90Days(
+                countEventsByTypeWithinDays(
+                        timeline,
+                        "PRESCRIPTION",
+                        90
+                )
+        );
+
+        features.setDaysSinceLastAppointment(
+                calculateDaysSinceLastAppointment(
+                        timeline
+                )
+        );
+
+        /*
+         * Derived appointment metrics.
+         */
         features.setAppointmentCompletionRate(
                 calculateRate(
                         context.getCompletedAppointments(),
@@ -202,18 +309,17 @@ public class FeatureEngineeringService {
                 )
         );
 
-        /*
-         * Temporal intelligence is intentionally included
-         * in the feature-generation pipeline.
-         *
-         * The current DTO does not yet expose all temporal
-         * signals. Those will be added when we define the
-         * Java <-> Python ML contract.
-         */
         log.debug(
-                "Temporal features prepared. patientId={}, temporalPatterns={}",
+                "Temporal features prepared. patientId={}, "
+                        + "temporalPatterns={}, appointments30d={}, "
+                        + "appointments90d={}, prescriptions90d={}, "
+                        + "daysSinceLastAppointment={}",
                 patientId,
-                temporalTrends.size()
+                temporalTrends.size(),
+                features.getAppointmentsLast30Days(),
+                features.getAppointmentsLast90Days(),
+                features.getPrescriptionsLast90Days(),
+                features.getDaysSinceLastAppointment()
         );
 
         return features;
@@ -277,6 +383,90 @@ public class FeatureEngineeringService {
         return diagnoses.size();
     }
 
+    private int countUniqueSymptoms(
+            HealthTimelineDTO timeline) {
+
+        if (timeline == null
+                || timeline.getEvents() == null) {
+
+            return 0;
+        }
+
+        Set<String> symptoms =
+                new HashSet<>();
+
+        for (HealthTimelineEventDTO event :
+                timeline.getEvents()) {
+
+            if (event == null
+                    || event.getSymptoms() == null) {
+
+                continue;
+            }
+
+            event.getSymptoms()
+                    .stream()
+                    .filter(
+                            symptom ->
+                                    symptom != null
+                                            && !symptom.isBlank()
+                    )
+                    .map(
+                            symptom ->
+                                    symptom
+                                            .trim()
+                                            .toLowerCase()
+                    )
+                    .forEach(
+                            symptoms::add
+                    );
+        }
+
+        return symptoms.size();
+    }
+
+    private int countUniqueMedications(
+            HealthTimelineDTO timeline) {
+
+        if (timeline == null
+                || timeline.getEvents() == null) {
+
+            return 0;
+        }
+
+        Set<String> medications =
+                new HashSet<>();
+
+        for (HealthTimelineEventDTO event :
+                timeline.getEvents()) {
+
+            if (event == null
+                    || event.getMedications() == null) {
+
+                continue;
+            }
+
+            event.getMedications()
+                    .stream()
+                    .filter(
+                            medication ->
+                                    medication != null
+                                            && !medication.isBlank()
+                    )
+                    .map(
+                            medication ->
+                                    medication
+                                            .trim()
+                                            .toLowerCase()
+                    )
+                    .forEach(
+                            medications::add
+                    );
+        }
+
+        return medications.size();
+    }
+
     private int countRecurringCategories(
             List<HealthTrendDTO> trends,
             String category) {
@@ -318,27 +508,26 @@ public class FeatureEngineeringService {
     private int countRecentEvents(
             HealthTimelineDTO timeline) {
 
-        if (timeline == null
-                || timeline.getEvents() == null) {
-
-            return 0;
-        }
-
-        return (int) timeline.getEvents()
-                .stream()
-                .filter(this::isRecent)
-                .count();
+        return countEventsWithinDays(
+                timeline,
+                90
+        );
     }
 
-    private int countRecentEventsByType(
+    private int countEventsByTypeWithinDays(
             HealthTimelineDTO timeline,
-            String type) {
+            String type,
+            int days) {
 
         if (timeline == null
                 || timeline.getEvents() == null) {
 
             return 0;
         }
+
+        LocalDateTime cutoff =
+                LocalDateTime.now()
+                        .minusDays(days);
 
         return (int) timeline.getEvents()
                 .stream()
@@ -349,24 +538,76 @@ public class FeatureEngineeringService {
                                         event.getEventType()
                                 )
                 )
-                .filter(this::isRecent)
+                .filter(
+                        event ->
+                                event.getTimestamp() != null
+                                        && event.getTimestamp()
+                                        .isAfter(cutoff)
+                )
                 .count();
     }
 
-    private boolean isRecent(
-            HealthTimelineEventDTO event) {
+    private int countEventsWithinDays(
+            HealthTimelineDTO timeline,
+            int days) {
 
-        if (event == null
-                || event.getTimestamp() == null) {
+        if (timeline == null
+                || timeline.getEvents() == null) {
 
-            return false;
+            return 0;
         }
 
-        return event.getTimestamp()
-                .isAfter(
-                        java.time.LocalDateTime.now()
-                                .minusDays(90)
-                );
+        LocalDateTime cutoff =
+                LocalDateTime.now()
+                        .minusDays(days);
+
+        return (int) timeline.getEvents()
+                .stream()
+                .filter(
+                        event ->
+                                event != null
+                                        && event.getTimestamp() != null
+                                        && event.getTimestamp()
+                                        .isAfter(cutoff)
+                )
+                .count();
+    }
+
+    private Integer calculateDaysSinceLastAppointment(
+            HealthTimelineDTO timeline) {
+
+        if (timeline == null
+                || timeline.getEvents() == null) {
+
+            return null;
+        }
+
+        return timeline.getEvents()
+                .stream()
+                .filter(
+                        event ->
+                                event != null
+                                        && "APPOINTMENT".equals(
+                                        event.getEventType()
+                                )
+                                        && event.getTimestamp() != null
+                )
+                .map(
+                        HealthTimelineEventDTO::getTimestamp
+                )
+                .max(
+                        LocalDateTime::compareTo
+                )
+                .map(
+                        timestamp ->
+                                (int) Duration
+                                        .between(
+                                                timestamp,
+                                                LocalDateTime.now()
+                                        )
+                                        .toDays()
+                )
+                .orElse(null);
     }
 
     private double calculateRate(
