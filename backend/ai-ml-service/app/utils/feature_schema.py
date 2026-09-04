@@ -19,9 +19,20 @@ FEATURE_NAMES: Final[Tuple[str, ...]] = (
     "recurring_symptom_count",
 )
 
-
 FEATURE_VERSION: Final[str] = "patient-health-v1"
 
+def validate_feature_schema(
+    feature_names: list[str],
+) -> None:
+
+    expected = list(FEATURE_NAMES)
+
+    if feature_names != expected:
+        raise ValueError(
+            "Feature schema mismatch. "
+            f"Expected {expected}, "
+            f"received {feature_names}"
+        )
 
 def validate_feature_vector(features: list[float]) -> None:
     """

@@ -163,6 +163,39 @@ class ModelLoader:
 
         return self._model
 
+    def get_feature_importances(self) -> list[float]:
+        """
+        Return the trained model's global feature importances.
+
+        These values describe overall feature importance in the
+        trained Random Forest. They are not patient-specific
+        prediction contributions.
+        """
+        if self._model is None:
+            raise ModelInferenceError(
+                "ML model has not been loaded."
+            )
+
+        importances = getattr(
+            self._model,
+            "feature_importances_",
+            None,
+        )
+
+        if importances is None:
+            return []
+
+        if len(importances) != len(FEATURE_NAMES):
+            raise ModelInferenceError(
+                "ML model feature importance length does not "
+                "match the inference feature schema."
+            )
+
+        return [
+            float(value)
+            for value in importances
+        ]
+
 
 model_loader = ModelLoader()
 
@@ -175,29 +208,23 @@ def load_model() -> None:
 
 
 def _build_contributing_factors(
-    model: Any,
     feature_vector: list[float],
 ) -> list[ContributingFactor]:
     """
-    Build explainability information from model feature importance.
+    Build the currently supported feature-importance output.
 
-    For the current RandomForest model, feature_importances_
-    represents the relative importance of each feature in the
-    trained model.
+    Note:
+    Random Forest feature_importances_ values represent global
+    model importance, not patient-specific contributions.
+    The response contract will be refined during the
+    explainability phase.
     """
-    importances = getattr(
-        model,
-        "feature_importances_",
-        None,
-    )
+    importances = model_loader.get_feature_importances()
 
-    if importances is None:
+    if not importances:
         return []
 
-    if len(importances) != len(FEATURE_NAMES):
-        return []
-
-    factors: list[ContributingFactor] = []
+    factors = []
 
     for name, value, importance in zip(
         FEATURE_NAMES,
@@ -296,8 +323,7 @@ def generate_prediction(
 
     contributing_factors = (
         _build_contributing_factors(
-            model,
-            feature_vector,
+            feature_vector
         )
     )
 

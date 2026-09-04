@@ -2,12 +2,9 @@ from contextlib import asynccontextmanager
 
 from fastapi import FastAPI
 
-from app.schemas.prediction_request import PredictionRequest
-from app.schemas.prediction_response import PredictionResponse
-from app.services.prediction_service import (
-    generate_prediction,
-    load_model,
-)
+from app.api.health import router as health_router
+from app.api.prediction import router as prediction_router
+from app.services.prediction_service import load_model
 
 
 @asynccontextmanager
@@ -27,19 +24,10 @@ app = FastAPI(
 )
 
 
-@app.get("/health")
-def health():
-    return {
-        "status": "UP",
-        "service": "ai-ml-service",
-    }
-
-
-@app.post(
-    "/predict",
-    response_model=PredictionResponse,
+app.include_router(
+    health_router,
 )
-def predict(
-    request: PredictionRequest,
-):
-    return generate_prediction(request)
+
+app.include_router(
+    prediction_router,
+)
