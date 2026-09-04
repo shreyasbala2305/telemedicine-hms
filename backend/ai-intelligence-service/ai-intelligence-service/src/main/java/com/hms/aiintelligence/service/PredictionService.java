@@ -1,6 +1,8 @@
 package com.hms.aiintelligence.service;
 
-import com.hms.aiintelligence.dto.CareGapDTO;
+import com.hms.aiintelligence.client.AiMlClient;
+import com.hms.aiintelligence.dto.AiMlPredictionRequestDTO;
+import com.hms.aiintelligence.dto.AiMlPredictionResponseDTO;
 import com.hms.aiintelligence.dto.PatientFeatureVectorDTO;
 import com.hms.aiintelligence.dto.PatientHealthContextDTO;
 import com.hms.aiintelligence.dto.PredictionDTO;
@@ -10,103 +12,96 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
-import java.util.List;
 
 @Slf4j
 @Service
 public class PredictionService {
 
     private final PatientContextService patientContextService;
+
     private final FeatureEngineeringService featureEngineeringService;
+
+    private final AiMlFeatureMapper aiMlFeatureMapper;
+
+    private final AiMlClient aiMlClient;
 
     public PredictionService(
             PatientContextService patientContextService,
-            FeatureEngineeringService featureEngineeringService) {
+            FeatureEngineeringService featureEngineeringService,
+            AiMlFeatureMapper aiMlFeatureMapper,
+            AiMlClient aiMlClient) {
 
         this.patientContextService =
                 patientContextService;
 
         this.featureEngineeringService =
                 featureEngineeringService;
+
+        this.aiMlFeatureMapper =
+                aiMlFeatureMapper;
+
+        this.aiMlClient =
+                aiMlClient;
     }
 
     public PredictionDTO generateBaselinePrediction(
             Long patientId) {
 
+        log.info(
+                "Generating ML prediction. patientId={}",
+                patientId
+        );
+
         PatientHealthContextDTO context =
                 patientContextService
                         .buildPatientContext(patientId);
 
-        PatientFeatureVectorDTO features =
+        PatientFeatureVectorDTO featureVector =
                 featureEngineeringService
                         .buildFeatures(context);
 
-        List<String> factors =
-                new ArrayList<>();
+        AiMlPredictionRequestDTO request =
+                aiMlFeatureMapper
+                        .toPredictionRequest(
+                                patientId,
+                                featureVector
+                        );
 
-        double attentionScore = 0.0;
+        AiMlPredictionResponseDTO mlResponse;
 
-        if (features.getCareGapCount() > 0) {
+        try {
 
-            attentionScore += 0.20;
+            mlResponse =
+                    aiMlClient.predict(request);
 
-            factors.add(
-                    "Care gaps detected"
+        } catch (Exception exception) {
+
+            log.error(
+                    "AI/ML prediction failed. patientId={}",
+                    patientId,
+                    exception
+            );
+
+            return buildFallbackPrediction(
+                    patientId,
+                    featureVector,
+                    context
             );
         }
 
-        if (features.getRecurringDiagnosisCount() > 0) {
+        return mapMlResponse(
+                patientId,
+                featureVector,
+                context,
+                mlResponse
+        );
+    }
 
-            attentionScore += 0.20;
-
-            factors.add(
-                    "Recurring diagnoses detected"
-            );
-        }
-
-        if (features.getRecurringSymptomCount() > 0) {
-
-            attentionScore += 0.15;
-
-            factors.add(
-                    "Recurring symptoms detected"
-            );
-        }
-
-        if (features.getAppointmentCancellationRate()
-                >= 0.30) {
-
-            attentionScore += 0.15;
-
-            factors.add(
-                    "High appointment cancellation rate"
-            );
-        }
-
-        if (features.getRecentClinicalEvents()
-                >= 5) {
-
-            attentionScore += 0.10;
-
-            factors.add(
-                    "High recent clinical activity"
-            );
-        }
-
-        if (features.getOverdueFollowUpCount() > 0) {
-
-            attentionScore += 0.15;
-
-            factors.add(
-                    "Overdue follow-up detected"
-            );
-        }
-
-        attentionScore =
-                Math.min(
-                        1.0,
-                        attentionScore
-                );
+    private PredictionDTO mapMlResponse(
+            Long patientId,
+            PatientFeatureVectorDTO featureVector,
+            PatientHealthContextDTO context,
+            AiMlPredictionResponseDTO mlResponse) {
 
         PredictionDTO prediction =
                 new PredictionDTO();
@@ -120,36 +115,27 @@ public class PredictionService {
         );
 
         prediction.setPrediction(
-                determinePrediction(
-                        attentionScore
-                )
+                mlResponse.getPrediction()
         );
 
         prediction.setScore(
-                attentionScore
+                mlResponse.getConfidence()
         );
 
         prediction.setConfidence(
-                calculateConfidence(
-                        factors.size(),
-                        context
-                )
+                mlResponse.getConfidence()
         );
 
         prediction.setModelType(
-                "RULE_BASED"
+                "MACHINE_LEARNING"
         );
 
         prediction.setModelVersion(
-                "baseline-v1"
+                mlResponse.getModel_version()
         );
 
         prediction.setFeatureVersion(
-                features.getFeatureVersion()
-        );
-
-        prediction.setContributingFactors(
-                factors
+                "patient-health-v1"
         );
 
         prediction.setFallback(
@@ -157,55 +143,101 @@ public class PredictionService {
         );
 
         prediction.setDataWarnings(
-                new ArrayList<>(
-                        context.getDataWarnings()
-                )
+                context.getDataWarnings() == null
+                        ? new ArrayList<>()
+                        : new ArrayList<>(
+                                context.getDataWarnings()
+                        )
         );
 
         prediction.setExplanation(
-                "Baseline care-attention prediction derived from explainable clinical-history features. This is not a medical diagnosis."
+                mlResponse.getDisclaimer()
         );
+
+        if (mlResponse.getContributing_factors() != null) {
+
+            prediction.setContributingFactors(
+                    mlResponse
+                            .getContributing_factors()
+                            .stream()
+                            .map(
+                                    factor ->
+                                            factor.getName()
+                            )
+                            .toList()
+            );
+
+        } else {
+
+            prediction.setContributingFactors(
+                    new ArrayList<>()
+            );
+        }
 
         return prediction;
     }
 
-    private String determinePrediction(
-            double score) {
-
-        if (score >= 0.70) {
-            return "HIGH_ATTENTION";
-        }
-
-        if (score >= 0.40) {
-            return "MODERATE_ATTENTION";
-        }
-
-        return "LOW_ATTENTION";
-    }
-
-    private double calculateConfidence(
-            int factorCount,
+    private PredictionDTO buildFallbackPrediction(
+            Long patientId,
+            PatientFeatureVectorDTO featureVector,
             PatientHealthContextDTO context) {
 
-        double confidence =
-                factorCount == 0
-                        ? 0.50
-                        : 0.55 + (factorCount * 0.08);
+        PredictionDTO prediction =
+                new PredictionDTO();
 
-        if (!context.isAppointmentDataAvailable()) {
-            confidence -= 0.10;
-        }
-
-        if (!context.isPrescriptionDataAvailable()) {
-            confidence -= 0.10;
-        }
-
-        return Math.max(
-                0.0,
-                Math.min(
-                        0.95,
-                        confidence
-                )
+        prediction.setPatientId(
+                patientId
         );
+
+        prediction.setPredictionType(
+                "CARE_ATTENTION"
+        );
+
+        prediction.setPrediction(
+                "INSUFFICIENT_MODEL_DATA"
+        );
+
+        prediction.setScore(
+                0.0
+        );
+
+        prediction.setConfidence(
+                0.0
+        );
+
+        prediction.setModelType(
+                "MACHINE_LEARNING"
+        );
+
+        prediction.setModelVersion(
+                "unavailable"
+        );
+
+        prediction.setFeatureVersion(
+                "patient-health-v1"
+        );
+
+        prediction.setFallback(
+                true
+        );
+
+        prediction.setDataWarnings(
+                context.getDataWarnings() == null
+                        ? new ArrayList<>()
+                        : new ArrayList<>(
+                                context.getDataWarnings()
+                        )
+        );
+
+        prediction.setContributingFactors(
+                new ArrayList<>()
+        );
+
+        prediction.setExplanation(
+                "AI/ML prediction service was unavailable. "
+                        + "No clinical prediction was generated."
+        );
+
+        return prediction;
     }
 }
