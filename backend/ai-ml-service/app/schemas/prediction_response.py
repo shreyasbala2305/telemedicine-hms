@@ -6,7 +6,7 @@ from pydantic import BaseModel
 class ContributingFactor(BaseModel):
     name: str
     value: float
-    contribution: float
+    importance: float
     direction: str
 
 
